@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">PROG_POE_2025</string>
+    <string name="app_name">App Name</string>
+    <string name="logo_description">App Logo</string>
+    <string name="email_hint">Enter Email Address</string>
+    <string name="password_hint">Enter Password</string>
+    <string name="register_text">I don\'t have an account</string>
+    <string name="button_login_text">Login</string>
+    <string name="app_catchphrase">App Catchphrase</string>
 </resources>
