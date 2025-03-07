@@ -6,4 +6,12 @@
     <string name="register_text">I don\'t have an account</string>
     <string name="button_login_text">Login</string>
     <string name="app_catchphrase">App Catchphrase</string>
+    <string name="register_heading">Register</string>
+    <string name="reg_name_hint">Enter your name</string>
+    <string name="reg_surname_hint">Enter your surname</string>
+    <string name="reg_phone_hint">Enter your number</string>
+    <string name="reg_email_hint">Enter your email address</string>
+    <string name="reg_password_hint">Create password</string>
+    <string name="reg_password_confirm_hint">Confirm password</string>
+    <string name="reg_button_text">Done</string>
 </resources>
