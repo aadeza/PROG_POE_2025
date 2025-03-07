@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">App Name</string>
+    <string name="app_name">PennyWise</string>
     <string name="logo_description">App Logo</string>
     <string name="email_hint">Enter Email Address</string>
     <string name="password_hint">Enter Password</string>
