@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="preloaded_fonts" translatable="false">
+        <item>@font/bokor</item>
+        <item>@font/tiro_devanagari_marathi</item>
+    </array>
+</resources>

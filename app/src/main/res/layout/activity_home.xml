@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Home">
+
+    <TextView
+        android:id="@+id/txtMyProfit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="170dp"
+        android:layout_marginEnd="171dp"
+        android:text="@string/txtTotalIncome"
+        android:textSize="50sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtGross"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/txtGross"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="104dp"
+        android:layout_marginEnd="86dp"
+        android:layout_marginBottom="37dp"
+        android:text="@string/txtProfit"
+        app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
+        app:layout_constraintEnd_toStartOf="@+id/txtMyExpenses"
+        app:layout_constraintStart_toEndOf="@+id/txtMyMoney" />
+
+    <TextView
+        android:id="@+id/txtMyMoney"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="18dp"
+        android:layout_marginBottom="19dp"
+        android:text="@string/txtMyAmount"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtGross" />
+
+    <TextView
+        android:id="@+id/txtExpense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="33dp"
+        android:text="@string/txtExpense"
+        app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtProfit" />
+
+    <TextView
+        android:id="@+id/txtMyExpenses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:text="@string/txtTotalExpenses"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtExpense"
+        app:layout_constraintStart_toStartOf="@+id/txtExpense" />
+
+    <TextView
+        android:id="@+id/txtProfit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtIncome"
+        app:layout_constraintStart_toStartOf="@+id/txtMyMoney"
+        app:layout_constraintTop_toBottomOf="@+id/txtMyMoney" />
+
+    <Button
+        android:id="@+id/btnCreateBudget"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="96dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginBottom="101dp"
+        android:text="@string/btnCreateBudget"
+        app:layout_constraintBottom_toBottomOf="@+id/btnLogExpInc"
+        app:layout_constraintEnd_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnHideUnhide" />
+
+    <Button
+        android:id="@+id/btnViewBudgets"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="32dp"
+        android:text="@string/btnViewBudgets"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCreateBudget"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnCreateBudget"
+        app:layout_constraintTop_toTopOf="@+id/btnCreateBudget" />
+
+    <Button
+        android:id="@+id/btnBudgetQuiz"
+        android:layout_width="203dp"
+        android:layout_height="53dp"
+        android:layout_marginBottom="88dp"
+        android:text="@string/btnQuiz"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnGenerateReport"
+        android:layout_width="325dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginBottom="10dp"
+        android:text="@string/btnGenerateReport"
+        app:layout_constraintBottom_toTopOf="@+id/btnBudgetQuiz"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogExpInc" />
+
+    <Button
+        android:id="@+id/btnLogExpInc"
+        android:layout_width="0dp"
+        android:layout_height="79dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="3dp"
+        android:layout_marginBottom="252dp"
+        android:text="@string/btnLogExpInc"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/btnGenerateReport"
+        app:layout_constraintStart_toStartOf="@+id/btnCreateBudget" />
+
+
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="62dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Settings Button"
+        android:src="@drawable/baseline_settings_24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/btnDayNightMode"
+        android:layout_width="62dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackground"
+        android:contentDescription="Day Night Button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sun" />
+
+    <ImageButton
+        android:id="@+id/btnHideUnhide"
+        android:layout_width="62dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="174dp"
+        android:layout_marginTop="222dp"
+        android:layout_marginEnd="175dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/eye" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout9"
+        android:layout_width="52dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="17dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/btnSettings"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="47dp"
+            android:background="?attr/selectableItemBackground"
+            app:srcCompat="@drawable/star" />
+
+        <TextView
+            android:id="@+id/btnStreakAmount"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="0"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
+        android:layout_width="52dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="17dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout9"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/btnNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground"
+            app:srcCompat="@drawable/bell"
+            tools:layout_editor_absoluteX="76dp"
+            tools:layout_editor_absoluteY="3dp" />
+
+        <TextView
+            android:id="@+id/btnNotificationAmount"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="0"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
