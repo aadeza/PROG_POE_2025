@@ -1,3 +1,38 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">PROG_POE_2025</string>
+=======
+    <string name="app_name">PennyWise</string>
+    <string name="logo_description">App Logo</string>
+    <string name="email_hint">Enter Email Address</string>
+    <string name="password_hint">Enter Password</string>
+    <string name="register_text">I don\'t have an account</string>
+    <string name="button_login_text">Login</string>
+    <string name="app_catchphrase">App Catchphrase</string>
+    <string name="register_heading">Register</string>
+    <string name="reg_name_hint">Enter your name</string>
+    <string name="reg_surname_hint">Enter your surname</string>
+    <string name="reg_phone_hint">Enter your number</string>
+    <string name="reg_email_hint">Enter your email address</string>
+    <string name="reg_password_hint">Create password</string>
+    <string name="reg_password_confirm_hint">Confirm password</string>
+    <string name="reg_button_text">Done</string>
+    <string name="txtMyAmount">0.0</string>
+    <string name="txtTotalExpenses">0.0</string>
+    <string name="txtTotalIncome">0.0</string>
+    <string name="txtIncome">Income</string>
+    <string name="txtExpense">Expenses</string>
+    <string name="txtProfit">Net Profit</string>
+    <string name="btnCreateBudget">Create New Budget</string>
+    <string name="btnViewBudgets">View Budgets</string>
+    <string name="btnLogExpInc">Log Income / Expense</string>
+    <string name="btnGenerateReport">Generate Report</string>
+    <string name="btnLogOut">Log Out</string>
+    <string name="swchHideAmounts">Hide Amounts</string>
+    <string name="btnQuiz">Budget Quiz</string>
+    <string name="swchDayNight">Day Mode</string>
+    <string name="btnStreakAmount">0</string>
+    <string name="btnNotificationAmount">0</string>
+
+>>>>>>> 7b39d9a (Moved home-layout changes from login-design)
 </resources>
