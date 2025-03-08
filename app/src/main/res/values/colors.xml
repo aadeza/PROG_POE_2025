@@ -2,9 +2,5 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-<<<<<<< HEAD
-=======
     <color name="blue">#0000FF</color>
-
->>>>>>> 7b39d9a (Moved home-layout changes from login-design)
 </resources>

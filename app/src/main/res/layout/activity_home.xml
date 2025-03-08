@@ -134,8 +134,8 @@
 
     <ImageButton
         android:id="@+id/btnSettings"
-        android:layout_width="62dp"
-        android:layout_height="47dp"
+        android:layout_width="64dp"
+        android:layout_height="48dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackground"
@@ -143,18 +143,6 @@
         android:src="@drawable/baseline_settings_24"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageButton
-        android:id="@+id/btnDayNightMode"
-        android:layout_width="62dp"
-        android:layout_height="47dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
-        android:background="?attr/selectableItemBackground"
-        android:contentDescription="Day Night Button"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/sun" />
 
     <ImageButton
         android:id="@+id/btnHideUnhide"
@@ -226,4 +214,14 @@
             android:textSize="16sp" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btnBrightDarkMode"
+        android:layout_width="62dp"
+        android:layout_height="47dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="17dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sun" />
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,5 @@
 <resources>
-<<<<<<< HEAD
-    <string name="app_name">PROG_POE_2025</string>
+
 =======
     <string name="app_name">PennyWise</string>
     <string name="logo_description">App Logo</string>
@@ -34,5 +33,5 @@
     <string name="btnStreakAmount">0</string>
     <string name="btnNotificationAmount">0</string>
 
->>>>>>> 7b39d9a (Moved home-layout changes from login-design)
+
 </resources>
