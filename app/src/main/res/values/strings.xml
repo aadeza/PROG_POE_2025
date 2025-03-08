@@ -14,4 +14,21 @@
     <string name="reg_password_hint">Create password</string>
     <string name="reg_password_confirm_hint">Confirm password</string>
     <string name="reg_button_text">Done</string>
+    <string name="txtMyAmount">0.0</string>
+    <string name="txtTotalExpenses">0.0</string>
+    <string name="txtTotalIncome">0.0</string>
+    <string name="txtIncome">Income</string>
+    <string name="txtExpense">Expenses</string>
+    <string name="txtProfit">Net Profit</string>
+    <string name="btnCreateBudget">Create New Budget</string>
+    <string name="btnViewBudgets">View Budgets</string>
+    <string name="btnLogExpInc">Log Income / Expense</string>
+    <string name="btnGenerateReport">Generate Report</string>
+    <string name="btnLogOut">Log Out</string>
+    <string name="swchHideAmounts">Hide Amounts</string>
+    <string name="btnQuiz">Budget Quiz</string>
+    <string name="swchDayNight">Day Mode</string>
+    <string name="btnStreakAmount">0</string>
+    <string name="btnNotificationAmount">0</string>
+
 </resources>
