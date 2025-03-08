@@ -19,14 +19,7 @@ class Home : AppCompatActivity() {
             insets
 
         }
-        //Link to Home
 
-        //Link to register
-        val registerText = findViewById<TextView>(R.id.txtToRegister)
-        registerText.setOnClickListener {
-            val intent = Intent(this, Register::class.java)
-            startActivity(intent)
-        }
 
     }
 }
