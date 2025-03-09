@@ -36,7 +36,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -47,5 +46,5 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation(libs.material.v140)
     implementation(libs.androidx.core.ktx)
-
+    implementation(libs.androidx.recyclerview)
 }
