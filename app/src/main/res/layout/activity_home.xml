@@ -5,7 +5,10 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+
+    android:background="@drawable/mock4"
     tools:context=".Home">
+
 
     <TextView
         android:id="@+id/txtMyProfit"
@@ -13,6 +16,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="170dp"
         android:layout_marginEnd="171dp"
+        android:background=""
+        android:fontFamily="@font/bokor"
         android:text="@string/txtTotalIncome"
         android:textSize="50sp"
         app:layout_constraintBottom_toTopOf="@+id/txtGross"
@@ -25,10 +30,14 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="104dp"
         android:layout_marginEnd="86dp"
-        android:layout_marginBottom="37dp"
+        android:layout_marginBottom="36dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/txtProfit"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
         app:layout_constraintEnd_toStartOf="@+id/txtMyExpenses"
+        app:layout_constraintHorizontal_bias="0.327"
         app:layout_constraintStart_toEndOf="@+id/txtMyMoney" />
 
     <TextView
@@ -38,8 +47,10 @@
         android:layout_marginStart="49dp"
         android:layout_marginTop="18dp"
         android:layout_marginBottom="19dp"
+        android:fontFamily="@font/bokor"
         android:text="@string/txtMyAmount"
-        android:textSize="15sp"
+        android:textSize="25sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/txtGross" />
@@ -48,19 +59,25 @@
         android:id="@+id/txtExpense"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="33dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/txtExpense"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtProfit" />
+        app:layout_constraintTop_toTopOf="@+id/txtProfit"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/txtMyExpenses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="1dp"
+        android:fontFamily="@font/bokor"
         android:text="@string/txtTotalExpenses"
-        android:textSize="15sp"
+        android:textSize="25sp"
+        android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/txtExpense"
         app:layout_constraintStart_toStartOf="@+id/txtExpense" />
 
@@ -68,75 +85,122 @@
         android:id="@+id/txtProfit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/txtIncome"
+        android:textSize="20sp"
+        android:textStyle="bold"
         app:layout_constraintStart_toStartOf="@+id/txtMyMoney"
         app:layout_constraintTop_toBottomOf="@+id/txtMyMoney" />
 
     <Button
         android:id="@+id/btnCreateBudget"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="49dp"
-        android:layout_marginTop="96dp"
-        android:layout_marginEnd="5dp"
-        android:layout_marginBottom="101dp"
+        android:layout_width="190dp"
+        android:layout_height="82dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="80dp"
+        android:backgroundTint="#A080DF"
+        android:drawableTop="@drawable/add_budget"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/btnCreateBudget"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/btnLogExpInc"
         app:layout_constraintEnd_toStartOf="@+id/btnViewBudgets"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/btnHideUnhide" />
+        app:layout_constraintTop_toTopOf="@+id/btnHideUnhide"
+        app:layout_constraintVertical_bias="1.0"
+        app:strokeColor="#7c40ff"
+        app:strokeWidth="1dp" />
+
 
     <Button
         android:id="@+id/btnViewBudgets"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="32dp"
+        android:layout_width="190dp"
+        android:layout_height="82dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:backgroundTint="#A080DF"
+        android:drawableTop="@drawable/view_budget"
+        android:drawablePadding="20dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/btnViewBudgets"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="@+id/btnCreateBudget"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/btnCreateBudget"
-        app:layout_constraintTop_toTopOf="@+id/btnCreateBudget" />
+        app:layout_constraintTop_toTopOf="@+id/btnCreateBudget"
+        app:layout_constraintVertical_bias="0.0"
+        app:strokeColor="#7c40ff"
+        app:strokeWidth="1dp" />
 
     <Button
         android:id="@+id/btnBudgetQuiz"
-        android:layout_width="203dp"
-        android:layout_height="53dp"
-        android:layout_marginBottom="88dp"
+        android:layout_width="379dp"
+        android:layout_height="166dp"
+        android:layout_marginBottom="40dp"
+        android:backgroundTint="@color/white"
+        android:background="android?attr/selectableItemBackground"
+        android:drawableLeft="@drawable/budget_quiz"
+        android:fontFamily="@font/bokor"
         android:text="@string/btnQuiz"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:cornerRadius="5dp"
+        app:strokeColor="#999090"
+        app:strokeWidth="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.482"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
         android:id="@+id/btnGenerateReport"
-        android:layout_width="325dp"
-        android:layout_height="0dp"
+        android:layout_width="416dp"
+        android:layout_height="73dp"
         android:layout_marginTop="21dp"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="44dp"
         android:layout_marginBottom="10dp"
+        android:backgroundTint="#6388B4"
+        android:fontFamily="@font/tiro_devanagari_marathi"
         android:text="@string/btnGenerateReport"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toTopOf="@+id/btnBudgetQuiz"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogExpInc" />
+        app:layout_constraintTop_toBottomOf="@+id/btnLogExpInc"
+        app:layout_constraintVertical_bias="1.0" />
 
     <Button
         android:id="@+id/btnLogExpInc"
-        android:layout_width="0dp"
-        android:layout_height="79dp"
-        android:layout_marginStart="5dp"
+        android:layout_width="416dp"
+        android:layout_height="71dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginEnd="3dp"
-        android:layout_marginBottom="252dp"
+        android:layout_marginBottom="296dp"
+        android:backgroundTint="#6388B4"
+        android:fontFamily="@font/afacad_semibold"
         android:text="@string/btnLogExpInc"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/btnGenerateReport"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/btnCreateBudget" />
-
 
     <ImageButton
         android:id="@+id/btnSettings"
         android:layout_width="64dp"
         android:layout_height="48dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:background="?attr/selectableItemBackground"
         android:contentDescription="Settings Button"
@@ -149,10 +213,11 @@
         android:layout_width="62dp"
         android:layout_height="47dp"
         android:layout_marginStart="174dp"
-        android:layout_marginTop="222dp"
+        android:layout_marginTop="200dp"
         android:layout_marginEnd="175dp"
         android:background="?attr/selectableItemBackground"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.402"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/eye" />
@@ -161,7 +226,7 @@
         android:id="@+id/linearLayout9"
         android:layout_width="52dp"
         android:layout_height="46dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toStartOf="@+id/btnSettings"
@@ -189,7 +254,7 @@
         android:id="@+id/linearLayout10"
         android:layout_width="52dp"
         android:layout_height="46dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         app:layout_constraintEnd_toStartOf="@+id/linearLayout9"
@@ -218,10 +283,12 @@
     <ImageView
         android:id="@+id/btnBrightDarkMode"
         android:layout_width="62dp"
-        android:layout_height="47dp"
+        android:layout_height="36dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/sun" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
