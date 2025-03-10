@@ -2,7 +2,7 @@ package com.example.prog_poe_2025
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.TextView
+import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -18,8 +18,15 @@ class Home : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
 
+
+
         }
 
-
+        //Link to Create Budget
+        val createbudget = findViewById<Button>(R.id.btnCreateBudget)
+        createbudget.setOnClickListener(){
+            val intent = Intent(this, CreateBudget::class.java)
+            startActivity(intent)
+        }
     }
 }
