@@ -1,6 +1,4 @@
 <resources>
-
-=======
     <string name="app_name">PennyWise</string>
     <string name="logo_description">App Logo</string>
     <string name="email_hint">Enter Email Address</string>
@@ -37,30 +35,5 @@
     <string name="edtNameofBudget">Name Your Budget</string>
     <string name="edtTotAmount">Total Budget Amount</string>
     <string name="btnSelectPeriod">Budget Period</string>
-    <string name="txtLogAmount">Enter Amount</string>
-    <string name="txtDescription">Description</string>
-    <string name="btnLogDate">Select Date</string>
-    <string name="txtLinkImage">Optionally add image</string>
-    <string name="txtLogPage">Log Transaction</string>
-    <string name="btnLogDone">Done</string>
-    <string-array name="category_list">
-        <item>Groceries</item>
-        <item>Entertainment</item>
-        <item>Transport</item>
-        <item>Health</item>
-        <item>Utilities</item>
-        <item>Dining</item>
-        <item>Salary</item>
-        <item>Miscellaneous</item>
-    </string-array>
-    <string-array name="transaction_types">
-        <item>Cash</item>
-        <item>EFT</item>
-        <item>Credit Card</item>
-        <item>Debit Card</item>
-        <item>Bank Transfer</item>
-        <item>PayPal</item>
-        <item>Other</item>
-    </string-array>
 
 </resources>

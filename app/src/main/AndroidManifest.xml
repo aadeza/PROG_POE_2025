@@ -13,23 +13,10 @@
         android:theme="@style/Theme.PROG_POE_2025"
         tools:targetApi="31">
         <activity
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-=======
-            android:name=".LogIncomeExpense"
-            android:exported="false" />
-=======
-            android:name=".LogIncomeExpense"
-            android:exported="false" />
-        <activity
             android:name=".CreateBudget"
-            android:exported="false" /> <!-- Change exported to true -->
->>>>>>> Stashed changes
+            android:exported="false" />
+        <!-- Change exported to true -->
         <activity
-            android:name=".CreateBudget"
-            android:exported="false" /> <!-- Change exported to true -->
-        <activity
->>>>>>> Stashed changes
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
@@ -38,6 +25,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".Home"
+            android:exported="false" />
+        <activity
+            android:name=".Register"
+            android:exported="false" />
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
     </application>
 
 </manifest>

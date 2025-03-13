@@ -8,25 +8,22 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-class Home : AppCompatActivity() {
+class Register : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
+        setContentView(R.layout.activity_register)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-
-
-
         }
-
-        //Link to Create Budget
-        val createbudget = findViewById<Button>(R.id.btnCreateBudget)
-        createbudget.setOnClickListener(){
-            val intent = Intent(this, CreateBudget::class.java)
+        //Link Back to Login
+        val DoneReg = findViewById<Button>(R.id.btnDoneReg)
+        DoneReg.setOnClickListener(){
+            val intent = Intent(this, MainActivity::class.java)
             startActivity(intent)
         }
+
     }
 }

@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+
+    android:background="@drawable/mock4"
+    tools:context=".Home">
+
+
+    <TextView
+        android:id="@+id/txtMyProfit"
+        android:layout_width="0dp"
+        android:layout_height="84dp"
+        android:layout_marginTop="43dp"
+        android:layout_marginEnd="92dp"
+        android:layout_marginBottom="47dp"
+        android:fontFamily="@font/bokor"
+        android:text="@string/txtTotalIncome"
+        android:textSize="50sp"
+        app:layout_constraintBottom_toTopOf="@+id/btnHideUnhide"
+        app:layout_constraintEnd_toStartOf="@+id/btnSettings"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout10"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtGross"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="3dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/txtProfit"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtMyProfit" />
+
+    <TextView
+        android:id="@+id/txtMyMoney"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="142dp"
+        android:fontFamily="@font/bokor"
+        android:text="@string/txtMyAmount"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@+id/txtProfit"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/txtExpense"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="32dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/txtExpense"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnHideUnhide"
+        app:layout_constraintTop_toBottomOf="@+id/txtGross" />
+
+    <TextView
+        android:id="@+id/txtMyExpenses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="1dp"
+        android:fontFamily="@font/bokor"
+        android:text="@string/txtTotalExpenses"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toTopOf="@+id/txtExpense"
+        app:layout_constraintStart_toStartOf="@+id/txtExpense" />
+
+    <TextView
+        android:id="@+id/txtProfit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="49dp"
+        android:layout_marginEnd="55dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/txtIncome"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/btnHideUnhide"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtMyMoney" />
+
+
+    <Button
+        android:id="@+id/btnCreateBudget"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="6dp"
+        android:backgroundTint="#A080DF"
+        android:drawableTop="@drawable/add_budget"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/btnCreateBudget"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnViewBudgets"
+        app:layout_constraintEnd_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/btnViewBudgets"
+        app:strokeColor="#7c40ff"
+        app:strokeWidth="1dp" />
+
+
+    <Button
+        android:id="@+id/btnViewBudgets"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:layout_marginTop="74dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="72dp"
+        android:backgroundTint="#A080DF"
+        android:drawablePadding="20dp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/btnViewBudgets"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnLogExpInc"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btnCreateBudget"
+        app:layout_constraintTop_toTopOf="@+id/linearLayout9"
+        app:strokeColor="#7c40ff"
+        app:strokeWidth="1dp" />
+
+    <Button
+        android:id="@+id/btnBudgetQuiz"
+        android:layout_width="0dp"
+        android:layout_height="120dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginEnd="9dp"
+        android:layout_marginBottom="54dp"
+        android:background="@drawable/rounded_corner"
+        android:drawableLeft="@drawable/budget_quiz"
+        android:fontFamily="@font/bokor"
+        android:text="@string/btnQuiz"
+        android:textColor="#000000"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnGenerateReport"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="9dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="#6388B4"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:text="@string/btnGenerateReport"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnBudgetQuiz"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogExpInc" />
+
+
+    <Button
+        android:id="@+id/btnLogExpInc"
+        android:layout_width="393dp"
+        android:layout_height="63dp"
+        android:layout_marginTop="263dp"
+        android:layout_marginBottom="263dp"
+        android:backgroundTint="#6388B4"
+        android:fontFamily="@font/afacad_semibold"
+        android:text="@string/btnLogExpInc"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintStart_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintTop_toTopOf="@+id/txtMyMoney" />
+
+    <ImageButton
+        android:id="@+id/btnSettings"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="31dp"
+        android:background="@android:color/transparent"
+        android:contentDescription="Settings Button"
+        android:src="@drawable/baseline_settings_24"
+        app:layout_constraintBottom_toBottomOf="@+id/txtMyProfit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtMyProfit"
+        app:layout_constraintTop_toTopOf="@+id/txtMyProfit" />
+
+    <ImageButton
+        android:id="@+id/btnHideUnhide"
+        android:layout_width="0dp"
+        android:layout_height="47dp"
+        android:layout_marginTop="174dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginBottom="175dp"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toBottomOf="@+id/btnCreateBudget"
+        app:layout_constraintEnd_toStartOf="@+id/txtExpense"
+        app:layout_constraintStart_toEndOf="@+id/txtProfit"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/eye" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout9"
+        android:layout_width="53dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="19dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintStart_toStartOf="@+id/btnViewBudgets"
+        app:layout_constraintTop_toBottomOf="@+id/txtProfit">
+
+        <ImageButton
+            android:id="@+id/btnStreak"
+            android:layout_width="wrap_content"
+            android:layout_height="47dp"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/star" />
+
+        <TextView
+            android:id="@+id/btnStreakAmount"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="0"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout10"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_marginStart="49dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="77dp"
+        android:layout_marginBottom="21dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        app:layout_constraintBottom_toTopOf="@+id/txtGross"
+        app:layout_constraintEnd_toStartOf="@+id/txtMyProfit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtMyProfit">
+
+        <ImageButton
+            android:id="@+id/btnNotification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:srcCompat="@drawable/bell"
+            tools:layout_editor_absoluteX="76dp"
+            tools:layout_editor_absoluteY="3dp" />
+
+        <TextView
+            android:id="@+id/btnNotificationAmount"
+            android:layout_width="18dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:text="0"
+            android:textColor="@android:color/black"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/btnBrightDarkMode"
+        android:layout_width="53dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="6dp"
+        app:layout_constraintBottom_toTopOf="@+id/txtMyProfit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sun" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
