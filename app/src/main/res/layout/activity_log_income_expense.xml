@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LogIncomeExpense">
+
+
+    <ImageView
+        android:id="@+id/imgLog"
+        android:layout_width="32dp"
+        android:layout_height="27dp"
+        android:layout_marginEnd="81dp"
+        android:layout_marginBottom="239dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/txtOptAddImage"
+        app:layout_constraintTop_toBottomOf="@+id/spnCategory"
+        app:srcCompat="@drawable/image_icon" />
+
+    <Spinner
+        android:id="@+id/spnCategory"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="278dp"
+        android:layout_marginBottom="128dp"
+        app:layout_constraintBottom_toTopOf="@+id/imgLog"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Button
+        android:id="@+id/btnLogDone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="66dp"
+        android:text="@string/btnLogDone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/btnLogDate"
+        app:layout_constraintTop_toBottomOf="@+id/btnLogDate" />
+
+    <TextView
+        android:id="@+id/txtOptAddImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="139dp"
+        android:layout_marginEnd="13dp"
+        android:layout_marginBottom="21dp"
+        android:text="@string/txtLinkImage"
+        app:layout_constraintBottom_toTopOf="@+id/spnTransactType"
+        app:layout_constraintEnd_toStartOf="@+id/imgLog"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/edtTxtMlDescription" />
+
+    <Button
+        android:id="@+id/btnLogDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="15dp"
+        android:text="@string/btnLogDate"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogDone"
+        app:layout_constraintEnd_toEndOf="@+id/spnTransactType"
+        app:layout_constraintStart_toStartOf="@+id/spnTransactType"
+        app:layout_constraintTop_toBottomOf="@+id/spnTransactType" />
+
+    <EditText
+        android:id="@+id/edtName"
+        android:layout_width="200dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="13dp"
+        android:ems="10"
+        android:hint="@string/txtLogAmount"
+        android:inputType="text"
+        app:layout_constraintBottom_toTopOf="@+id/spnCategory"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.507"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tgbtnPickIncExp" />
+
+    <TextView
+        android:id="@+id/txtLogPage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="57dp"
+        android:layout_marginBottom="69dp"
+        android:text="@string/txtLogPage"
+        app:layout_constraintBottom_toTopOf="@+id/tgbtnPickIncExp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.503"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/edtTxtMlDescription"
+        android:layout_width="250dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="22dp"
+        android:ems="10"
+        android:gravity="start|top"
+        android:hint="@string/txtDescription"
+        android:inputType="textMultiLine"
+        app:layout_constraintBottom_toTopOf="@+id/txtOptAddImage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/spnCategory" />
+
+    <ToggleButton
+        android:id="@+id/tgbtnPickIncExp"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:checked="false"
+        android:textOff="Expense"
+        android:textOn="Income"
+        app:layout_constraintBottom_toTopOf="@+id/edtName"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.505"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtLogPage" />
+
+    <Spinner
+        android:id="@+id/spnTransactType"
+        android:layout_width="248dp"
+        android:layout_height="39dp"
+        android:layout_marginBottom="13dp"
+        app:layout_constraintBottom_toTopOf="@+id/btnLogDate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.509"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtOptAddImage" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>
