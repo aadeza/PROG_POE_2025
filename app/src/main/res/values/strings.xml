@@ -1,6 +1,5 @@
 <resources>
-<<<<<<< Updated upstream
-    <string name="app_name">PROG_POE_2025</string>
+
 =======
     <string name="app_name">PennyWise</string>
     <string name="logo_description">App Logo</string>
@@ -63,8 +62,5 @@
         <item>PayPal</item>
         <item>Other</item>
     </string-array>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+
 </resources>
