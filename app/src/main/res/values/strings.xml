@@ -35,5 +35,9 @@
     <string name="edtNameofBudget">Name Your Budget</string>
     <string name="edtTotAmount">Total Budget Amount</string>
     <string name="btnSelectPeriod">Budget Period</string>
+    <string name="txtGenReportHeading">REPORT GENERATED</string>
+    <string name="txtGenRepName">Name:</string>
+    <string name="txtGenRepSurname">Surname:</string>
+    <string name="txtGenRepUsername">Username:</string>
 
 </resources>

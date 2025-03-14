@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".GenerateReport">
+
+        <TextView
+            android:id="@+id/txtGenerateReport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btnGenerateReport"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <TextView
+            android:id="@+id/txtGenRepName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtGenRepName"
+            app:layout_constraintTop_toBottomOf="@id/txtGenerateReport"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/txtGenRepSurname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtGenRepSurname"
+            app:layout_constraintTop_toBottomOf="@id/txtGenRepName"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/txtGenRepUsername"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/txtGenRepUsername"
+            app:layout_constraintTop_toBottomOf="@id/txtGenRepSurname"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/txtGenRepUsername"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TableLayout
+                android:id="@+id/tableLayout1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:stretchColumns="*">
+
+                <TableRow>
+                    <TextView android:padding="5dp" android:text="Date" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Category" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Amount" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Payment Method" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Receipt" android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView android:padding="5dp" android:text="01/03/2025" />
+                    <TextView android:padding="5dp" android:text="Groceries" />
+                    <TextView android:padding="5dp" android:text="$10" />
+                    <TextView android:padding="5dp" android:text="Card" />
+                    <TextView android:padding="5dp" android:text="View" />
+                </TableRow>
+            </TableLayout>
+        </HorizontalScrollView>
+
+        <HorizontalScrollView
+            android:id="@+id/horizontalScrollView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/horizontalScrollView1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <TableLayout
+                android:id="@+id/tableLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:stretchColumns="*">
+
+                <TableRow>
+                    <TextView android:padding="5dp" android:text="Daily Avg Spending" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Highest Expense Category" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Lowest Expense Category" android:textStyle="bold" />
+                    <TextView android:padding="5dp" android:text="Streaks Earned" android:textStyle="bold" />
+                </TableRow>
+
+                <TableRow>
+                    <TextView android:padding="5dp" android:text="$20" />
+                    <TextView android:padding="5dp" android:text="Transport" />
+                    <TextView android:padding="5dp" android:text="Entertainment" />
+                    <TextView android:padding="5dp" android:text="5 days" />
+                </TableRow>
+            </TableLayout>
+        </HorizontalScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>

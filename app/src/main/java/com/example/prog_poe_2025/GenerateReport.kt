@@ -1,39 +1,20 @@
 package com.example.prog_poe_2025
 
-import android.content.Intent
 import android.os.Bundle
-import android.widget.Button
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 
-class Home : AppCompatActivity() {
+class GenerateReport : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_home)
+        setContentView(R.layout.activity_generate_report)
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-
-
-
-        }
-
-        //Link to Create Budget
-        val createbudget = findViewById<Button>(R.id.btnCreateBudget)
-        createbudget.setOnClickListener(){
-            val intent = Intent(this, CreateBudget::class.java)
-            startActivity(intent)
-        }
-
-        //Link to generate report
-        val toGenReport = findViewById<Button>(R.id.btnGenerateReport)
-        toGenReport.setOnClickListener(){
-            val intent = Intent(this, GenerateReport::class.java)
-            startActivity(intent)
         }
     }
 }
