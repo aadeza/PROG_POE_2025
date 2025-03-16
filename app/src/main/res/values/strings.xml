@@ -40,5 +40,6 @@
     <string name="txtGenRepSurname">Surname:</string>
     <string name="txtGenRepUsername">Username:</string>
     <string name="txtViewBudgets">View Budgets</string>
+    <string name="txtBudgetQuiz">Budget Quiz</string>
 
 </resources>

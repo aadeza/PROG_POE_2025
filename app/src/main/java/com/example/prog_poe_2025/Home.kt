@@ -43,6 +43,12 @@ class Home : AppCompatActivity() {
             startActivity(intent)
         }
 
+        //Link to budget quiz
+        val toBudgetQuiz = findViewById<Button>(R.id.btnBudgetQuiz)
+        toBudgetQuiz.setOnClickListener(){
+            val intent = Intent(this, BudgetQuiz::class.java)
+            startActivity(intent)
+        }
 
     }
 }
