@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <!-- Budget Name -->
+    <TextView
+        android:id="@+id/txtBudgetName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Budget Name"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Pie Chart -->
+    <com.github.mikephil.charting.charts.PieChart
+        android:id="@+id/pieChart"
+        android:layout_width="0dp"
+        android:layout_height="250dp"
+        app:layout_constraintTop_toBottomOf="@id/txtBudgetName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp"/>
+
+    <!-- Total Budget -->
+    <TextView
+        android:id="@+id/txtTotalBudget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Total Budget: R0.00"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/pieChart"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Spent Amount -->
+    <TextView
+        android:id="@+id/txtSpent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Spent: R0.00"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/txtTotalBudget"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Remaining Budget -->
+    <TextView
+        android:id="@+id/txtRemaining"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remaining: R0.00"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/txtSpent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Warning if Overspending -->
+    <TextView
+        android:id="@+id/txtWarning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⚠️ Overspending!"
+        android:textSize="16sp"
+        android:textColor="@android:color/holo_red_light"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/txtRemaining"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="8dp" />
+
+    <!-- Progress Bar -->
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@id/txtWarning"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:max="100"
+        android:progress="0"
+        style="@android:style/Widget.ProgressBar.Horizontal" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+

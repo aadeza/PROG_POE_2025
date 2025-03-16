@@ -9,16 +9,18 @@ pluginManagement {
         }
         mavenCentral()
         gradlePluginPortal()
+        maven("https://jitpack.io") // ✅ Corrected for Kotlin DSL
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
+        maven("https://jitpack.io") // ✅ Corrected for Kotlin DSL
     }
 }
 
 rootProject.name = "PROG_POE_2025"
 include(":app")
- 

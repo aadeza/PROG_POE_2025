@@ -35,5 +35,14 @@ class Home : AppCompatActivity() {
             val intent = Intent(this, GenerateReport::class.java)
             startActivity(intent)
         }
+
+        //Link to view budgets
+        val toViewBudgets = findViewById<Button>(R.id.btnViewBudgets)
+        toViewBudgets.setOnClickListener(){
+            val intent = Intent(this, ViewBudgets::class.java)
+            startActivity(intent)
+        }
+
+
     }
 }
