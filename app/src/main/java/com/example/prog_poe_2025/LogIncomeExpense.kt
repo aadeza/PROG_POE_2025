@@ -29,7 +29,7 @@ class LogIncomeExpense : AppCompatActivity() {
         val transactionTypes = resources.getStringArray(R.array.transaction_types)
 
         val adapter2 = ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, transactionTypes)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        adapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerTransactType.adapter = adapter2
 
     }

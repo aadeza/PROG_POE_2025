@@ -28,16 +28,8 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-<<<<<<< Updated upstream
-=======
 
-        // Link to Register
-        val registerText = findViewById<TextView>(R.id.txtToRegister)
-        registerText.setOnClickListener {
-            val intent = Intent(this, Register::class.java)
-            startActivity(intent)
-        }
 
->>>>>>> Stashed changes
+
     }
 }

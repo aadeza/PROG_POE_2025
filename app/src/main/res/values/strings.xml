@@ -36,4 +36,16 @@
     <string name="edtTotAmount">Total Budget Amount</string>
     <string name="btnSelectPeriod">Budget Period</string>
 
+    <string-array name="category_list">
+        <item>Food</item>
+        <item>Transport</item>
+        <item>Entertainment</item>
+    </string-array>
+    <string-array name="transaction_types">
+        <item>Cash</item>
+        <item>Card</item>
+        <item>Online</item>
+    </string-array>
+
+
 </resources>
