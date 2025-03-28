@@ -32,7 +32,7 @@ class Home : AppCompatActivity() {
         //Link to generate report
         val toGenReport = findViewById<Button>(R.id.btnGenerateReport)
         toGenReport.setOnClickListener(){
-            val intent = Intent(this, GenerateReport::class.java)
+            val intent = Intent(this, GenReport::class.java)
             startActivity(intent)
         }
 

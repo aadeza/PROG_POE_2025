@@ -19,7 +19,7 @@
             android:name=".BudgetQuiz"
             android:exported="false" />
         <activity
-            android:name=".GenerateReport"
+            android:name=".GenReport"
             android:exported="false" />
         <activity
             android:name=".CreateBudget"

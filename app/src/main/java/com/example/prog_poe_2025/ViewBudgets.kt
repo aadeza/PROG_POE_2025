@@ -16,8 +16,8 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 
-// Define the Budget class
-data class Budget(
+// Define the vbBudgets class
+data class vbBudgets(
     val name: String,
     val totalBudget: Float,
     val spentAmounts: Map<String, Float> // Category -> Amount spent
@@ -52,15 +52,15 @@ class ViewBudgets : AppCompatActivity() {
             override fun onNothingSelected(parentView: AdapterView<*>?) {}
         }
 
-        // Example budgets (replace with real data from database)
-        val budgets = listOf(
-            Budget("Monthly Grocery Budget", 5000f, mapOf(
+        // Example vbBudgets (replace with real data from database)
+        val vbBudgetsList = listOf(
+            vbBudgets("Monthly Grocery Budget", 5000f, mapOf(
                 "Groceries" to 1500f,
                 "Transport" to 800f,
                 "Entertainment" to 1200f,
                 "Other" to 3000f // Example for overspending
             )),
-            Budget("Yearly Holiday Fund", 20000f, mapOf(
+            vbBudgets("Yearly Holiday Fund", 20000f, mapOf(
                 "Flights" to 10000f,
                 "Accommodation" to 6000f,
                 "Transport" to 3000f // Example for overspending
@@ -68,13 +68,13 @@ class ViewBudgets : AppCompatActivity() {
         )
 
         // Display each budget
-        budgets.forEach { budget ->
-            displayBudget(budget)
+        vbBudgetsList.forEach { vbBudget ->
+            displayBudget(vbBudget)
         }
     }
 
-    private fun displayBudget(budget: Budget) {
-        // Inflate the layout for each budget
+    private fun displayBudget(vbBudget: vbBudgets) {
+        // Inflate the layout for each vbBudget
         val budgetView = layoutInflater.inflate(R.layout.budget_item, null)
 
         val txtBudgetName: TextView = budgetView.findViewById(R.id.txtBudgetName)
@@ -86,15 +86,15 @@ class ViewBudgets : AppCompatActivity() {
         val progressBar: ProgressBar = budgetView.findViewById(R.id.progressBar)
 
         // Set budget name and data
-        txtBudgetName.text = budget.name
-        updateDashboard(budget, pieChart, txtTotalBudget, txtSpent, txtRemaining, txtWarning, progressBar)
+        txtBudgetName.text = vbBudget.name
+        updateDashboard(vbBudget, pieChart, txtTotalBudget, txtSpent, txtRemaining, txtWarning, progressBar)
 
         // Add the budget view to the layout
         budgetsLayout.addView(budgetView)
     }
 
     private fun updateDashboard(
-        budget: Budget,
+        vbBudget: vbBudgets,
         pieChart: PieChart,
         txtTotalBudget: TextView,
         txtSpent: TextView,
@@ -102,11 +102,11 @@ class ViewBudgets : AppCompatActivity() {
         txtWarning: TextView,
         progressBar: ProgressBar
     ) {
-        val totalSpent = budget.spentAmounts.values.sum()
-        val remainingBudget = budget.totalBudget - totalSpent
+        val totalSpent = vbBudget.spentAmounts.values.sum()
+        val remainingBudget = vbBudget.totalBudget - totalSpent
 
         // Update text fields
-        txtTotalBudget.text = "Total Budget: R${budget.totalBudget}"
+        txtTotalBudget.text = "Total Budget: R${vbBudget.totalBudget}"
         txtSpent.text = "Spent: R$totalSpent"
         txtRemaining.text = "Remaining: R$remainingBudget"
 
@@ -117,8 +117,8 @@ class ViewBudgets : AppCompatActivity() {
         }
 
         // Update progress bar
-        val progress = if (budget.totalBudget > 0) {
-            (totalSpent / budget.totalBudget * 100).toInt()
+        val progress = if (vbBudget.totalBudget > 0) {
+            (totalSpent / vbBudget.totalBudget * 100).toInt()
         } else {
             0
         }
@@ -126,7 +126,7 @@ class ViewBudgets : AppCompatActivity() {
 
         // Create Pie Chart Entries
         val entries = ArrayList<PieEntry>()
-        for ((category, amount) in budget.spentAmounts) {
+        for ((category, amount) in vbBudget.spentAmounts) {
             entries.add(PieEntry(amount, category))
         }
 
