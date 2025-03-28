@@ -46,7 +46,7 @@ class ViewBudgets : AppCompatActivity() {
         timePeriodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parentView: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 val selectedPeriod = timePeriods[position]
-                // You can filter and update data based on selected period here
+                // Filter and update data based on selected period here (you can implement filtering logic)
             }
 
             override fun onNothingSelected(parentView: AdapterView<*>?) {}
@@ -138,12 +138,11 @@ class ViewBudgets : AppCompatActivity() {
         }
 
         // Set up Pie Chart
-        var dataSet = PieDataSet(entries, "Categories")
+        val dataSet = PieDataSet(entries, "Categories")
         dataSet.colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
         dataSet.sliceSpace = 2f
         dataSet.valueTextSize = 12f
         dataSet.valueFormatter = valueFormatter // Set the custom ValueFormatter here
-
 
         val pieData = PieData(dataSet).apply {
             setDrawValues(true)
@@ -158,6 +157,3 @@ class ViewBudgets : AppCompatActivity() {
         }
     }
 }
-
-
-
