@@ -1,160 +1,135 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/generate2"
     tools:context=".LogIncomeExpense">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/imgLog"
-        android:layout_width="32dp"
-        android:layout_height="27dp"
-        android:layout_marginEnd="81dp"
-        android:layout_marginBottom="239dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/txtOptAddImage"
-        app:layout_constraintTop_toBottomOf="@+id/spnCategory"
-        app:srcCompat="@drawable/image_icon" />
+        <!-- Center the CardView horizontally and vertically -->
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:layout_gravity="center">  <!-- This centers the CardView -->
 
-    <Spinner
-        android:id="@+id/spnCategory"
-        android:layout_width="312dp"
-        android:layout_height="31dp"
-        android:layout_marginTop="278dp"
-        android:layout_marginBottom="128dp"
-        app:layout_constraintBottom_toTopOf="@+id/imgLog"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="10dp"
+                android:spacing="10dp">
 
+                <TextView
+                    android:id="@+id/txtLogPage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="16dp"
+                    android:text="Log Income/Expense"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
 
-    <Button
-        android:id="@+id/btnLogDone"
-        android:layout_width="200dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="20dp"
-        android:fontFamily="@font/tiro_devanagari_marathi"
-        android:gravity="center"
-        android:text="Done"
-        app:cornerRadius="8dp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnLogDate"
-        tools:layout_editor_absoluteX="107dp" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select whether this is an income or an expense:" />
 
-    <TextView
-        android:id="@+id/txtOptAddImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="100dp"
-        android:layout_marginEnd="13dp"
-        android:layout_marginBottom="21dp"
-        android:text="Upload an image(optional)"
-        android:textColor="#999090"
-        app:layout_constraintBottom_toTopOf="@+id/spnTransactType"
-        app:layout_constraintEnd_toStartOf="@+id/imgLog"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edtTxtMlDescription" />
+                <ToggleButton
+                    android:id="@+id/tgbtnPickIncExp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:textOff="Expense"
+                    android:textOn="Income" />
 
-    <Button
-        android:id="@+id/btnLogDate"
-        android:layout_width="150dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="15dp"
-        android:text="Log Date"
-        app:cornerRadius="8dp"
-        android:fontFamily="@font/tiro_devanagari_marathi"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogDone"
-        app:layout_constraintEnd_toEndOf="@+id/spnTransactType"
-        app:layout_constraintStart_toStartOf="@+id/spnTransactType"
-        app:layout_constraintTop_toBottomOf="@+id/spnTransactType" />
+                <EditText
+                    android:id="@+id/edtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Enter the amount (e.g., 500)"
+                    android:inputType="numberDecimal" />
 
-    <EditText
-        android:id="@+id/edtName"
-        android:layout_width="326dp"
-        android:layout_height="41dp"
-        android:layout_marginBottom="13dp"
-        android:background="@drawable/et_style"
-        android:backgroundTint="#F6F6F6"
-        android:ems="10"
-        android:fontFamily="@font/tiro_devanagari_marathi"
-        android:hint="Enter an amount"
-        android:inputType="text"
-        android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/spnCategory"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tgbtnPickIncExp" />
+                <EditText
+                    android:id="@+id/edtTxtMlDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:hint="Add a short description (optional)"
+                    android:inputType="textMultiLine" />
 
-    <TextView
-        android:id="@+id/txtLogPage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#6388B4"
-        android:layout_marginBottom="80dp"
-        android:fontFamily="@font/afacad_semibold"
-        android:text="Log Income/Expense"
-        android:textSize="25sp"
-        app:layout_constraintBottom_toTopOf="@+id/tgbtnPickIncExp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Choose a category for this transaction:" />
 
-    <EditText
-        android:id="@+id/edtTxtMlDescription"
-        android:layout_width="309dp"
-        android:layout_height="122dp"
-        android:layout_marginBottom="22dp"
-        android:background="@drawable/et_style"
-        android:backgroundTint="#f6f6f6"
-        android:ems="10"
-        android:fontFamily="@font/tiro_devanagari_marathi"
-        android:gravity="start|top"
-        android:hint="Provide a description"
-        android:inputType="textMultiLine"
-        android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/txtOptAddImage"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/spnCategory" />
+                <Spinner
+                    android:id="@+id/spnCategory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" />
 
-    <ToggleButton
-        android:id="@+id/tgbtnPickIncExp"
-        android:layout_width="200dp"
-        android:layout_height="56dp"
-        android:layout_marginBottom="20dp"
-        android:backgroundTint="#6388B4"
-        android:checked="false"
-        android:textColor="@color/white"
-        android:textOff="Expense"
-        android:textOn="Income"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toTopOf="@+id/edtName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.507"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLogPage" />
+                <Button
+                    android:id="@+id/btnLogDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Select Date" />
 
-    <Spinner
-        android:id="@+id/spnTransactType"
-        android:layout_width="307dp"
-        android:layout_height="41dp"
-        android:layout_marginBottom="13dp"
-        app:layout_constraintBottom_toTopOf="@+id/btnLogDate"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.509"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtOptAddImage" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp">
 
+                    <TextView
+                        android:id="@+id/txtOptAddImage"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Upload an image (optional):" />
 
+                    <ImageView
+                        android:id="@+id/imgLog"
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:layout_marginStart="8dp"
+                        app:srcCompat="@drawable/image_icon" />
+                </LinearLayout>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select the transaction type:" />
+
+                <Spinner
+                    android:id="@+id/spnTransactType"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp" />
+
+                <Button
+                    android:id="@+id/btnLogDone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Done" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+
+
+
