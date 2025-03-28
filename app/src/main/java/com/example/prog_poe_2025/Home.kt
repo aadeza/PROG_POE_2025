@@ -18,8 +18,13 @@ class Home : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
 
+        }
 
-
+        //Link to LogIncExp
+        val toLogIncExp = findViewById<Button>(R.id.btnLogExpInc)
+        toLogIncExp.setOnClickListener(){
+            val intent = Intent(this, LogIncomeExpense::class.java)
+            startActivity(intent)
         }
 
         //Link to Create Budget

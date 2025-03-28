@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:padding="8dp">
 
-    <!-- CheckBox for selecting categories -->
+
     <CheckBox
         android:id="@+id/categoryCheckBox"
         android:layout_width="wrap_content"
