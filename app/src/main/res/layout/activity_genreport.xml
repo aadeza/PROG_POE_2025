@@ -5,7 +5,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GenReport">
+    tools:context=".GenReport"
+    android:background="@drawable/bckgrnd3">
 
     <TextView
         android:id="@+id/reportHeading"

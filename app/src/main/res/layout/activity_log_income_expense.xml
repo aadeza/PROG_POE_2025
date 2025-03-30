@@ -4,7 +4,8 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LogIncomeExpense">
+    tools:context=".LogIncomeExpense"
+    android:background="@drawable/bckgrnd3">
 
     <ScrollView
         android:layout_width="match_parent"

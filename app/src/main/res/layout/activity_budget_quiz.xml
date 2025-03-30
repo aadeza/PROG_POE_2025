@@ -6,17 +6,48 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BudgetQuiz">
+    tools:context=".BudgetQuiz"
+    android:background="@drawable/bckgrnd3">
+
+    <TextView
+        android:id="@+id/txtQuizHeading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Budget Quiz Challenge!"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/txtIntro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="120dp"
+        android:background="@android:color/darker_gray"
+        android:padding="20dp"
+        android:text="Welcome to the Budget Quiz! Prepare yourself for some mind-bending, wallet-warming questions.\nTest your financial smarts and see if you're ready to conquer your budget.\nDon't worry, we promise it's more fun than a math test!"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtQuizHeading" />
 
     <Button
         android:id="@+id/btnStartQuiz"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="115dp"
+        android:layout_height="115dp"
+        android:layout_marginTop="160dp"
         android:text="Start Quiz"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="50dp" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtIntro" />
 
     <TextView
         android:id="@+id/txtQuestion"
@@ -85,4 +116,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="20dp"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+

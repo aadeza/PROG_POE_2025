@@ -30,7 +30,7 @@
     <string name="swchDayNight">Day Mode</string>
     <string name="btnStreakAmount">0</string>
     <string name="btnNotificationAmount">0</string>
-    <string name="txtCreateBranch">Create New Branch</string>
+    <string name="txtCreateBudget">Create New Budget</string>
     <string name="txtSpnCategory">Budget Type</string>
     <string name="edtNameofBudget">Name Your Budget</string>
     <string name="edtTotAmount">Total Budget Amount</string>
