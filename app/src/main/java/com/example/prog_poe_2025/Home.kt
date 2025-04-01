@@ -7,53 +7,56 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class Home : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_home)
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
-
         }
 
-        //Link to LogIncExp
-        val toLogIncExp = findViewById<Button>(R.id.btnLogExpInc)
-        toLogIncExp.setOnClickListener(){
-            val intent = Intent(this, LogIncomeExpense::class.java)
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNavigationView.selectedItemId = R.id.nav_home
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_transaction -> {
+                    startActivity(Intent(this, LogIncomeExpense::class.java))
+                    true
+                }
+                R.id.nav_home -> {
+                    true
+                }
+                R.id.nav_viewBudgets -> {
+                    startActivity(Intent(this, ViewBudgets::class.java))
+                    true
+                }
+                R.id.nav_game -> {
+                    startActivity(Intent(this, BudgetQuiz::class.java))
+                    true
+                }
+                else -> false
+            }
+        }
+
+
+        val toGenReport = findViewById<Button>(R.id.btnGenerateReport)
+        toGenReport.setOnClickListener {
+            val intent = Intent(this@Home, GenReport::class.java)
             startActivity(intent)
         }
 
-        //Link to Create Budget
-        val createbudget = findViewById<Button>(R.id.btnCreateBudget)
-        createbudget.setOnClickListener(){
+        val toCreateBudget = findViewById<Button>(R.id.btnCreateBudget)
+        toCreateBudget.setOnClickListener(){
             val intent = Intent(this, CreateBudget::class.java)
             startActivity(intent)
         }
-
-        //Link to generate report
-        val toGenReport = findViewById<Button>(R.id.btnGenerateReport)
-        toGenReport.setOnClickListener(){
-            val intent = Intent(this, GenReport::class.java)
-            startActivity(intent)
-        }
-
-        //Link to view budgets
-        val toViewBudgets = findViewById<Button>(R.id.btnViewBudgets)
-        toViewBudgets.setOnClickListener(){
-            val intent = Intent(this, ViewBudgets::class.java)
-            startActivity(intent)
-        }
-
-        //Link to budget quiz
-        val toBudgetQuiz = findViewById<Button>(R.id.btnBudgetQuiz)
-        toBudgetQuiz.setOnClickListener(){
-            val intent = Intent(this, BudgetQuiz::class.java)
-            startActivity(intent)
-        }
-
     }
 }
+

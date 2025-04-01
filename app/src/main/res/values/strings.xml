@@ -41,6 +41,8 @@
     <string name="txtGenRepUsername">Username:</string>
     <string name="txtViewBudgets">View Budgets</string>
     <string name="txtBudgetQuiz">Budget Quiz</string>
+    <string name="btnCurrency">Change Currency</string>
+    <string name="btnViewStreak">Streak</string>
 
     <string-array name="category_list">
         <item>Food</item>

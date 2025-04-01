@@ -23,7 +23,7 @@
             android:exported="false" />
         <activity
             android:name=".CreateBudget"
-            android:exported="false" /> <!-- Change exported to true -->
+            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -1,5 +1,6 @@
 package com.example.prog_poe_2025
 
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
@@ -15,6 +16,7 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 // Define the vbBudgets class
 data class vbBudgets(
@@ -154,6 +156,32 @@ class ViewBudgets : AppCompatActivity() {
             description.isEnabled = false
             this.data = pieData // Apply data correctly
             invalidate() // Refresh chart
+        }
+
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
+
+        // Set default selected item
+        bottomNavigationView.selectedItemId = R.id.nav_viewBudgets
+
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_transaction -> {
+                    startActivity(Intent(this, LogIncomeExpense::class.java))
+                    true
+                }
+                R.id.nav_home -> {
+                    startActivity(Intent(this, Home::class.java))
+                    true
+                }
+                R.id.nav_viewBudgets -> {
+                    true // Stay on ViewBudgets
+                }
+                R.id.nav_game -> {
+                    startActivity(Intent(this, BudgetQuiz::class.java))
+                    true
+                }
+                else -> false
+            }
         }
     }
 }
