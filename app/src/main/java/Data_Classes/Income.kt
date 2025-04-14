@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = Users::class,
             parentColumns = arrayOf("id"),
-            childColumns = arrayOf("userid"),
+            childColumns = arrayOf("user_id"),
             onDelete = ForeignKey.CASCADE
         )
     ])
@@ -24,5 +24,5 @@ data class Income(
     val date: Long,
     val transaction_type: String,
     val imagePath: String? = null,
-    val userid: String
+    val user_id: Int
 )
