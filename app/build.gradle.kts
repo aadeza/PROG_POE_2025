@@ -58,6 +58,8 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+
     ksp(libs.androidx.room.compiler.v250)
 
     // Room database dependencies

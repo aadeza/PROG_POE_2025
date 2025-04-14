@@ -13,7 +13,7 @@ interface BudgetDAO {
     @Insert
     suspend fun insertBudget(budget: Budgets)
 
-    @Query("SELECT * FROM Budgets WHERE userid = :userId")
+    @Query("SELECT * FROM Budgets WHERE user_id = :userId")
     suspend fun getBudgetsForUser(userId: String): List<Budgets>
 
     @Update

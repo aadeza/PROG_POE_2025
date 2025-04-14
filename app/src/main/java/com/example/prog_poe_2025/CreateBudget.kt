@@ -1,21 +1,20 @@
 package com.example.prog_poe_2025
 
-import android.widget.AdapterView
-import android.widget.Toast
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import android.widget.Spinner
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import Data_Classes.Category
-
 
 class CreateBudget : AppCompatActivity() {
 
@@ -23,17 +22,19 @@ class CreateBudget : AppCompatActivity() {
     private lateinit var categoryAdapter: CategoryAdapter
     private lateinit var searchEditText: EditText
     private lateinit var spinnerCategories: Spinner
-    private var allCategories = listOf<Category>()  // Hold all categories as Category objects
+    private lateinit var categoryViewModel: CategoryViewModel
+    private var allCategories = listOf<Category>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_create_budget) // Ensure the correct layout file is used
+        setContentView(R.layout.activity_create_budget)
 
         // Initialize views
         categoryRecyclerView = findViewById(R.id.categoryRecyclerView)
         searchEditText = findViewById(R.id.searchEditText)
-        spinnerCategories = findViewById(R.id.spinCategories) // Spinner reference
+        spinnerCategories = findViewById(R.id.spinCategories)
 
+        // Setup the Spinner with budget types
         val budgetTypes = listOf(
             "Personal Budget",
             "Business Budget",
@@ -41,7 +42,6 @@ class CreateBudget : AppCompatActivity() {
             "Savings Budget"
         )
 
-        // Setup the Spinner with ArrayAdapter
         val spinnerAdapter = ArrayAdapter(
             this,
             android.R.layout.simple_spinner_item,
@@ -51,22 +51,33 @@ class CreateBudget : AppCompatActivity() {
         }
         spinnerCategories.adapter = spinnerAdapter
 
-        // Initialize database and Category DAO
-        val db = AppDatabase.getDatabase(this)
-        val categoryDao = db.categoryDao()
+        // Initialize CategoryViewModel
+        categoryViewModel = ViewModelProvider(this).get(CategoryViewModel::class.java)
 
-        // Populate RecyclerView with categories from the database
+        // Prefill categories if the table is empty
         lifecycleScope.launch {
-            // Fetch categories from the database
-            val categoriesFromDb = categoryDao.getAllCategories()  // List of Category objects
-            allCategories = categoriesFromDb  // Store all categories for future filtering
-
-            // Update the adapter with Category objects
-            categoryAdapter = CategoryAdapter(categoriesFromDb.toMutableList()) // Pass Category objects
-            categoryRecyclerView.adapter = categoryAdapter
+            val categoriesFromDb = categoryViewModel.categories.value.orEmpty()
+            if (categoriesFromDb.isEmpty()) {
+                // Insert default categories
+                val defaultCategories = listOf(
+                    Category(name = "Food"),
+                    Category(name = "Transport"),
+                    Category(name = "Entertainment"),
+                    Category(name = "Utilities")
+                )
+                categoryViewModel.insertAll(defaultCategories)  // Insert default categories
+            }
         }
 
-        // Setup RecyclerView with LinearLayoutManager and Adapter
+        // Observe the categories LiveData from ViewModel
+        categoryViewModel.categories.observe(this, { categories ->
+            // Update the RecyclerView when categories change
+            allCategories = categories
+            categoryAdapter = CategoryAdapter(categories.toMutableList())
+            categoryRecyclerView.adapter = categoryAdapter
+        })
+
+        // Setup RecyclerView
         categoryRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Filter categories based on search input
@@ -87,21 +98,17 @@ class CreateBudget : AppCompatActivity() {
         // Spinner Item selection listener
         spinnerCategories.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
-                parentView: AdapterView<*>,
+                parentView: AdapterView<*>?,
                 view: View?,
                 position: Int,
                 id: Long
             ) {
                 val selectedBudgetType = budgetTypes[position]
                 // Handle the selected budget type
-                Toast.makeText(
-                    this@CreateBudget,
-                    "Selected: $selectedBudgetType",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(this@CreateBudget, "Selected: $selectedBudgetType", Toast.LENGTH_SHORT).show()
             }
 
-            override fun onNothingSelected(parentView: AdapterView<*>) {
+            override fun onNothingSelected(parentView: AdapterView<*>?) {
                 // Handle the case when nothing is selected
             }
         }

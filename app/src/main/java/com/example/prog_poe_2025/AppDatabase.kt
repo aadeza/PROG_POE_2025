@@ -17,7 +17,7 @@ import androidx.room.RoomDatabase
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 1,
+    version = 2, // ⬅️ Bumped version to fix schema mismatch
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -41,7 +41,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "PennyWise"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration() // ✅ Auto-wipes DB if schema mismatch (use only for dev)
                     .build()
 
                 INSTANCE = instance
