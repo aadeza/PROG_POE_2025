@@ -24,5 +24,5 @@ data class Income(
     val date: Long,
     val transaction_type: String,
     val imagePath: String? = null,
-    val userid: String
+    val user_id: Int
 )

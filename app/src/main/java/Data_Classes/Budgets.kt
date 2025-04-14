@@ -25,5 +25,5 @@ data class Budgets(
     val minMonthGoal: Long,
     val maxMonthGoal: Long,
     val TotalAmount: Long,
-    val userid: String
+    val user_id: Int
 )

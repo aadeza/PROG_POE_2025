@@ -30,8 +30,9 @@ class MainActivity : AppCompatActivity() {
                     val user = db.userDao().getUserByEmail(email)
 
                     if (user != null && PasswordUtils.verifyPassword(password, user.password)) {
-                        // Save the user ID to SharedPreferences after successful login
-                        saveUserId(this@MainActivity, user.id)
+                        // Save the user ID after successful login
+                        SessionManager.saveUserId(this@MainActivity, user.id)
+
 
                         runOnUiThread {
                             Toast.makeText(this@MainActivity, "Login successful", Toast.LENGTH_SHORT).show()
@@ -63,7 +64,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putInt("user_id", userId)
-        editor.apply()  // Commit changes
+        editor.apply()
     }
 
     // Retrieve User ID from SharedPreferences
