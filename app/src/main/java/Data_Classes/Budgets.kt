@@ -19,11 +19,11 @@ import androidx.room.ForeignKey
 
 data class Budgets(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
+    val budgetType: String,
     val name: String,
     val startDate: Long,
     val endDate: Long,
     val minMonthGoal: Long,
     val maxMonthGoal: Long,
-    val TotalAmount: Long,
     val user_id: Int
 )

@@ -17,7 +17,7 @@ import androidx.room.RoomDatabase
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 2, // ⬅️ Bumped version to fix schema mismatch
+    version = 3, // ⬅️ Bumped version to fix schema mismatch
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

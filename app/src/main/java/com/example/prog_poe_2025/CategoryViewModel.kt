@@ -1,5 +1,8 @@
 package com.example.prog_poe_2025
 
+import DAOs.BudgetDAO
+import Data_Classes.Budgets
+import Data_Classes.BudgetCategoryCrossRef
 import Data_Classes.Category
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
@@ -9,6 +12,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class CategoryViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val budgetDao = AppDatabase.getDatabase(application).budgetDao()
     private val categoryDao = AppDatabase.getDatabase(application).categoryDao()
 
     // We want LiveData for observing in the UI
@@ -34,4 +39,16 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
             categoryDao.deleteAllCategories()
         }
     }
+
+    // Insert a new budget
+    suspend fun insertBudget(budget: Budgets): Long {
+        return budgetDao.insertBudget(budget)
+    }
+
+
+    // Insert BudgetCategoryCrossRef to link categories to a budget
+    suspend fun insertBudgetCategoryCrossRefs(crossRefs: List<BudgetCategoryCrossRef>) {
+        budgetDao.insertBudgetCategoryCrossRefs(crossRefs)
+    }
 }
+

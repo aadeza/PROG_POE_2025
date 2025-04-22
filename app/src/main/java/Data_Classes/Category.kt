@@ -7,8 +7,6 @@ import androidx.room.Ignore
 @Entity(tableName = "Category")
 data class Category(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val name: String
-) {
-    @Ignore
+    val name: String,
     var selected: Boolean = false
-}
+)

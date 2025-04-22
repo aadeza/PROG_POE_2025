@@ -83,6 +83,7 @@
 
                     <!-- Select Date Range -->
                     <TextView
+                        android:id="@+id/txtDateRange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -162,23 +163,6 @@
                         android:padding="10dp" />
 
                     <!-- Total Budget Amount -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Total Budget Amount"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <EditText
-                        android:id="@+id/editTextNumberDecimal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="16dp"
-                        android:hint="Enter total budget"
-                        android:inputType="numberDecimal"
-
-                        android:padding="10dp" />
 
                     <!-- Add Budget Button -->
                     <Button
