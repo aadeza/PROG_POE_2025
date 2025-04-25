@@ -8,7 +8,7 @@ import androidx.room.OnConflictStrategy
 @Dao
 interface QuestionsDAO {
 
-    @Query("SELECT * FROM Questions")
+    @Query("SELECT * FROM Questions ORDER BY RANDOM() LIMIT 10")
     suspend fun getAllQuestions() : List<Questions>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
