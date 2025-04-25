@@ -11,9 +11,15 @@ import android.os.CountDownTimer
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class BudgetQuiz : AppCompatActivity() {
 
@@ -26,25 +32,23 @@ class BudgetQuiz : AppCompatActivity() {
     private lateinit var btnStartQuiz: Button
     private lateinit var txtQuizHeading: TextView
     private lateinit var txtIntro: TextView
+    private lateinit var txtSub : TextView
+    private lateinit var progressBar : ProgressBar
 
     private var currentQuestionIndex = 0
     private var score = 0
     private var selectedAnswer: String? = null
     private var timer: CountDownTimer? = null
+    private lateinit var questionList: List<Questions>
 
-    // Sample quiz questions
-    private val quizQuestions = listOf(
-        Question("What is budgeting?", "A plan for money", "A shopping list", "A bank account", "A plan for money"),
-        Question("Which expense is fixed?", "Rent", "Groceries", "Entertainment", "Rent"),
-        Question("What is an emergency fund?", "Money saved for surprises", "A travel fund", "A loan", "Money saved for surprises")
-    )
+
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_budget_quiz)
 
-        // Initialize views
+        //View Binding
         txtIntro = findViewById(R.id.txtIntro)
         txtQuestion = findViewById(R.id.txtQuestion)
         btnOption1 = findViewById(R.id.btnOption1)
@@ -54,6 +58,11 @@ class BudgetQuiz : AppCompatActivity() {
         txtTimer = findViewById(R.id.txtTimer)
         btnStartQuiz = findViewById(R.id.btnStartQuiz)
         txtQuizHeading = findViewById(R.id.txtQuizHeading)
+        txtSub = findViewById(R.id.txtSub)
+        progressBar = findViewById(R.id.quizProgressBar)
+
+        progressBar.max = 10
+        progressBar.progress = 0
 
         // Setup BottomNavigationView
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
@@ -79,22 +88,33 @@ class BudgetQuiz : AppCompatActivity() {
             }
         }
 
-        // Start quiz when button is clicked
+        // Button Listeners
         btnStartQuiz.setOnClickListener { startQuiz() }
         btnOption1.setOnClickListener { selectAnswer(btnOption1.text.toString()) }
         btnOption2.setOnClickListener { selectAnswer(btnOption2.text.toString()) }
         btnOption3.setOnClickListener { selectAnswer(btnOption3.text.toString()) }
         btnNext.setOnClickListener { nextQuestion() }
 
+        val db = AppDatabase.getDatabase(this,lifecycleScope)
+        val dao = db.questionsDao()
+
+
+
         // Start the spinning animation and background color transition
         startSpinningTitle()
         startBackgroundColorAnimation()
+
+        lifecycleScope.launch{
+            val allQuestions = dao.getAllQuestions()
+            questionList = allQuestions.shuffled().take(10)
+            showQuestion()
+        }
     }
 
     // Animate the background color transition
     private fun startBackgroundColorAnimation() {
-        val colorFrom = Color.parseColor("#00008b")
-        val colorTo = Color.parseColor("#800080")
+        val colorFrom = Color.parseColor("#6388B4")
+        val colorTo = Color.parseColor("#E7C6FF")
         val colorAnimation = ValueAnimator.ofObject(ArgbEvaluator(), colorFrom, colorTo).apply {
             duration = 5000
             repeatMode = ValueAnimator.REVERSE
@@ -118,6 +138,7 @@ class BudgetQuiz : AppCompatActivity() {
 
     // Start the quiz
     private fun startQuiz() {
+        progressBar.visibility = View.VISIBLE
         btnStartQuiz.visibility = View.GONE
         txtQuestion.visibility = View.VISIBLE
         btnOption1.visibility = View.VISIBLE
@@ -130,36 +151,82 @@ class BudgetQuiz : AppCompatActivity() {
         showQuestion()
     }
 
+    // Call this inside showQuestion() before setting the new question
+    private fun resetAnswerButtons() {
+        val defaultColor = ContextCompat.getColor(this, R.color.default_button_background)
+
+        btnOption1.setBackgroundColor(defaultColor)
+        btnOption2.setBackgroundColor(defaultColor)
+        btnOption3.setBackgroundColor(defaultColor)
+
+    }
+
     // Show the current question
     private fun showQuestion() {
-        val question = quizQuestions[currentQuestionIndex]
-        txtQuestion.text = question.text
-        btnOption1.text = question.option1
-        btnOption2.text = question.option2
-        btnOption3.text = question.option3
-        selectedAnswer = null
+
+        if(::questionList.isInitialized && currentQuestionIndex < questionList.size){
+            resetAnswerButtons()
+            val question = questionList[currentQuestionIndex]
+            txtQuestion.text = question.text
+            btnOption1.text = question.option1
+            btnOption2.text = question.option2
+            btnOption3.text = question.option3
+            selectedAnswer = null
+        }
+
+    }
+    private fun resetOptionStyles() {
+        val defaultColor = ContextCompat.getColor(this, R.color.default_button_background)
+        btnOption1.setBackgroundColor(defaultColor)
+        btnOption2.setBackgroundColor(defaultColor)
+        btnOption3.setBackgroundColor(defaultColor)
     }
 
     // Handle answer selection
     private fun selectAnswer(answer: String) {
         selectedAnswer = answer
+        resetOptionStyles()
+
+        val selectedColor = ContextCompat.getColor(this, R.color.selected_button_background)
+
+        when (answer) {
+            btnOption1.text -> btnOption1.setBackgroundColor(selectedColor)
+            btnOption2.text -> btnOption2.setBackgroundColor(selectedColor)
+            btnOption3.text -> btnOption3.setBackgroundColor(selectedColor)
+        }
     }
 
-    // Move to the next question
     private fun nextQuestion() {
-        if (selectedAnswer == quizQuestions[currentQuestionIndex].correctAnswer) score++
-        if (currentQuestionIndex < quizQuestions.size - 1) {
+
+
+        // Update score
+        if (selectedAnswer == questionList[currentQuestionIndex].correctAnswer) {
+            score++
+        }
+
+        // Move to next or end
+        if (currentQuestionIndex < questionList.size - 1) {
             currentQuestionIndex++
+            progressBar.progress = currentQuestionIndex + 1
             showQuestion()
         } else {
             endQuiz()
         }
     }
 
+
     // End the quiz
     private fun endQuiz() {
         timer?.cancel()
-        txtQuestion.text = "Quiz Over! Your score: $score/${quizQuestions.size}"
+
+
+        val resultText = StringBuilder()
+        resultText.append("Quiz Over! Your score: $score/${questionList.size}\n\n")
+
+
+
+        txtQuestion.text = resultText.toString()
+
         btnOption1.visibility = View.GONE
         btnOption2.visibility = View.GONE
         btnOption3.visibility = View.GONE
@@ -182,13 +249,5 @@ class BudgetQuiz : AppCompatActivity() {
     }
 }
 
-// Data class for the quiz questions
-data class Question(
-    val text: String,
-    val option1: String,
-    val option2: String,
-    val option3: String,
-    val correctAnswer: String
-)
 
 

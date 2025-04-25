@@ -7,35 +7,55 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".BudgetQuiz"
-    android:background="@drawable/bckgrnd3">
+    android:background="@drawable/register"
+   >
 
     <TextView
         android:id="@+id/txtQuizHeading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Budget Quiz Challenge!"
+        android:text="Budget Quiz Challenge🏆"
         android:textSize="30sp"
         android:textStyle="bold"
         android:layout_marginTop="50dp"
         android:gravity="center"
+        android:fontFamily="@font/bokor"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <TextView
-        android:id="@+id/txtIntro"
+        android:id="@+id/txtSub"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="68dp"
-        android:background="@android:color/darker_gray"
+       android:gravity="center"
         android:padding="20dp"
-        android:text="Welcome to the Budget Quiz! Prepare yourself for some mind-bending, wallet-warming questions.\nTest your financial smarts and see if you're ready to conquer your budget.\nDon't worry, we promise it's more fun than a math test!"
-        android:textColor="@android:color/white"
-        android:textSize="18sp"
+        android:text="Master your budget with ease—start with our quick quiz!"
+        android:textStyle="bold"
+        android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtQuizHeading" />
+
+    <TextView
+        android:id="@+id/txtIntro"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+       android:gravity="center"
+        android:background="@color/white"
+        android:padding="20dp"
+        android:text="Welcome to the Budget Quiz! Prepare yourself for some mind-bending, wallet-warming questions.\nTest your financial smarts and see if you're ready to conquer your budget.\nDon't worry, we promise it's more fun than a math test!"
+        android:textColor="#999090"
+        android:textStyle="bold"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/quizProgressBar" />
 
     <Button
         android:id="@+id/btnStartQuiz"
@@ -43,18 +63,35 @@
         android:layout_height="115dp"
         android:layout_marginTop="156dp"
         android:text="Hold to Start Quiz"
+        android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/txtIntro" />
+    <ProgressBar
+        android:id="@+id/quizProgressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="10"
+        android:progress="0"
+        android:layout_margin="16dp"
+        android:progressTint="#E7C6FF"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/txtSub" />
 
     <TextView
         android:id="@+id/txtQuestion"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Question appears here"
+        android:padding="8dp"
         android:textSize="18sp"
+        android:fontFamily="@font/tiro_devanagari_marathi"
+        android:textStyle="bold"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/btnStartQuiz"
         app:layout_constraintStart_toStartOf="parent"
@@ -63,9 +100,10 @@
 
     <Button
         android:id="@+id/btnOption1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="58dp"
         android:text="Option 1"
+        android:gravity="center"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/txtQuestion"
         app:layout_constraintStart_toStartOf="parent"
@@ -74,9 +112,10 @@
 
     <Button
         android:id="@+id/btnOption2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="58dp"
         android:text="Option 2"
+        android:gravity="center"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/btnOption1"
         app:layout_constraintStart_toStartOf="parent"
@@ -85,9 +124,11 @@
 
     <Button
         android:id="@+id/btnOption3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="58dp"
         android:text="Option 3"
+
+        android:gravity="center"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/btnOption2"
         app:layout_constraintStart_toStartOf="parent"
@@ -96,8 +137,9 @@
 
     <Button
         android:id="@+id/btnNext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="300dp"
+        android:layout_height="58dp"
+        android:gravity="center"
         android:text="Next"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/btnOption3"
@@ -133,6 +175,5 @@
         app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 
