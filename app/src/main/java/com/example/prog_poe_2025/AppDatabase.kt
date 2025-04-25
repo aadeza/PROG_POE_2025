@@ -1,5 +1,8 @@
 package com.example.prog_poe_2025
 
+
+import DAOs.*
+import Data_Classes.*
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
@@ -8,26 +11,47 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@Database(entities = [Questions::class], version = 1)
+@Database(
+    entities = [
+        Users::class,
+        Budgets::class,
+        Category::class,
+        Expenses::class,
+        Income::class,
+        BudgetCategoryCrossRef::class,
+        QuizScores::class,
+        Questions::class
+    ],
+    version = 3, // ⬅️ Bumped version to fix schema mismatch
+    exportSchema = false
+)
 abstract class AppDatabase : RoomDatabase(){
+    abstract fun userDao(): UserDao
+    abstract fun budgetDao(): BudgetDAO
+    abstract fun categoryDao(): CategoryDAO
+    abstract fun expensesDao(): ExpensesDAO
+    abstract fun incomeDao(): IncomeDAO
+    abstract fun budgetCategoryDao(): BudgetCategoryDAO
+    abstract fun quizScoresDao(): QuizScoresDAO
     abstract fun questionsDao(): QuestionsDAO
 
-    companion object{
+    companion object {
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
-        fun getDatabase(context: Context, scope: CoroutineScope) : AppDatabase{
-            return INSTANCE ?: synchronized(this){
+        fun getDatabase(context: Context, scope : CoroutineScope): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "app_database"
+                    "PennyWise"
                 )
+                    .fallbackToDestructiveMigration() // ✅ Auto-wipes DB if schema mismatch (use only for dev)
                     .addCallback(AppDatabaseCallback(scope))
                     .build()
+
                 INSTANCE = instance
                 instance
-
             }
         }
     }
@@ -83,6 +107,9 @@ abstract class AppDatabase : RoomDatabase(){
         }
     }
 }
+
+
+
 
 
 

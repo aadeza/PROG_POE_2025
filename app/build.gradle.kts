@@ -1,8 +1,12 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+<<<<<<< HEAD
     id("kotlin-kapt")
 
+=======
+    id("com.google.devtools.ksp")
+>>>>>>> aba7f101684f8867721e362d5897d957da0731c6
 }
 
 android {
@@ -19,15 +23,21 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+
+        buildTypes {
+            debug {
+                // Enable debugging mode
+                isDebuggable = true
+            }
+            release {
+                isMinifyEnabled = false
+                proguardFiles(
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+                )
+            }
         }
-    }
+
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -38,11 +48,11 @@ android {
         jvmTarget = "11"
     }
 
-    // ✅ Enable View Binding
     buildFeatures {
         viewBinding = true
     }
 }
+
 dependencies {
     implementation(libs.mpandroidchart.vv310)
     implementation(libs.androidx.core.ktx)
@@ -53,6 +63,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+<<<<<<< HEAD
 
     // Room
     implementation(libs.room.runtime)
@@ -66,8 +77,21 @@ dependencies {
 // Lifecycle
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+=======
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.material)
+
+
+    ksp(libs.androidx.room.compiler.v250)
+
+    // Room database dependencies
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx.v251)
+>>>>>>> aba7f101684f8867721e362d5897d957da0731c6
 
 }
+
 
 
 
