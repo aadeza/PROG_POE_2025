@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp") // Keep KSP for Kotlin Symbol Processing
 }
 
 android {
@@ -18,10 +18,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-
     buildTypes {
         debug {
-            // Enable debugging mode
+
             isDebuggable = true
         }
         release {
@@ -32,7 +31,6 @@ android {
             )
         }
     }
-
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -49,24 +47,34 @@ android {
 }
 
 dependencies {
+    // MPAndroidChart
     implementation(libs.mpandroidchart.vv310)
+
+    // Core AndroidX Libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
-    implementation (libs.material)
 
+    // Room
+    implementation(libs.room.runtime)
+    ksp(libs.room.compiler)
+    implementation(libs.room.ktx)
 
-    ksp(libs.androidx.room.compiler.v250)
+    // Coroutines
+    implementation(libs.coroutines.core)
+    implementation(libs.coroutines.android)
 
-    // Room database dependencies
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx.v251)
+    implementation(libs.lifecycle.runtime.ktx)
+    implementation(libs.lifecycle.viewmodel.ktx)
 
 }
+
+
+
