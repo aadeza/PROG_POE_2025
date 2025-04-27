@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:cardCornerRadius="12dp"
     app:cardElevation="6dp"
-    android:padding="16dp"
-    android:layout_margin="8dp">
+    android:layout_margin="8dp"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -24,98 +23,48 @@
             android:textStyle="bold"
             android:textSize="18sp" />
 
-        <!-- Budget Description -->
-        <TextView
-            android:id="@+id/budgetDescription"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Description: Monthly expenses including groceries and transport."
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="4dp" />
+        <!-- Pie Chart -->
+        <com.github.mikephil.charting.charts.PieChart
+            android:id="@+id/pieChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp" />
 
-        <!-- Total Budget -->
+        <!-- Total Amount -->
         <TextView
             android:id="@+id/totalAmount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total Budget: R5000.00"
+            android:text="Total: R0.00"
             android:textSize="16sp"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"/>
 
-        <!-- Remaining Budget -->
+        <!-- Spent Amount -->
         <TextView
-            android:id="@+id/currentAmount"
+            android:id="@+id/txtSpent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Remaining: R3000.00"
-            android:textSize="16sp"
-            android:textColor="@android:color/holo_green_dark"
-            android:layout_marginTop="2dp" />
-
-        <!-- Start Date -->
-        <TextView
-            android:id="@+id/startDate"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Date: 2025-03-01"
+            android:text="Spent: R0.00"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="6dp" />
+            android:layout_marginTop="6dp"/>
 
-        <!-- End Date -->
-        <TextView
-            android:id="@+id/endDate"
+        <!-- Progress Bar -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:max="100"/>
+
+        <!-- Edit Budget Button -->
+        <Button
+            android:id="@+id/btnEditBudget"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="End Date: 2025-03-31"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
-
-        <!-- Spending Categories -->
-        <TextView
-            android:id="@+id/categories"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Categories: Groceries, Transport, Bills, Entertainment"
-            android:textSize="14sp"
-            android:textColor="@android:color/holo_blue_dark"
-            android:layout_marginTop="6dp" />
-
-        <!-- Progress Percentage -->
-        <TextView
-            android:id="@+id/progress"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Spending Progress: 40%"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="@android:color/holo_blue_dark"
-            android:layout_marginTop="6dp" />
-
-
-        <TextView
-            android:id="@+id/overspendingWarning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="⚠ Warning: Budget exceeded!"
-            android:textSize="16sp"
-            android:textColor="@android:color/holo_red_dark"
-            android:visibility="gone"
-            android:layout_marginTop="6dp" />
-
-        <!-- Last Updated -->
-        <TextView
-            android:id="@+id/lastUpdated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Last Updated: 2025-03-27 14:30"
-            android:textSize="12sp"
-            android:textColor="@android:color/darker_gray"
-            android:layout_marginTop="6dp" />
+            android:text="Edit Budget"
+            android:layout_marginTop="12dp"/>
 
     </LinearLayout>
-
 </androidx.cardview.widget.CardView>
 

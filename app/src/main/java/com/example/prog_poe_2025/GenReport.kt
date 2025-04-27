@@ -32,13 +32,23 @@ class GenReport : AppCompatActivity() {
 
         // Sample data for testing
         val sampleBudgets = listOf(
-            Budget("Groceries", "Groceries for March", 5000.0, 2500.0,
-                LocalDate.parse("2025-03-01"), LocalDate.parse("2025-03-31"),
-                listOf("Cereal", "Snacks", "Take-Aways"), 50, LocalDate.now()),
-            Budget("Entertainment", "Movies and events for March", 1000.0, 800.0,
-                LocalDate.parse("2025-03-01"), LocalDate.parse("2025-03-31"),
-                listOf("Movies", "Market", "Club"), 80, LocalDate.now())
+            VbBudget(
+                "Monthly Grocery Budget", 5000f, mapOf(
+                    "Groceries" to 1500f,
+                    "Transport" to 800f,
+                    "Entertainment" to 1200f,
+                    "Other" to 3000f
+                )
+            ),
+            VbBudget(
+                "Yearly Holiday Fund", 20000f, mapOf(
+                    "Flights" to 10000f,
+                    "Accommodation" to 6000f,
+                    "Transport" to 3000f
+                )
+            )
         )
+
 
 
 

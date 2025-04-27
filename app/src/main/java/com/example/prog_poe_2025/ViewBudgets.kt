@@ -10,16 +10,19 @@ import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.Spinner
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.mikephil.charting.charts.PieChart
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import androidx.recyclerview.widget.RecyclerView
 
-// Define the vbBudgets class
-data class vbBudgets(
+
+data class VbBudget(
     val name: String,
     val totalBudget: Float,
     val spentAmounts: Map<String, Float> // Category -> Amount spent
@@ -27,142 +30,42 @@ data class vbBudgets(
 
 class ViewBudgets : AppCompatActivity() {
 
-    private lateinit var budgetsLayout: LinearLayout
-    private lateinit var timePeriodSpinner: Spinner
+    private lateinit var budgetsRecyclerView: RecyclerView
+    private lateinit var budgetAdapter: BudgetAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_budgets)
 
-        // Initialize views
-        budgetsLayout = findViewById(R.id.budgetsLayout)
-        timePeriodSpinner = findViewById(R.id.timePeriodSpinner)
+        // Initialize RecyclerView
+        budgetsRecyclerView = findViewById(R.id.budgetsRecyclerView)
+        budgetsRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Set up the Spinner for time periods
-        val timePeriods = arrayOf("Day", "Week", "Month", "Year")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, timePeriods)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        timePeriodSpinner.adapter = adapter
-
-        // Handle time period selection
-        timePeriodSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parentView: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val selectedPeriod = timePeriods[position]
-                // Filter and update data based on selected period here (you can implement filtering logic)
-            }
-
-            override fun onNothingSelected(parentView: AdapterView<*>?) {}
-        }
-
-        // Example vbBudgets (replace with real data from database)
+        // Example list (replace with real data later)
         val vbBudgetsList = listOf(
-            vbBudgets("Monthly Grocery Budget", 5000f, mapOf(
-                "Groceries" to 1500f,
-                "Transport" to 800f,
-                "Entertainment" to 1200f,
-                "Other" to 3000f // Example for overspending
-            )),
-            vbBudgets("Yearly Holiday Fund", 20000f, mapOf(
-                "Flights" to 10000f,
-                "Accommodation" to 6000f,
-                "Transport" to 3000f // Example for overspending
-            ))
+            VbBudget(
+                "Monthly Grocery Budget", 5000f, mapOf(
+                    "Groceries" to 1500f,
+                    "Transport" to 800f,
+                    "Entertainment" to 1200f,
+                    "Other" to 3000f
+                )
+            ),
+            VbBudget(
+                "Yearly Holiday Fund", 20000f, mapOf(
+                    "Flights" to 10000f,
+                    "Accommodation" to 6000f,
+                    "Transport" to 3000f
+                )
+            )
         )
 
-        // Display each budget
-        vbBudgetsList.forEach { vbBudget ->
-            displayBudget(vbBudget)
-        }
-    }
+        budgetAdapter = BudgetAdapter(vbBudgetsList)
+        budgetsRecyclerView.adapter = budgetAdapter
 
-    private fun displayBudget(vbBudget: vbBudgets) {
-        // Inflate the layout for each vbBudget
-        val budgetView = layoutInflater.inflate(R.layout.budget_item, null)
-
-        val txtBudgetName: TextView = budgetView.findViewById(R.id.txtBudgetName)
-        val pieChart: PieChart = budgetView.findViewById(R.id.pieChart)
-        val txtTotalBudget: TextView = budgetView.findViewById(R.id.txtTotalBudget)
-        val txtSpent: TextView = budgetView.findViewById(R.id.txtSpent)
-        val txtRemaining: TextView = budgetView.findViewById(R.id.txtRemaining)
-        val txtWarning: TextView = budgetView.findViewById(R.id.txtWarning)
-        val progressBar: ProgressBar = budgetView.findViewById(R.id.progressBar)
-
-        // Set budget name and data
-        txtBudgetName.text = vbBudget.name
-        updateDashboard(vbBudget, pieChart, txtTotalBudget, txtSpent, txtRemaining, txtWarning, progressBar)
-
-        // Add the budget view to the layout
-        budgetsLayout.addView(budgetView)
-    }
-
-    private fun updateDashboard(
-        vbBudget: vbBudgets,
-        pieChart: PieChart,
-        txtTotalBudget: TextView,
-        txtSpent: TextView,
-        txtRemaining: TextView,
-        txtWarning: TextView,
-        progressBar: ProgressBar
-    ) {
-        val totalSpent = vbBudget.spentAmounts.values.sum()
-        val remainingBudget = vbBudget.totalBudget - totalSpent
-
-        // Update text fields
-        txtTotalBudget.text = "Total Budget: R${vbBudget.totalBudget}"
-        txtSpent.text = "Spent: R$totalSpent"
-        txtRemaining.text = "Remaining: R$remainingBudget"
-
-        // Show warning if overspending
-        txtWarning.apply {
-            text = "⚠️ Overspending!"
-            visibility = if (remainingBudget < 0) View.VISIBLE else View.GONE
-        }
-
-        // Update progress bar
-        val progress = if (vbBudget.totalBudget > 0) {
-            (totalSpent / vbBudget.totalBudget * 100).toInt()
-        } else {
-            0
-        }
-        progressBar.progress = progress
-
-        // Create Pie Chart Entries
-        val entries = ArrayList<PieEntry>()
-        for ((category, amount) in vbBudget.spentAmounts) {
-            entries.add(PieEntry(amount, category))
-        }
-
-        // Define custom ValueFormatter
-        val valueFormatter = object : ValueFormatter() {
-            override fun getFormattedValue(value: Float): String {
-                return "R${value}"
-            }
-        }
-
-        // Set up Pie Chart
-        val dataSet = PieDataSet(entries, "Categories")
-        dataSet.colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
-        dataSet.sliceSpace = 2f
-        dataSet.valueTextSize = 12f
-        dataSet.valueFormatter = valueFormatter // Set the custom ValueFormatter here
-
-        val pieData = PieData(dataSet).apply {
-            setDrawValues(true)
-            setValueTextColor(Color.BLACK)
-        }
-
-        pieChart.apply {
-            setUsePercentValues(true)
-            description.isEnabled = false
-            this.data = pieData // Apply data correctly
-            invalidate() // Refresh chart
-        }
-
+        // Bottom navigation
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        // Set default selected item
         bottomNavigationView.selectedItemId = R.id.nav_viewBudgets
-
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_transaction -> {
@@ -173,9 +76,7 @@ class ViewBudgets : AppCompatActivity() {
                     startActivity(Intent(this, Home::class.java))
                     true
                 }
-                R.id.nav_viewBudgets -> {
-                    true // Stay on ViewBudgets
-                }
+                R.id.nav_viewBudgets -> true
                 R.id.nav_game -> {
                     startActivity(Intent(this, BudgetQuiz::class.java))
                     true
