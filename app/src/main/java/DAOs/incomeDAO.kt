@@ -12,7 +12,7 @@ interface IncomeDAO {
     suspend fun insertIncome(income: Income)
 
     @Query("SELECT * FROM Income WHERE user_id = :userId")
-    suspend fun getIncomeByUser(userId: String): List<Income>
+    suspend fun getIncomeByUser(userId: Int): List<Income>
 
     @Query("DELETE FROM Income")
     suspend fun deleteAllIncome()

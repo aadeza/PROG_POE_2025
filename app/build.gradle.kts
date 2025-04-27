@@ -19,19 +19,19 @@ android {
     }
 
 
-        buildTypes {
-            debug {
-                // Enable debugging mode
-                isDebuggable = true
-            }
-            release {
-                isMinifyEnabled = false
-                proguardFiles(
-                    getDefaultProguardFile("proguard-android-optimize.txt"),
-                    "proguard-rules.pro"
-                )
-            }
+    buildTypes {
+        debug {
+            // Enable debugging mode
+            isDebuggable = true
         }
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
 
 
     compileOptions {
@@ -70,7 +70,3 @@ dependencies {
     implementation(libs.androidx.room.ktx.v251)
 
 }
-
-
-
-

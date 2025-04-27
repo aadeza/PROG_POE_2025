@@ -27,3 +27,15 @@ data class Expenses(
     val imagePath: String? = null,
     val user_id: Int
 )
+
+
+
+
+
+
+
+
+
+
+
+
