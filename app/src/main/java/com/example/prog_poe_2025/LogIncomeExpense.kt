@@ -17,11 +17,13 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.lifecycle.Observer
 import DAOs.ExpensesDAO
 import DAOs.IncomeDAO
 import Data_Classes.Category
 import Data_Classes.Expenses
 import Data_Classes.Income
+import androidx.appcompat.app.AlertDialog
 
 class LogIncomeExpense : AppCompatActivity() {
 
@@ -80,12 +82,18 @@ class LogIncomeExpense : AppCompatActivity() {
 
         // Initialize ViewModel for categories
         categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
-        categoryViewModel.categories.observe(this) { categories ->
-            val categoryNames = categories.map { it.name }
-            categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
-            categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            spnCategory.adapter = categoryAdapter
-        }
+
+        // 🔥 WATCH THE CATEGORIES LIST
+        categoryViewModel.categories.observe(this, Observer { categories ->
+            if (categories.isEmpty()) {
+                showNoCategoriesDialog()
+            } else {
+                val categoryNames = categories.map { it.name }
+                categoryAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
+                categoryAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                spnCategory.adapter = categoryAdapter
+            }
+        })
 
         // Handle Save button
         btnLogDone.setOnClickListener {
@@ -118,10 +126,10 @@ class LogIncomeExpense : AppCompatActivity() {
     private fun saveTransaction(incomeDao: IncomeDAO, expensesDao: ExpensesDAO) {
         val amountText = edtName.text.toString()
         val description = edtTxtMlDescription.text.toString()
-        val category = spnCategory.selectedItem.toString()
+        val category = spnCategory.selectedItem?.toString() ?: ""
         val transactionType = spnTransactType.selectedItem.toString()
 
-        if (amountText.isEmpty() || selectedDate == null || selectedTime == null) {
+        if (amountText.isEmpty() || selectedDate == null || selectedTime == null || category.isEmpty()) {
             Toast.makeText(this, "Please fill all fields!", Toast.LENGTH_SHORT).show()
             return
         }
@@ -134,7 +142,6 @@ class LogIncomeExpense : AppCompatActivity() {
 
         lifecycleScope.launch {
             if (toggleButton.isChecked) {
-                // Saving as Income
                 val income = Income(
                     amount = amount,
                     description = description,
@@ -147,7 +154,6 @@ class LogIncomeExpense : AppCompatActivity() {
                 incomeDao.insertIncome(income)
                 Toast.makeText(this@LogIncomeExpense, "Income saved successfully!", Toast.LENGTH_SHORT).show()
             } else {
-                // Saving as Expense
                 val expense = Expenses(
                     amount = amount,
                     description = description,
@@ -208,4 +214,23 @@ class LogIncomeExpense : AppCompatActivity() {
             imagePath = imageUri?.toString()
         }
     }
+
+    // 🔥 Show dialog if no categories exist
+    private fun showNoCategoriesDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("No Categories Found")
+            .setMessage("You don't have any categories yet. Would you like to create a budget now?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                val intent = Intent(this, CreateBudget::class.java) // ⬅️ Make sure CreateBudget is your correct page
+                startActivity(intent)
+                finish() // Optional: close this page so they come back clean
+            }
+            .setNegativeButton("No") { dialog, _ ->
+                Toast.makeText(this, "You must create a budget before logging a transaction!", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+            .setCancelable(false) // They MUST choose yes or no
+            .show()
+    }
 }
+
