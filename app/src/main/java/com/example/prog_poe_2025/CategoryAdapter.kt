@@ -64,4 +64,11 @@ class CategoryAdapter(
     fun getSelectedCategories(): List<Category> {
         return categories.filter { it.selected }
     }
+
+    fun setSelectedCategories(selectedCategories: List<Category>) {
+        categories.forEach { category ->
+            category.selected = selectedCategories.any { it.id == category.id }
+        }
+        notifyDataSetChanged()
+    }
 }

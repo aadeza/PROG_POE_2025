@@ -30,14 +30,23 @@
             android:layout_height="200dp"
             android:layout_marginTop="10dp" />
 
-        <!-- Total Amount -->
         <TextView
-            android:id="@+id/totalAmount"
+            android:id="@+id/maxBudgetGoal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Total: R0.00"
+            android:text="Max Budget Goal: R0.00"
             android:textSize="16sp"
             android:layout_marginTop="8dp"/>
+
+
+
+        <TextView
+            android:id="@+id/remainingAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remaining: R0.00"
+            android:textSize="14sp"
+            android:layout_marginTop="6dp"/>
 
         <!-- Spent Amount -->
         <TextView
@@ -56,6 +65,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:max="100"/>
+
+        <Spinner
+            android:id="@+id/spinDateFilter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"/>
 
         <!-- Edit Budget Button -->
         <Button

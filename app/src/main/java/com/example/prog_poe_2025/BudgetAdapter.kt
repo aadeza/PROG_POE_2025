@@ -1,6 +1,9 @@
 package com.example.prog_poe_2025
 
-import android.annotation.SuppressLint
+import Data_Classes.Category
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
@@ -11,43 +14,127 @@ import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
+import kotlinx.coroutines.*
 
+import java.util.Calendar
 
-class BudgetAdapter(private val budgetList: List<VbBudget>) : RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
+class BudgetAdapter(private var budgetList: List<VbBudget>) :
+    RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
 
-    inner class BudgetViewHolder(private val binding: ItemBudgetBinding) : RecyclerView.ViewHolder(binding.root) {
+    private val adapterScope = CoroutineScope(Dispatchers.Main) // Prevent leaks
+
+    inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+
         fun bind(budget: VbBudget) {
             binding.budgetName.text = budget.name
+            binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
+            binding.txtSpent.text = "Spent: R${budget.totalSpent}"
+            binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
 
-            val totalSpent = budget.spentAmounts.values.sum()
-            binding.totalAmount.text = "Total: R${budget.totalBudget}"
-            binding.txtSpent.text = "Spent: R$totalSpent"
-
-            val progress = if (budget.totalBudget > 0) {
-                (totalSpent / budget.totalBudget * 100).toInt()
+            val progress = if (budget.maxMonthGoal > 0) {
+                (budget.totalSpent / budget.maxMonthGoal * 100).toInt()
             } else 0
             binding.progressBar.progress = progress
 
-            // Setup pie chart
-            val entries = ArrayList<PieEntry>()
-            for ((category, amount) in budget.spentAmounts) {
-                entries.add(PieEntry(amount, category))
-            }
+            setupPieChart(budget.spentAmounts)
+            setupDateFilterSpinner(budget)
+            setupEditButton(budget)
+        }
 
-            val dataSet = PieDataSet(entries, "")
-            dataSet.colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
-            dataSet.sliceSpace = 2f
-            dataSet.valueTextSize = 12f
-            dataSet.valueFormatter = object : ValueFormatter() {
-                override fun getFormattedValue(value: Float): String {
-                    return "R$value"
+        private fun setupPieChart(spentAmounts: Map<Category, Float>) {
+            val entries = spentAmounts
+                .filter { it.value > 0 }
+                .map { (category, amount) -> PieEntry(amount, category.name) } // ✅ Display category name
+
+            if (entries.isNotEmpty()) {
+                val dataSet = PieDataSet(entries, "").apply {
+                    colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
+                    sliceSpace = 2f
+                    valueTextSize = 12f
+                    valueFormatter = object : ValueFormatter() {
+                        fun getFormattedValue(value: Float, entry: PieEntry): String {
+                            return "R$value\n${entry.label}" // ✅ Show amount & category name
+                        }
+                    }
+                }
+
+                val pieData = PieData(dataSet)
+                binding.pieChart.apply {
+                    data = pieData
+                    description.isEnabled = false
+                    setUsePercentValues(true)
+                    animateY(1000)
+                    invalidate()
+                }
+            } else {
+                binding.pieChart.clear()
+                binding.pieChart.setNoDataText("No spending data available.")
+            }
+        }
+
+        private fun setupDateFilterSpinner(budget: VbBudget) {
+            val dateOptions = listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
+            val dateAdapter = ArrayAdapter(binding.root.context, android.R.layout.simple_spinner_item, dateOptions)
+            dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+            binding.spinDateFilter.adapter = dateAdapter
+
+            binding.spinDateFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                    val selectedFilter = parent.getItemAtPosition(position).toString()
+                    filterExpenses(selectedFilter, budget)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+        }
+
+        private fun setupEditButton(budget: VbBudget) {
+            binding.btnEditBudget.setOnClickListener {
+                val intent = Intent(it.context, EditBudget::class.java)
+                intent.putExtra("budgetId", budget.id)
+                it.context.startActivity(intent)
+            }
+        }
+
+        private fun filterExpenses(selectedFilter: String, budget: VbBudget) {
+            val startTime = getStartTimeMillis(selectedFilter)
+            val userId = SessionManager.getUserId(binding.root.context)
+
+            adapterScope.launch {
+                val db = AppDatabase.getDatabase(binding.root.context)
+                val budgetWithCategories = db.budgetDao().getBudgetWithCategories(budget.id)
+
+                val spentAmounts = budgetWithCategories.categories.associateWith { category ->
+                    db.expensesDao().getTotalSpentInCategory(userId, category.name, startTime) ?: 0f
+                }
+
+                val totalSpent = spentAmounts.values.sum()
+                val remainingAmount = budget.maxMonthGoal - totalSpent
+
+                withContext(Dispatchers.Main) {
+                    binding.txtSpent.text = "Spent: R${totalSpent}"
+                    binding.remainingAmount.text = "Remaining: R${remainingAmount}"
                 }
             }
+        }
 
-            val pieData = PieData(dataSet)
-            binding.pieChart.data = pieData
-            binding.pieChart.description.isEnabled = false
-            binding.pieChart.invalidate() // Refresh
+        private fun getStartTimeMillis(filter: String): Long {
+            val calendar = Calendar.getInstance()
+            when (filter) {
+                "Last Hour" -> calendar.add(Calendar.HOUR, -1)
+                "Last 12 Hours" -> calendar.add(Calendar.HOUR, -12)
+                "Today" -> {
+                    calendar.set(Calendar.HOUR_OF_DAY, 0)
+                    calendar.set(Calendar.MINUTE, 0)
+                    calendar.set(Calendar.SECOND, 0)
+                }
+                "Week" -> calendar.add(Calendar.DAY_OF_YEAR, -7)
+                "Month" -> calendar.add(Calendar.MONTH, -1)
+                "Year" -> calendar.add(Calendar.YEAR, -1)
+                "All" -> return 0L
+            }
+            return calendar.timeInMillis
         }
     }
 
@@ -61,5 +148,13 @@ class BudgetAdapter(private val budgetList: List<VbBudget>) : RecyclerView.Adapt
     }
 
     override fun getItemCount(): Int = budgetList.size
-}
 
+    fun updateBudgets(newBudgets: List<VbBudget>) {
+        budgetList = newBudgets
+        notifyDataSetChanged()
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        adapterScope.cancel() // Prevent memory leaks
+    }
+}

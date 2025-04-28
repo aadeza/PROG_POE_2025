@@ -30,29 +30,10 @@ class GenReport : AppCompatActivity() {
         val recyclerView = findViewById<RecyclerView>(R.id.budgetRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Sample data for testing
-        val sampleBudgets = listOf(
-            VbBudget(
-                "Monthly Grocery Budget", 5000f, mapOf(
-                    "Groceries" to 1500f,
-                    "Transport" to 800f,
-                    "Entertainment" to 1200f,
-                    "Other" to 3000f
-                )
-            ),
-            VbBudget(
-                "Yearly Holiday Fund", 20000f, mapOf(
-                    "Flights" to 10000f,
-                    "Accommodation" to 6000f,
-                    "Transport" to 3000f
-                )
-            )
-        )
 
 
 
 
 
-        recyclerView.adapter = BudgetAdapter(sampleBudgets)
     }
 }

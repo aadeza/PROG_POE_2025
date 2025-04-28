@@ -16,4 +16,8 @@ interface IncomeDAO {
 
     @Query("DELETE FROM Income")
     suspend fun deleteAllIncome()
+
+
+    @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
+    suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?
 }

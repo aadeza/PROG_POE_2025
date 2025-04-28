@@ -1,11 +1,14 @@
 package DAOs
 
 import Data_Classes.BudgetCategoryCrossRef
+import Data_Classes.BudgetWithCategories
 import Data_Classes.Budgets
+import Data_Classes.Category
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Delete
+import androidx.room.Transaction
 import androidx.room.Update
 
 @Dao
@@ -15,10 +18,13 @@ interface BudgetDAO {
     suspend fun insertBudget(budget: Budgets): Long
 
     @Query("SELECT * FROM Budgets WHERE user_id = :userId")
-    suspend fun getBudgetsForUser(userId: String): List<Budgets>
+    suspend fun getBudgetsForUser(userId: Int): List<Budgets>
 
     @Update
     suspend fun updateBudget(budget: Budgets)
+
+    @Query("UPDATE Budgets SET maxMonthGoal = :maxGoal WHERE id = :budgetId")
+    suspend fun updateMaxGoal(budgetId: Int, maxGoal: Long)
 
     @Delete
     suspend fun deleteBudget(budget: Budgets)
@@ -28,5 +34,19 @@ interface BudgetDAO {
 
     @Insert
     suspend fun insertBudgetCategoryCrossRefs(crossRefs: List<BudgetCategoryCrossRef>)
+
+    @Transaction
+    @Query("SELECT * FROM Budgets WHERE id = :budgetId")
+    suspend fun getBudgetWithCategories(budgetId: Int): BudgetWithCategories
+
+    @Query("SELECT * FROM Budgets WHERE id = :budgetId")
+    suspend fun getBudgetById(budgetId: Int): Budgets?
+
+    @Transaction
+    @Query("SELECT * FROM Category WHERE id IN (SELECT categoryId FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId)")
+    suspend fun getCategoriesForBudget(budgetId: Int): List<Category>
+
+    @Query("DELETE FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId")
+    suspend fun deleteBudgetCategoryCrossRefsForBudget(budgetId: Int)
 }
 

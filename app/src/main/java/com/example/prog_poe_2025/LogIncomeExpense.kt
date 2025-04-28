@@ -136,9 +136,15 @@ class LogIncomeExpense : AppCompatActivity() {
 
         val amount = amountText.toLongOrNull() ?: 0L
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
+        // Parse selected date & time
         val fullDateTime = formatter.parse("$selectedDate $selectedTime")
-        val timestamp = fullDateTime?.time ?: System.currentTimeMillis()
-        val userId = 1 // Replace with dynamic ID if needed later
+        var timestamp = fullDateTime?.time ?: System.currentTimeMillis()
+
+        // Adjust timestamp (subtract one month)
+        timestamp = adjustTimestamp(timestamp)
+
+        val userId = SessionManager.getUserId(applicationContext)
 
         lifecycleScope.launch {
             if (toggleButton.isChecked) {
@@ -146,7 +152,7 @@ class LogIncomeExpense : AppCompatActivity() {
                     amount = amount,
                     description = description,
                     category = category,
-                    date = timestamp,
+                    date = timestamp,  // ✅ Saving adjusted timestamp
                     transaction_type = transactionType,
                     imagePath = imagePath,
                     user_id = userId
@@ -158,7 +164,7 @@ class LogIncomeExpense : AppCompatActivity() {
                     amount = amount,
                     description = description,
                     category = category,
-                    date = timestamp,
+                    date = timestamp,  // ✅ Saving adjusted timestamp
                     transaction_type = transactionType,
                     imagePath = imagePath,
                     user_id = userId
@@ -231,6 +237,16 @@ class LogIncomeExpense : AppCompatActivity() {
             }
             .setCancelable(false) // They MUST choose yes or no
             .show()
+    }
+
+    fun adjustTimestamp(originalTimestamp: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = originalTimestamp
+
+        // Subtract one month
+        calendar.add(Calendar.MONTH, -1)
+
+        return calendar.timeInMillis
     }
 }
 
