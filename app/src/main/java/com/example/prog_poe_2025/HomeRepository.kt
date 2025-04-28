@@ -16,7 +16,7 @@ class HomeRepository(
     }
 
     suspend fun getLatestExpenses(limit: Int): List<Expenses> {
-        return expensesDao.getLatestExpense(limit)
+        return expensesDao.getLatestExpenses(limit)
     }
 
 

@@ -16,4 +16,7 @@ interface IncomeDAO {
 
     @Query("DELETE FROM Income")
     suspend fun deleteAllIncome()
+
+    @Query("SELECT * FROM Income ORDER BY date LIMIT :limit")
+    suspend fun getLatestIncomes(limit: Int): List<Income>
 }

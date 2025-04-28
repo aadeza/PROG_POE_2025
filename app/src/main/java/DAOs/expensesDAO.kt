@@ -16,5 +16,9 @@ interface ExpensesDAO {
 
     @Query("DELETE FROM Expenses")
     suspend fun deleteAllExpenses()
+
+    @Query("SELECT * FROM Expenses ORDER BY date LIMIT :limit")
+    suspend fun getLatestExpenses(limit: Int): List<Expenses>
+
 }
 

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bckgrnd3"
     tools:context=".Home">
 
-    <!-- LinearLayout container for all UI elements -->
+
     <LinearLayout
         android:id="@+id/mainContainer"
         android:layout_width="match_parent"
@@ -175,94 +175,94 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/txtMyExpenses" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/recentTransHeading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="10dp"
+            android:fontFamily="@font/tiro_devanagari_marathi"
+            android:text="Recent Transactions"
+
+            android:textColor="@color/black"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/containerTextViews"
+            />
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            android:scrollbars="horizontal">
+
+            <TableLayout
+                android:id="@+id/tableLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:stretchColumns="*"
+                android:padding="8dp"
+                android:gravity="center"
+                android:background="@drawable/round"/>
+        </HorizontalScrollView>
 
         <!-- Container for Main Buttons -->
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:id="@+id/containerButtons"
             android:layout_width="match_parent"
-            android:layout_height="250dp"
-
-            android:layout_marginBottom="0dp"
->
-
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="16dp"
+            android:layout_marginTop="30dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/tableLayout"
+            android:padding="16dp">
 
             <Button
                 android:id="@+id/btnCreateBudget"
-                android:layout_width="165dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="120dp"
-                android:layout_marginTop="16dp"
-                android:backgroundTint="@color/purple"
+                android:layout_width="0dp"
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:background = "@drawable/rounded_corner"
                 android:text="@string/btnCreateBudget"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
+                android:layout_marginEnd="8dp" />
 
             <Button
                 android:id="@+id/btnGenerateReport"
-                android:layout_width="165dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="123dp"
-                android:layout_marginTop="7dp"
-                android:backgroundTint="#A080DF"
+                android:layout_width="0dp"
+                android:layout_height="58dp"
+                android:layout_weight="1"
+                android:background = "@drawable/rounded_corner"
                 android:text="@string/btnGenerateReport"
                 android:textColor="@color/white"
                 android:textSize="12sp"
                 android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ViewStreak" />
+                android:layout_marginStart="8dp" />
 
-            <Button
-                android:id="@+id/PickCurrency"
-                android:layout_width="165dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="123dp"
-                android:layout_marginTop="19dp"
-                android:backgroundTint="#A080DF"
-                android:text="@string/btnCurrency"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/btnCreateBudget" />
-
-            <Button
-                android:id="@+id/ViewStreak"
-                android:layout_width="165dp"
-                android:layout_height="50dp"
-                android:layout_marginStart="123dp"
-                android:layout_marginTop="7dp"
-                android:backgroundTint="#A080DF"
-                android:text="@string/btnViewStreak"
-                android:textColor="@color/white"
-                android:textSize="12sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/PickCurrency" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
+        </LinearLayout>
     </LinearLayout>
 
-        <com.google.android.material.bottomnavigation.BottomNavigationView
-            android:id="@+id/bottom_navigation"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="-50dp"
-            android:paddingStart="9dp"
-            android:paddingEnd="1dp"
-            app:itemIconTint="@color/nav_item_color"
-            app:itemTextColor="@color/nav_item_color"
-            app:labelVisibilityMode="labeled"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:menu="@menu/bottom_nav_menu" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="-50dp"
+        android:paddingStart="9dp"
+        android:paddingEnd="1dp"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 
 
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
         QuizScores::class,
         Questions::class
     ],
-    version = 4, // ⬅ Bumped version to fix schema mismatch
+    version = 5, // ⬅ Bumped version to fix schema mismatch
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
