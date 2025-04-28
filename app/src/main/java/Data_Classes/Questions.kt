@@ -1,4 +1,4 @@
-package com.example.prog_poe_2025
+package Data_Classes
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

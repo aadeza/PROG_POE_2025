@@ -19,4 +19,13 @@ interface IncomeDAO {
 
     @Query("SELECT * FROM Income ORDER BY date LIMIT :limit")
     suspend fun getLatestIncomes(limit: Int): List<Income>
+
+
+    @Query("SELECT * FROM Income")
+    suspend fun getAllIncomes(): List<Income>
+
+
+    @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId")
+    suspend fun getTotalIncome(userId: Int): Long
+
 }

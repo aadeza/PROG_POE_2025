@@ -1,5 +1,6 @@
 package com.example.prog_poe_2025
 
+import Data_Classes.Questions
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query

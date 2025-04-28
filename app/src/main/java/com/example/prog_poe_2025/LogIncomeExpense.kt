@@ -141,37 +141,43 @@ class LogIncomeExpense : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            if (toggleIncomeExpense.isChecked) {
-                val income = Income(
-                    amount = amount,
-                    description = description,
-                    category = category,
-                    date = selectedDateInMillis,
-                    transaction_type = transactionType,
-                    imagePath = selectedImageUri?.toString(),
-                    user_id = userId
-                )
-                viewModel.saveIncome(income)
-                Toast.makeText(this, "Income saved", Toast.LENGTH_SHORT).show()
-            } else {
-                val expense = Expenses(
-                    amount = amount,
-                    description = description,
-                    category = category,
-                    date = selectedDateInMillis,
-                    transaction_type = transactionType,
-                    imagePath = selectedImageUri?.toString(),
-                    user_id = userId
-                )
-                viewModel.saveExpense(expense)
-                Toast.makeText(this, "Expense saved", Toast.LENGTH_SHORT).show()
-            }
+            lifecycleScope.launch {
+                if (toggleIncomeExpense.isChecked) {
+                    val income = Income(
+                        amount = amount,
+                        description = description,
+                        category = category,
+                        date = selectedDateInMillis,
+                        transaction_type = transactionType,
+                        imagePath = selectedImageUri?.toString(),
+                        user_id = userId
+                    )
+                    viewModel.saveIncome(income)
+                    Toast.makeText(this@LogIncomeExpense, "Income saved", Toast.LENGTH_SHORT).show()
+                } else {
+                    val expense = Expenses(
+                        amount = amount,
+                        description = description,
+                        category = category,
+                        date = selectedDateInMillis,
+                        transaction_type = transactionType,
+                        imagePath = selectedImageUri?.toString(),
+                        user_id = userId
+                    )
+                    viewModel.saveExpense(expense)
+                    Toast.makeText(this@LogIncomeExpense, "Expense saved", Toast.LENGTH_SHORT).show()
+                }
 
-            // Clear fields
-            txtAmount.text.clear()
-            txtDescription.text.clear()
-            selectedImageUri = null
+                // ✅ After successfully saving income/expense, update streak
+                streakRepository.updateStreakAfterLogging()
+
+                // Clear fields
+                txtAmount.text.clear()
+                txtDescription.text.clear()
+                selectedImageUri = null
+            }
         }
+
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_transaction

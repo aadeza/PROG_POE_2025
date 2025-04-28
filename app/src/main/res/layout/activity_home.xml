@@ -5,7 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bckgrnd3"
+    android:background="@drawable/background_theme"
     tools:context=".Home">
 
 
@@ -118,7 +118,7 @@
                 app:layout_constraintTop_toBottomOf="@id/txtMyProfit" />
 
             <TextView
-                android:id="@+id/txtMyMoney"
+                android:id="@+id/txtTotalExpense"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
@@ -141,10 +141,10 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtMyMoney" />
+                app:layout_constraintTop_toBottomOf="@id/txtTotalExpense" />
 
             <TextView
-                android:id="@+id/txtMyExpenses"
+                android:id="@+id/txtTotalIncome"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="28dp"
@@ -167,7 +167,7 @@
                 android:textSize="20sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtMyExpenses" />
+                app:layout_constraintTop_toBottomOf="@id/txtTotalIncome" />
         </androidx.constraintlayout.widget.ConstraintLayout>
         <TextView
             android:id="@+id/recentTransHeading"

@@ -11,4 +11,5 @@ class TransactionRepository(private val incomeDAO: IncomeDAO, private val expens
     suspend fun getUserIncome(userId: Int) = incomeDAO.getIncomeByUser(userId)
     suspend fun getUserExpense(userId: Int) = expensesDAO.getExpensesByUser(userId)
 
+
 }

@@ -20,5 +20,15 @@ interface ExpensesDAO {
     @Query("SELECT * FROM Expenses ORDER BY date LIMIT :limit")
     suspend fun getLatestExpenses(limit: Int): List<Expenses>
 
+    // Get all expense transactions
+    @Query("SELECT * FROM Expenses")
+    suspend fun getAllExpenses(): List<Expenses>
+
+    @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId")
+    suspend fun getTotalExpenses(userId: Int): Long
+
+
+
+
 }
 

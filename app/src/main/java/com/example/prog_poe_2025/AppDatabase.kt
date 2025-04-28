@@ -21,9 +21,10 @@ import kotlinx.coroutines.launch
         BudgetCategoryCrossRef::class,
         QuizScores::class,
         Questions::class,
-        Streak::class
+        Streak::class,
+        Currency::class
     ],
-    version = 6, // ⬅ Bumped version to fix schema mismatch
+    version = 7, // ⬅ Bumped version to fix schema mismatch
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -36,6 +37,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun quizScoresDao(): QuizScoresDAO
     abstract fun questionsDao(): QuestionsDAO
     abstract fun streakDao(): streakDAO
+    abstract fun currencyDao(): currencyDAO
 
     companion object {
         @Volatile

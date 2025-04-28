@@ -1,5 +1,6 @@
 package com.example.prog_poe_2025
 
+
 import android.R.attr.text
 import android.content.Intent
 import android.os.Bundle
@@ -16,12 +17,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
+import android.content.Context
+import android.content.SharedPreferences
 
 class Home : AppCompatActivity() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var tableLayout: TableLayout
     private lateinit var streakTxt: TextView
+    private lateinit var incomeTxt: TextView
+    private lateinit var expenseTxt: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -32,25 +38,63 @@ class Home : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
         tableLayout = findViewById(R.id.tableLayout)
         streakTxt = findViewById(R.id.streakText)
+        incomeTxt = findViewById(R.id.txtTotalIncome)
+        expenseTxt = findViewById(R.id.txtTotalExpense)
+
         val database = AppDatabase.getDatabase(applicationContext)
         val incomeDao = database.incomeDao()
         val expenseDao = database.expensesDao()
         val streakDao = database.streakDao()
+
         val repository = HomeRepository(incomeDao, expenseDao)
-        val streakRepository = StreakRepository(database.streakDao)
-        val factory = HomeViewModelFactory(repository)
+        val streakRepository = StreakRepository(streakDao)
+
+        val factory = HomeViewModelFactory(application, repository)
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
 
-        viewModel.latestTransactions.observe(this) { transactions ->
+        // Observe latest transactions
+        viewModel.getLatestTransactions.observe(this) { transactions ->
             displayTransactions(transactions)
         }
-        lifecycleScope.launch{
-            val streakCount = streakRepository.getStreakCount()
-            streakTxt.text = "$streakCount days"
+
+        // Observe total income
+        viewModel.totalIncome.observe(this) { income ->
+            incomeTxt.text = income.toString()
         }
 
+        // Observe total expenses
+        viewModel.totalExpenses.observe(this) { expenses ->
+            expenseTxt.text = expenses.toString()
+        }
+
+        lifecycleScope.launch {
+            val streakCount = streakRepository.getStreakCount()
+            streakTxt.text = "$streakCount"
+        }
+
+        setupBottomNavigation()
+
+        findViewById<Button>(R.id.btnGenerateReport).setOnClickListener {
+            startActivity(Intent(this@Home, GenReport::class.java))
+        }
+
+        findViewById<Button>(R.id.btnCreateBudget).setOnClickListener {
+            startActivity(Intent(this@Home, CreateBudget::class.java))
+        }
+
+        findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
+            startActivity(Intent(this@Home, Settings::class.java))
+        }
+
+        findViewById<ImageButton>(R.id.btnNotification).setOnClickListener {
+            startActivity(Intent(this@Home, Notification::class.java))
+        }
+    }
+
+    private fun setupBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_home
 
@@ -60,65 +104,45 @@ class Home : AppCompatActivity() {
                     startActivity(Intent(this, LogIncomeExpense::class.java))
                     true
                 }
-
-                R.id.nav_home -> {
-                    true
-                }
-
+                R.id.nav_home -> true
                 R.id.nav_viewBudgets -> {
                     startActivity(Intent(this, ViewBudgets::class.java))
                     true
                 }
-
                 R.id.nav_game -> {
                     startActivity(Intent(this, BudgetQuiz::class.java))
                     true
                 }
-
                 else -> false
             }
         }
-
-
-        val toGenReport = findViewById<Button>(R.id.btnGenerateReport)
-        toGenReport.setOnClickListener {
-            val intent = Intent(this@Home, GenReport::class.java)
-            startActivity(intent)
-        }
-
-        val toCreateBudget = findViewById<Button>(R.id.btnCreateBudget)
-        toCreateBudget.setOnClickListener {
-            val intent = Intent(this@Home, CreateBudget::class.java)
-            startActivity(intent)
-        }
-
-        val settings = findViewById<ImageButton>(R.id.btnSettings)
-
-        settings.setOnClickListener{
-            val intent = Intent(this@Home, Settings::class.java)
-            startActivity(intent)
-        }
-
-        val notifications = findViewById<ImageButton>(R.id.btnNotification)
-        notifications.setOnClickListener{
-            val intent = Intent(this@Home, Notification::class.java)
-            startActivity(intent)
-        }
     }
 
-    fun displayTransactions(transactions: List<TransactionItem>) {
+    override fun onResume() {
+        super.onResume()
+        val selectedCurrency = getPreferredCurrency(this)
+        viewModel.setCurrency(selectedCurrency)
+    }
+
+    private fun getPreferredCurrency(context: Context): String {
+        val sharedPreferences: SharedPreferences =
+            context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+
+        return sharedPreferences.getString("preferred_currency", "USD") ?: "USD"
+    }
+
+    private fun displayTransactions(transactions: List<TransactionItem>) {
         tableLayout.removeAllViews()
 
-        var headerRow = TableRow(this)
-        val headers =
-            listOf("Entry Type", "Amount", "Date", "Category", "Transaction Type")
+        val headerRow = TableRow(this)
+        val headers = listOf("Entry Type", "Amount", "Date", "Category", "Transaction Type")
+
         for (headerText in headers) {
             val textView = TextView(this).apply {
                 text = headerText
                 setPadding(16, 16, 16, 16)
-                textSize = 14f
+                textSize = 15f
                 setTypeface(null, android.graphics.Typeface.BOLD)
-
             }
             headerRow.addView(textView)
         }
@@ -126,7 +150,6 @@ class Home : AppCompatActivity() {
 
         for (transaction in transactions) {
             val row = TableRow(this)
-
             when (transaction) {
                 is TransactionItem.IncomeItem -> {
                     row.addView(createCell("Income"))
@@ -135,7 +158,6 @@ class Home : AppCompatActivity() {
                     row.addView(createCell(transaction.income.category))
                     row.addView(createCell(transaction.income.transaction_type))
                 }
-
                 is TransactionItem.ExpenseItem -> {
                     row.addView(createCell("Expense"))
                     row.addView(createCell(transaction.expense.amount.toString()))
@@ -148,17 +170,16 @@ class Home : AppCompatActivity() {
         }
     }
 
-    fun createCell(text: String): TextView{
-        return TextView(this).apply{
+    private fun createCell(text: String): TextView {
+        return TextView(this).apply {
             this.text = text
             setPadding(16, 16, 16, 16)
             textSize = 13f
         }
     }
 
-    fun formatDate(millis: Long): String{
+    private fun formatDate(millis: Long): String {
         val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
         return sdf.format(java.util.Date(millis))
     }
 }
-

@@ -1,9 +1,11 @@
 package com.example.prog_poe_2025
 
+import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
 class HomeViewModelFactory(
+    private val application: Application,
     private val repository: HomeRepository
 ) : ViewModelProvider.Factory {
 
@@ -11,7 +13,7 @@ class HomeViewModelFactory(
         if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
 
-            return HomeViewModel(repository) as T
+            return HomeViewModel(application,repository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }
