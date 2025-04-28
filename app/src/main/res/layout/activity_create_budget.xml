@@ -41,21 +41,21 @@
                         android:id="@+id/txtCreateBudget"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginBottom="16dp"
+                        android:gravity="center"
                         android:text="@string/txtCreateBudget"
                         android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:gravity="center"
-                        android:layout_marginBottom="16dp"
-                        android:layout_gravity="center_horizontal" />
+                        android:textStyle="bold" />
 
                     <!-- Budget Type -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Budget Type"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <Spinner
                         android:id="@+id/spinCategories"
@@ -67,55 +67,56 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Budget Name"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/edtNameBudget"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:hint="Enter budget name"
-                        android:padding="10dp"
 
-                        android:layout_marginBottom="12dp" />
+                        android:padding="10dp" />
 
                     <!-- Select Date Range -->
                     <TextView
+                        android:id="@+id/txtDateRange"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Select Date Range"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <Button
                         android:id="@+id/btnSelectDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="Select Period"
+                        android:layout_marginBottom="12dp"
 
-                        android:textColor="@android:color/white"
-                        android:layout_marginBottom="12dp" />
+                        android:text="Select Period"
+                        android:textColor="@android:color/white" />
 
                     <!-- Categories To Include -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Categories To Include"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/searchEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Search categories"
-                        android:padding="10dp"
+                        android:layout_marginBottom="12dp"
                         android:background="@android:drawable/editbox_background"
-                        android:layout_marginBottom="12dp" />
+                        android:hint="Search categories"
+                        android:padding="10dp" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/categoryRecyclerView"
@@ -127,58 +128,41 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Minimum Monthly Goal"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/edtMinGoal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
+                        android:background="@android:drawable/editbox_background"
                         android:hint="Enter minimum amount"
                         android:inputType="numberDecimal"
-                        android:padding="10dp"
-                        android:background="@android:drawable/editbox_background"
-                        android:layout_marginBottom="12dp" />
+                        android:padding="10dp" />
 
                     <!-- Maximum Monthly Goal -->
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:text="Maximum Monthly Goal"
                         android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
+                        android:textStyle="bold" />
 
                     <EditText
                         android:id="@+id/edtMaxGoal"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="12dp"
                         android:hint="Enter maximum amount"
                         android:inputType="numberDecimal"
-                        android:padding="10dp"
 
-                        android:layout_marginBottom="12dp" />
+                        android:padding="10dp" />
 
                     <!-- Total Budget Amount -->
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Total Budget Amount"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        android:layout_marginTop="8dp" />
-
-                    <EditText
-                        android:id="@+id/editTextNumberDecimal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:hint="Enter total budget"
-                        android:inputType="numberDecimal"
-                        android:padding="10dp"
-
-                        android:layout_marginBottom="16dp" />
 
                     <!-- Add Budget Button -->
                     <Button
