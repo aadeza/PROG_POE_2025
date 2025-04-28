@@ -24,9 +24,16 @@
         <activity
             android:name=".CreateBudget"
             android:exported="false" />
+        <activity android:name=".Settings"
+            android:exported="false"/>
+
+        <activity android:name=".Notification"
+            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
+
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

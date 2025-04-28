@@ -4,5 +4,5 @@
     <!-- Selected item color (darker purple) -->
     <item android:color="#6A0DAD" android:state_checked="true"/>
     <!-- Default color for unselected items (lighter purple) -->
-    <item android:color="@color/black"/>
+    <item android:color="@color/darker_gray"/>
 </selector>

@@ -15,10 +15,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.android.material.timepicker.MaterialTimePicker
 import com.google.android.material.timepicker.TimeFormat
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class LogIncomeExpense : AppCompatActivity() {
@@ -57,16 +59,19 @@ class LogIncomeExpense : AppCompatActivity() {
 
         val database = AppDatabase.getDatabase(applicationContext)
         val repository = TransactionRepository(database.incomeDao(), database.expensesDao())
+        val streakRepository = StreakRepository(database.streakDao())
         val factory = TransactionViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[TransactionViewModel::class.java]
 
+        lifecycleScope.launch {
+            streakRepository.updateStreakAfterLogging()
+        }
         toggleIncomeExpense = findViewById(R.id.tgbtnPickIncExp)
         txtAmount = findViewById(R.id.edtName)
         txtDescription = findViewById(R.id.edtTxtMlDescription)
         datePicker = findViewById(R.id.btnLogDate)
         btnDone = findViewById(R.id.btnLogDone)
         addImage = findViewById(R.id.imgLog)
-
         val categorySpinner: Spinner = findViewById(R.id.spnCategory)
 
         // Observe categories

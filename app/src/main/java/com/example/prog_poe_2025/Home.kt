@@ -13,13 +13,15 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.launch
 
 class Home : AppCompatActivity() {
 
     private lateinit var viewModel: HomeViewModel
     private lateinit var tableLayout: TableLayout
-
+    private lateinit var streakTxt: TextView
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -31,18 +33,23 @@ class Home : AppCompatActivity() {
             insets
         }
         tableLayout = findViewById(R.id.tableLayout)
-
+        streakTxt = findViewById(R.id.streakText)
         val database = AppDatabase.getDatabase(applicationContext)
         val incomeDao = database.incomeDao()
         val expenseDao = database.expensesDao()
+        val streakDao = database.streakDao()
         val repository = HomeRepository(incomeDao, expenseDao)
+        val streakRepository = StreakRepository(database.streakDao)
         val factory = HomeViewModelFactory(repository)
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
 
         viewModel.latestTransactions.observe(this) { transactions ->
             displayTransactions(transactions)
         }
-
+        lifecycleScope.launch{
+            val streakCount = streakRepository.getStreakCount()
+            streakTxt.text = "$streakCount days"
+        }
 
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_home
@@ -80,15 +87,21 @@ class Home : AppCompatActivity() {
         }
 
         val toCreateBudget = findViewById<Button>(R.id.btnCreateBudget)
-        toCreateBudget.setOnClickListener() {
-            val intent = Intent(this, CreateBudget::class.java)
+        toCreateBudget.setOnClickListener {
+            val intent = Intent(this@Home, CreateBudget::class.java)
             startActivity(intent)
         }
 
         val settings = findViewById<ImageButton>(R.id.btnSettings)
 
         settings.setOnClickListener{
-            val intent = Intent(this, Settings::class.java)
+            val intent = Intent(this@Home, Settings::class.java)
+            startActivity(intent)
+        }
+
+        val notifications = findViewById<ImageButton>(R.id.btnNotification)
+        notifications.setOnClickListener{
+            val intent = Intent(this@Home, Notification::class.java)
             startActivity(intent)
         }
     }
