@@ -26,4 +26,7 @@ interface CategoryDAO {
     @Query("DELETE FROM Category")
     suspend fun deleteAllCategories()
 
+    @Query("SELECT * FROM Category")
+    suspend fun getAllCategories(): List<Category>
+
 }

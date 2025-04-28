@@ -158,9 +158,7 @@ class LogIncomeExpense : AppCompatActivity() {
             findViewById<ImageView>(R.id.imgSelectedImage).setImageURI(imageUri)
             imagePath = imageUri?.toString()
         }
-    }
-
-    private fun saveTransaction(incomeDao: IncomeDAO, expensesDao: ExpensesDAO) {
+    }private fun saveTransaction(incomeDao: IncomeDAO, expensesDao: ExpensesDAO) {
         val amountText = edtName.text.toString()
         val description = edtTxtMlDescription.text.toString()
         val category = spnCategory.selectedItem?.toString() ?: ""
@@ -173,9 +171,14 @@ class LogIncomeExpense : AppCompatActivity() {
 
         val amount = amountText.toLongOrNull() ?: 0L
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
+
         val fullDateTime = formatter.parse("$selectedDate $selectedTime")
-        val timestamp = fullDateTime?.time ?: System.currentTimeMillis()
-        val userId = 1
+        var timestamp = fullDateTime?.time ?: System.currentTimeMillis()
+
+        // Adjust timestamp (subtract one month)
+        timestamp = adjustTimestamp(timestamp)
+
+        val userId = SessionManager.getUserId(applicationContext) // ✅ Dynamic user id
 
         lifecycleScope.launch {
             if (toggleButton.isChecked) {
@@ -207,6 +210,7 @@ class LogIncomeExpense : AppCompatActivity() {
         }
     }
 
+
     private fun clearFields() {
         edtName.text.clear()
         edtTxtMlDescription.text.clear()
@@ -231,5 +235,15 @@ class LogIncomeExpense : AppCompatActivity() {
             }
             .setCancelable(false)
             .show()
+    }
+
+    fun adjustTimestamp(originalTimestamp: Long): Long {
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = originalTimestamp
+
+        // Subtract one month
+        calendar.add(Calendar.MONTH, -1)
+
+        return calendar.timeInMillis
     }
 }

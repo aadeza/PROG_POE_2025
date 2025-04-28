@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditBudget"
+    android:padding="16dp">
+
+    <!-- Budget Details Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Budget Details"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toTopOf="parent" />
+    <TextView
+        android:id="@+id/budgetDetailsLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Budget Details"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Budget Name -->
+    <EditText
+        android:id="@+id/edtNameBudget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter budget name"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/budgetDetailsLabel"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <!-- Budget Type Spinner -->
+    <Spinner
+        android:id="@+id/spinCategories"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/edtNameBudget"
+        android:layout_marginTop="12dp"/>
+
+    <!-- Date Selection -->
+    <Button
+        android:id="@+id/btnSelectDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select Date Range"
+        app:layout_constraintTop_toBottomOf="@id/spinCategories"
+        android:layout_marginTop="12dp"/>
+
+    <TextView
+        android:id="@+id/txtDateRange"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No date selected"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@id/btnSelectDate"
+        android:layout_marginTop="8dp"/>
+
+    <!-- Budget Goals Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Budget Goals"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/txtDateRange" />
+
+    <TextView
+        android:id="@+id/budgetGoalsLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Budget Goals"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/txtDateRange" />
+    <EditText
+        android:id="@+id/edtMinGoal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter minimum goal amount"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/budgetGoalsLabel"
+        android:layout_marginTop="12dp"/>
+
+    <EditText
+        android:id="@+id/edtMaxGoal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter maximum goal amount"
+        android:inputType="number"
+        app:layout_constraintTop_toBottomOf="@id/edtMinGoal"
+        android:layout_marginTop="12dp"/>
+
+    <!-- Category Selection Section -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Categories"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/edtMaxGoal" />
+
+    <TextView
+        android:id="@+id/categoriesLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Categories"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:paddingBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/edtMaxGoal" />
+
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search or create a category"
+        android:textSize="16sp"
+        android:padding="8dp"
+        app:layout_constraintTop_toBottomOf="@id/categoriesLabel"
+        android:layout_marginBottom="8dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/categoryRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        app:layout_constraintTop_toBottomOf="@id/searchEditText"
+        android:layout_marginTop="12dp"/>
+
+    <!-- Update Budget Button -->
+    <Button
+        android:id="@+id/btnUpdateBudget"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update Budget"
+        app:layout_constraintTop_toBottomOf="@id/categoryRecyclerView"
+        android:layout_marginTop="16dp"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
