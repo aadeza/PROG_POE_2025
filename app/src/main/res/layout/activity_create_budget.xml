@@ -115,7 +115,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="12dp"
                         android:background="@android:drawable/editbox_background"
-                        android:hint="Search categories"
+                        android:hint="Search/Create categories"
                         android:padding="10dp" />
 
                     <androidx.recyclerview.widget.RecyclerView

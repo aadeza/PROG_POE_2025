@@ -84,20 +84,8 @@ import java.util.Locale
             // 3️⃣ ViewModel
             categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
 
-            // 4️⃣ Preload Default Categories
-            lifecycleScope.launch {
-                val current = categoryViewModel.categories.value.orEmpty()
-                if (current.isEmpty()) {
-                    categoryViewModel.insertAll(
-                        listOf(
-                            Category(name = "Food"),
-                            Category(name = "Transport"),
-                            Category(name = "Entertainment"),
-                            Category(name = "Utilities")
-                        )
-                    )
-                }
-            }
+
+
 
             // 5️⃣ Observe Live Category Data
             categoryViewModel.categories.observe(this) { categories ->
@@ -108,14 +96,22 @@ import java.util.Locale
 
                 // 🛠️ Handle category creation from search
                 categoryAdapter.setOnCreateCategoryListener { newCategoryName ->
-                    val newCategory = Category(name = newCategoryName, selected = true)
-                    categoryViewModel.insert(newCategory)
-                    lifecycleScope.launch {
-                        delay(300)
-                        val updatedList = categoryViewModel.categories.value.orEmpty()
-                        categoryAdapter.updateData(updatedList.toMutableList())
+                    val existingCategory = allCategories.find { it.name.equals(newCategoryName, ignoreCase = true) }
+
+                    if (existingCategory == null) { // ✅ Only insert if category does NOT exist
+                        val newCategory = Category(name = newCategoryName, selected = true)
+                        categoryViewModel.insert(newCategory)
+
+                        lifecycleScope.launch {
+                            delay(300)
+                            val updatedList = categoryViewModel.categories.value.orEmpty()
+                            categoryAdapter.updateData(updatedList.toMutableList())
+                        }
+
+                        Toast.makeText(this, "Category \"$newCategoryName\" created!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Category \"$newCategoryName\" already exists!", Toast.LENGTH_SHORT).show()
                     }
-                    Toast.makeText(this, "Category \"$newCategoryName\" created!", Toast.LENGTH_SHORT).show()
                 }
             }
 

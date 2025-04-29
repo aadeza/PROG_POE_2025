@@ -148,28 +148,38 @@ class LogIncomeExpense : AppCompatActivity() {
 
         lifecycleScope.launch {
             if (toggleButton.isChecked) {
+                // ✅ Logging income: Subtract from expenses in the same category
+                val totalExpense = expensesDao.getTotalSpentInCategory(userId, category, 0L) ?: 0f
+                val newExpenseAmount = totalExpense - amount
+
                 val income = Income(
                     amount = amount,
                     description = description,
                     category = category,
-                    date = timestamp,  // ✅ Saving adjusted timestamp
+                    date = timestamp,
                     transaction_type = transactionType,
                     imagePath = imagePath,
                     user_id = userId
                 )
                 incomeDao.insertIncome(income)
-                Toast.makeText(this@LogIncomeExpense, "Income saved successfully!", Toast.LENGTH_SHORT).show()
+
+                // ✅ Update expense record
+                expensesDao.updateExpenseAmount(userId, category, newExpenseAmount)
+
+                Toast.makeText(this@LogIncomeExpense, "Income logged & deducted from expenses!", Toast.LENGTH_SHORT).show()
             } else {
+                // ✅ Logging expense: Save as usual
                 val expense = Expenses(
                     amount = amount,
                     description = description,
                     category = category,
-                    date = timestamp,  // ✅ Saving adjusted timestamp
+                    date = timestamp,
                     transaction_type = transactionType,
                     imagePath = imagePath,
                     user_id = userId
                 )
                 expensesDao.insertExpense(expense)
+
                 Toast.makeText(this@LogIncomeExpense, "Expense saved successfully!", Toast.LENGTH_SHORT).show()
             }
             clearFields()
@@ -225,7 +235,7 @@ class LogIncomeExpense : AppCompatActivity() {
     private fun showNoCategoriesDialog() {
         AlertDialog.Builder(this)
             .setTitle("No Categories Found")
-            .setMessage("You don't have any categories yet. Would you like to create a budget now?")
+            .setMessage("You have yet to create a budget. Would you like to create a budget now to link to an expense/income?")
             .setPositiveButton("Yes") { dialog, _ ->
                 val intent = Intent(this, CreateBudget::class.java) // ⬅️ Make sure CreateBudget is your correct page
                 startActivity(intent)

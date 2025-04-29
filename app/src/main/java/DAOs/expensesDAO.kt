@@ -19,5 +19,8 @@ interface ExpensesDAO {
 
     @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId AND category = :category AND date >= :startTime")
     suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?
+
+    @Query("UPDATE Expenses SET amount = :newAmount WHERE user_id = :userId AND category = :category")
+    suspend fun updateExpenseAmount(userId: Int, category: String, newAmount: Float)
 }
 

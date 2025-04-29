@@ -8,6 +8,8 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prog_poe_2025.databinding.ItemBudgetBinding
 import com.github.mikephil.charting.data.PieData
@@ -21,7 +23,7 @@ import java.util.Calendar
 class BudgetAdapter(private var budgetList: List<VbBudget>) :
     RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
 
-    private val adapterScope = CoroutineScope(Dispatchers.Main) // Prevent leaks
+    private val adapterScope = CoroutineScope(Dispatchers.Main) // Prevent memory leaks
 
     inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -29,23 +31,28 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         fun bind(budget: VbBudget) {
             binding.budgetName.text = budget.name
             binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
-            binding.txtSpent.text = "Spent: R${budget.totalSpent}"
+
+            // ✅ Ensure spent amount subtracts income dynamically
+            val adjustedSpent = budget.spentAmounts.values.sum()
+            binding.txtSpent.text = "Spent: R${adjustedSpent}"
+
             binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
 
             val progress = if (budget.maxMonthGoal > 0) {
-                (budget.totalSpent / budget.maxMonthGoal * 100).toInt()
+                (adjustedSpent / budget.maxMonthGoal * 100).toInt()
             } else 0
             binding.progressBar.progress = progress
 
             setupPieChart(budget.spentAmounts)
             setupDateFilterSpinner(budget)
             setupEditButton(budget)
+            setupDeleteButton(budget)
         }
 
         private fun setupPieChart(spentAmounts: Map<Category, Float>) {
             val entries = spentAmounts
                 .filter { it.value > 0 }
-                .map { (category, amount) -> PieEntry(amount, category.name) } // ✅ Display category name
+                .map { (category, amount) -> PieEntry(amount, category.name) }
 
             if (entries.isNotEmpty()) {
                 val dataSet = PieDataSet(entries, "").apply {
@@ -54,7 +61,7 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                     valueTextSize = 12f
                     valueFormatter = object : ValueFormatter() {
                         fun getFormattedValue(value: Float, entry: PieEntry): String {
-                            return "R$value\n${entry.label}" // ✅ Show amount & category name
+                            return "R$value\n${entry.label}"
                         }
                     }
                 }
@@ -94,6 +101,37 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 val intent = Intent(it.context, EditBudget::class.java)
                 intent.putExtra("budgetId", budget.id)
                 it.context.startActivity(intent)
+            }
+        }
+
+        private fun setupDeleteButton(budget: VbBudget) {
+            binding.btnDeleteBudget.setOnClickListener {
+                showDeleteConfirmationDialog(budget.id)
+            }
+        }
+
+        private fun showDeleteConfirmationDialog(budgetId: Int) {
+            AlertDialog.Builder(binding.root.context)
+                .setTitle("Delete Budget")
+                .setMessage("Are you sure you want to delete this budget?")
+                .setPositiveButton("Delete") { _, _ ->
+                    deleteBudget(budgetId)
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        private fun deleteBudget(budgetId: Int) {
+            val db = AppDatabase.getDatabase(binding.root.context)
+            val budgetDao = db.budgetDao()
+
+            adapterScope.launch(Dispatchers.IO) {
+                budgetDao.deleteBudgetById(budgetId)
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(binding.root.context, "Budget deleted successfully!", Toast.LENGTH_SHORT).show()
+                    (binding.root.context as? ViewBudgets)?.fetchBudgets()
+                }
             }
         }
 
@@ -157,4 +195,5 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         adapterScope.cancel() // Prevent memory leaks
     }
+
 }

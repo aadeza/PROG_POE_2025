@@ -48,5 +48,11 @@ interface BudgetDAO {
 
     @Query("DELETE FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId")
     suspend fun deleteBudgetCategoryCrossRefsForBudget(budgetId: Int)
+
+    @Query("DELETE FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId")
+    suspend fun deleteBudgetCategories(budgetId: Int)
+
+    @Query("DELETE FROM Budgets WHERE id = :budgetId")
+    suspend fun deleteBudgetById(budgetId: Int)
 }
 

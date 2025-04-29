@@ -3,6 +3,8 @@ import Data_Classes.Category
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -57,7 +59,7 @@ class ViewBudgets : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        fetchBudgets() // ✅ Auto-refresh data when returning to the screen
+        fetchBudgets() // ✅ Auto-refresh budget list
     }
 
     private fun setupBottomNavigation() {
@@ -73,11 +75,11 @@ class ViewBudgets : AppCompatActivity() {
         }
     }
 
-    private fun fetchBudgets() {
+    fun fetchBudgets() {
         val userId = SessionManager.getUserId(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val budgets = budgetDao.getBudgetsForUser(userId) // ✅ Fetch latest data
+            val budgets = budgetDao.getBudgetsForUser(userId) // ✅ Fetch latest budgets
 
             withContext(Dispatchers.Main) {
                 if (budgets.isEmpty()) {
@@ -94,35 +96,23 @@ class ViewBudgets : AppCompatActivity() {
 
                 val vbBudgetsList = budgets.map { budget ->
                     val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
+
                     val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                        expensesDao.getTotalSpentInCategory(userId, category.name, 0L) ?: 0f // ✅ No need for `startTime`
+                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, 0L) ?: 0f
+                        val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, 0L) ?: 0f // ✅ Get total income
+
+                        val adjustedSpent = totalSpent - totalIncome // ✅ Subtract income from expense total
+                        maxOf(adjustedSpent, 0f) // ✅ Ensure it doesn’t go negative
                     }
+
                     val totalSpent = spentAmounts.values.sum()
                     val remainingAmount = budget.maxMonthGoal - totalSpent
 
                     VbBudget(budget.id, budget.name, budget.maxMonthGoal, spentAmounts, totalSpent, remainingAmount)
                 }
 
-                budgetAdapter.updateBudgets(vbBudgetsList) // ✅ Updates adapter instead of recreating it
+                budgetAdapter.updateBudgets(vbBudgetsList) // ✅ Updates adapter & pie chart
             }
         }
-    }
-
-    private fun getStartTimeMillis(filter: String?): Long {
-        val calendar = Calendar.getInstance()
-        when (filter) {
-            "Last Hour" -> calendar.add(Calendar.HOUR, -1)
-            "Last 12 Hours" -> calendar.add(Calendar.HOUR, -12)
-            "Today" -> {
-                calendar.set(Calendar.HOUR_OF_DAY, 0)
-                calendar.set(Calendar.MINUTE, 0)
-                calendar.set(Calendar.SECOND, 0)
-            }
-            "Week" -> calendar.add(Calendar.DAY_OF_YEAR, -7)
-            "Month" -> calendar.add(Calendar.MONTH, -1)
-            "Year" -> calendar.add(Calendar.YEAR, -1)
-            else -> return 0L // ✅ Default to "All" if filter is null or unrecognized
-        }
-        return calendar.timeInMillis
     }
 }

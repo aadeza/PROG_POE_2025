@@ -20,4 +20,7 @@ interface IncomeDAO {
 
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
     suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?
+
+    @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
+    suspend fun getTotalIncomeInCategory(userId: Int, category: String, startTime: Long): Float?
 }

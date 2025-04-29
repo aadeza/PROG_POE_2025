@@ -78,7 +78,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Edit Budget"
+            android:backgroundTint="#CC5500"
             android:layout_marginTop="12dp"/>
+
+        <Button
+            android:id="@+id/btnDeleteBudget"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="#000000"
+            android:text="Delete Budget" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>
