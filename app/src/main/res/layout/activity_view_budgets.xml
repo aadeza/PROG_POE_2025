@@ -4,7 +4,19 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-
+    <TextView
+        android:id="@+id/txtNoBudgetsMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No budgets created yet."
+        android:textSize="25sp"
+        android:textColor="@android:color/black"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <!-- RecyclerView for budgets -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/budgetsRecyclerView"
@@ -19,19 +31,7 @@
         android:layout_height="wrap_content"
         app:menu="@menu/bottom_nav_menu" />
 
-    <TextView
-        android:id="@+id/txtNoBudgetsMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="No budgets created yet."
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
-        android:gravity="center"
-        android:visibility="gone"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+
 
 </LinearLayout>
 
