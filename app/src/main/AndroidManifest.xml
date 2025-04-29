@@ -17,6 +17,9 @@
             android:name=".EditBudget"
             android:exported="false" />
         <activity
+            android:name=".ProfileSettings"
+            android:exported="false" />
+        <activity
             android:name=".ViewBudgets"
             android:exported="false" />
         <activity
@@ -31,7 +34,7 @@
         <activity android:name=".Settings"
             android:exported="false"/>
 
-        <activity android:name=".Notification"
+        <activity android:name=".NotificationActivity"
             android:exported="false"/>
         <activity
             android:name=".MainActivity"

@@ -22,9 +22,10 @@ import kotlinx.coroutines.launch
         QuizScores::class,
         Questions::class,
         Streak::class,
-        Currency::class
+        Currency::class,
+        Notification::class
     ],
-    version = 7, // ⬅ Bumped version to fix schema mismatch
+    version = 9,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -38,6 +39,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun questionsDao(): QuestionsDAO
     abstract fun streakDao(): streakDAO
     abstract fun currencyDao(): currencyDAO
+    abstract fun notificationDao(): NotificationDao
+
 
     companion object {
         @Volatile
@@ -50,7 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "PennyWise"
                 )
-                    .fallbackToDestructiveMigration() // ✅ Auto-wipes DB if schema mismatch (use only for dev)
+                    .fallbackToDestructiveMigration()
                     .build()
 
                 INSTANCE = instance

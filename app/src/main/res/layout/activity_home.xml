@@ -177,8 +177,6 @@
             android:layout_marginTop="10dp"
             android:fontFamily="@font/tiro_devanagari_marathi"
             android:text="Recent Transactions"
-
-            android:textColor="@color/black"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -197,7 +195,7 @@
                 android:stretchColumns="*"
                 android:padding="8dp"
                 android:gravity="center"
-                android:background="@drawable/round"/>
+            />
         </HorizontalScrollView>
 
         <!-- Container for Main Buttons -->

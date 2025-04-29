@@ -74,9 +74,6 @@ class LogIncomeExpense : AppCompatActivity() {
 
         categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
 
-        lifecycleScope.launch {
-            streakRepository.updateStreakAfterLogging()
-        }
 
         imgLogButton.setOnClickListener { openImageGallery() }
         btnLogDate.setOnClickListener { showDatePicker() }
@@ -102,6 +99,11 @@ class LogIncomeExpense : AppCompatActivity() {
         // Save Button Click
         btnLogDone.setOnClickListener {
             saveTransaction(database.incomeDao(), database.expensesDao())
+
+            lifecycleScope.launch {
+                streakRepository.updateStreakAfterLogging()
+
+            }
         }
 
         // Bottom Nav
@@ -193,6 +195,10 @@ class LogIncomeExpense : AppCompatActivity() {
                 )
                 incomeDao.insertIncome(income)
                 Toast.makeText(this@LogIncomeExpense, "Income saved successfully!", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    SmartNotificationManager.createIncomeLoggedNotification(this@LogIncomeExpense, income)
+                }
+
             } else {
                 val expense = Expenses(
                     amount = amount,
@@ -205,7 +211,11 @@ class LogIncomeExpense : AppCompatActivity() {
                 )
                 expensesDao.insertExpense(expense)
                 Toast.makeText(this@LogIncomeExpense, "Expense saved successfully!", Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch {
+                    SmartNotificationManager.createExpenseLoggedNotification(this@LogIncomeExpense, expense)
+                }
             }
+
             clearFields()
         }
     }

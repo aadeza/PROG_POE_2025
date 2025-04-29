@@ -40,7 +40,8 @@ class Settings : AppCompatActivity() {
 
         // Profile clicked
         profileSection.setOnClickListener {
-            Toast.makeText(this, "Profile settings coming soon!", Toast.LENGTH_SHORT).show()
+          startActivity(Intent(this, ProfileSettings::class.java))
+
         }
 
         // Currency clicked

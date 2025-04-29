@@ -9,5 +9,6 @@ data class Users(
     val surname: String,
     val email: String,
     val password: String,
-    val number: String
+    val number: String,
+    val profileImageUri: String? = null
 )

@@ -4,6 +4,7 @@ import Data_Classes.Expenses
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpensesDAO {
@@ -25,7 +26,8 @@ interface ExpensesDAO {
     suspend fun getAllExpenses(): List<Expenses>
 
     @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId")
-    suspend fun getTotalExpenses(userId: Int): Long
+    fun getTotalExpenses(userId: Int): Flow<Long?>
+
 
     @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId AND category = :category AND date >= :startTime")
     suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?

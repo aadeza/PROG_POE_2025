@@ -52,23 +52,31 @@ class Home : AppCompatActivity() {
         val repository = HomeRepository(incomeDao, expenseDao)
         val streakRepository = StreakRepository(streakDao)
 
+
+
+        val notificationRepository = NotificationRepository(database.notificationDao())
+        val notificationFactory = NotificationViewModelFactory(application, notificationRepository)
+        val notificationViewModel = ViewModelProvider(this, notificationFactory)[NotificationViewModel::class.java]
+
+
+
         val factory = HomeViewModelFactory(application, repository)
-        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
 
         // Observe latest transactions
         viewModel.getLatestTransactions.observe(this) { transactions ->
             displayTransactions(transactions)
         }
 
-        // Observe total income
         viewModel.totalIncome.observe(this) { income ->
-            incomeTxt.text = income.toString()
+            incomeTxt.text = "Income: ${income ?: 0}"
         }
 
-        // Observe total expenses
-        viewModel.totalExpenses.observe(this) { expenses ->
-            expenseTxt.text = expenses.toString()
+        viewModel.totalExpenses.observe(this) { expense ->
+            expenseTxt.text = "Expense: ${expense ?: 0}"
         }
+
+
+        viewModel.refreshData()
 
         lifecycleScope.launch {
             val streakCount = streakRepository.getStreakCount()
@@ -90,7 +98,7 @@ class Home : AppCompatActivity() {
         }
 
         findViewById<ImageButton>(R.id.btnNotification).setOnClickListener {
-            startActivity(Intent(this@Home, Notification::class.java))
+            startActivity(Intent(this@Home, NotificationActivity::class.java))
         }
     }
 
@@ -122,6 +130,7 @@ class Home : AppCompatActivity() {
         super.onResume()
         val selectedCurrency = getPreferredCurrency(this)
         viewModel.setCurrency(selectedCurrency)
+        viewModel.refreshData()
     }
 
     private fun getPreferredCurrency(context: Context): String {

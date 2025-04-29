@@ -4,6 +4,7 @@ import Data_Classes.Income
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IncomeDAO {
@@ -24,9 +25,11 @@ interface IncomeDAO {
     @Query("SELECT * FROM Income")
     suspend fun getAllIncomes(): List<Income>
 
-
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId")
-    suspend fun getTotalIncome(userId: Int): Long
+    fun getTotalIncome(userId: Int): Flow<Long?>
+
+
+
 
 
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")

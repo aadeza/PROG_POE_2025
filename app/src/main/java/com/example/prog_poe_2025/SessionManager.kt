@@ -23,4 +23,42 @@ object SessionManager {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit().remove(KEY_USER_ID).apply()
     }
+
+
+
+        fun saveUsername(context: Context, username: String) {
+            val editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
+            editor.putString("username", username)
+            editor.apply()
+        }
+
+        fun getUsername(context: Context): String? {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString("username", null)
+        }
+
+        fun saveEmail(context: Context, email: String) {
+            val editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
+            editor.putString("email", email)
+            editor.apply()
+        }
+
+        fun getEmail(context: Context): String? {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString("email", null)
+        }
+
+        fun saveProfileImageUri(context: Context, uri: String) {
+            val editor = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit()
+            editor.putString("profile_image_uri", uri)
+            editor.apply()
+        }
+
+        fun getProfileImageUri(context: Context): String? {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).getString("profile_image_uri", null)
+        }
+
+        fun clearSession(context: Context) {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE).edit().clear().apply()
+        }
+
+
 }

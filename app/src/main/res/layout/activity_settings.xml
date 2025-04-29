@@ -75,26 +75,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Edit Profile"
+                        android:text="Edit Profile, Change Password"
                         android:paddingVertical="8dp"
                         android:textSize="14sp"
                         android:textColor="#999090"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Change Password"
-                        android:paddingVertical="8dp"
-                        android:textSize="14sp"
-                        android:textColor="#999090"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Account Security"
-                        android:paddingVertical="8dp"
-                        android:textSize="14sp"
-                        android:textColor="#999090"/>
                 </LinearLayout>
 
                 <View
@@ -144,13 +130,7 @@
                         android:textSize="14sp"
                         android:textColor="#999090"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Currency Format"
-                        android:paddingVertical="8dp"
-                        android:textSize="14sp"
-                        android:textColor="#999090"/>
+
                 </LinearLayout>
 
                 <View
@@ -194,18 +174,12 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Budget Alerts"
+                        android:text="Push Notifications, In-app Notifications"
                         android:paddingVertical="8dp"
                         android:textSize="14sp"
                         android:textColor="#999090"/>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Weekly Summary"
-                        android:paddingVertical="8dp"
-                        android:textSize="14sp"
-                        android:textColor="#999090"/>
+
                 </LinearLayout>
 
                 <View
