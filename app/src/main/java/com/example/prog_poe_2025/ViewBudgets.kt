@@ -59,7 +59,7 @@ class ViewBudgets : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        fetchBudgets() // ✅ Auto-refresh budget list
+        fetchBudgets()  // Auto-refresh budget list when coming back
     }
 
     private fun setupBottomNavigation() {
@@ -77,9 +77,11 @@ class ViewBudgets : AppCompatActivity() {
 
     fun fetchBudgets() {
         val userId = SessionManager.getUserId(applicationContext)
+        // Use a default start time of 0L ("All") for fetching the baseline data
+        val defaultStartTime = 0L
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val budgets = budgetDao.getBudgetsForUser(userId) // ✅ Fetch latest budgets
+            val budgets = budgetDao.getBudgetsForUser(userId)
 
             withContext(Dispatchers.Main) {
                 if (budgets.isEmpty()) {
@@ -87,7 +89,8 @@ class ViewBudgets : AppCompatActivity() {
                         visibility = View.VISIBLE
                         text = "No budgets created yet. Add a new budget to start tracking!"
                     }
-                    budgetAdapter.updateBudgets(emptyList()) // ✅ Clears RecyclerView
+                    budgetAdapter.updateBudgets(emptyList())
+                    budgetsRecyclerView.adapter = budgetAdapter  // Ensure full UI refresh
                     return@withContext
                 }
 
@@ -95,14 +98,15 @@ class ViewBudgets : AppCompatActivity() {
                 budgetsRecyclerView.visibility = View.VISIBLE
 
                 val vbBudgetsList = budgets.map { budget ->
+                    // Retrieve the budget along with its categories
                     val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
 
+                    // Use the default start time so that all transactions are included globally
                     val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, 0L) ?: 0f
-                        val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, 0L) ?: 0f // ✅ Get total income
-
-                        val adjustedSpent = totalSpent - totalIncome // ✅ Subtract income from expense total
-                        maxOf(adjustedSpent, 0f) // ✅ Ensure it doesn’t go negative
+                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, defaultStartTime) ?: 0f
+                        val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, defaultStartTime) ?: 0f
+                        val adjustedSpent = totalSpent - totalIncome
+                        maxOf(adjustedSpent, 0f)
                     }
 
                     val totalSpent = spentAmounts.values.sum()
@@ -111,7 +115,8 @@ class ViewBudgets : AppCompatActivity() {
                     VbBudget(budget.id, budget.name, budget.maxMonthGoal, spentAmounts, totalSpent, remainingAmount)
                 }
 
-                budgetAdapter.updateBudgets(vbBudgetsList) // ✅ Updates adapter & pie chart
+                budgetAdapter.updateBudgets(vbBudgetsList)
+                budgetsRecyclerView.adapter = budgetAdapter  // Force full UI refresh if needed
             }
         }
     }
