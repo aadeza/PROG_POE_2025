@@ -33,6 +33,7 @@ class LogIncomeExpense : AppCompatActivity() {
     private lateinit var categoryViewModel: CategoryViewModel
     private lateinit var categoryAdapter: ArrayAdapter<String>
     private lateinit var viewModel: TransactionViewModel
+    private lateinit var notificationViewModel: NotificationViewModel
 
     private lateinit var edtName: EditText
     private lateinit var edtTxtMlDescription: EditText
@@ -59,7 +60,6 @@ class LogIncomeExpense : AppCompatActivity() {
             insets
         }
 
-        SmartNotificationManager.createNotificationChannel(this)
 
         // Initialize fields
         edtName = findViewById(R.id.edtName)
@@ -80,6 +80,7 @@ class LogIncomeExpense : AppCompatActivity() {
 
         categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
 
+        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
 
         imgLogButton.setOnClickListener { openImageGallery() }
         btnLogDate.setOnClickListener { showDatePicker() }
@@ -202,14 +203,17 @@ class LogIncomeExpense : AppCompatActivity() {
                     user_id = userId
                 )
                 incomeDao.insertIncome(income)
+
+                val notification = Notification(
+                    title = "New transaction logged",
+                    message = "New income added: $amount in $category",
+                    timestamp = System.currentTimeMillis(),
+                )
+                notificationViewModel.insertNotification(notification)
+
                 Toast.makeText(this@LogIncomeExpense, "Income saved successfully!", Toast.LENGTH_SHORT).show()
 
-                // Trigger notification for income transaction
-                SmartNotificationManager.showNotification(
-                    context = this@LogIncomeExpense,
-                    title = "Income Logged",
-                    message = "You saved R$amount in $category"
-                )
+
             } else {
                 val expense = Expenses(
                     amount = amount,
@@ -221,14 +225,14 @@ class LogIncomeExpense : AppCompatActivity() {
                     user_id = userId
                 )
                 expensesDao.insertExpense(expense)
+                val notification = Notification(
+                    title = "New transaction logged",
+                    message = "New expense added: $amount in $category",
+                    timestamp = System.currentTimeMillis(),
+                    )
+                notificationViewModel.insertNotification(notification)
                 Toast.makeText(this@LogIncomeExpense, "Expense saved successfully!", Toast.LENGTH_SHORT).show()
 
-                // Trigger notification for expense transaction
-                SmartNotificationManager.showNotification(
-                    context = this@LogIncomeExpense,
-                    title = "Expense Logged",
-                    message = "You spent R$amount on $category"
-                )
             }
 
             clearFields()

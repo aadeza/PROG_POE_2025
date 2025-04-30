@@ -11,11 +11,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class Register : AppCompatActivity() {
+
+    private lateinit var notificationViewModel: NotificationViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -26,7 +30,7 @@ class Register : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-
+        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
 
         val DoneReg = findViewById<Button>(R.id.btnDoneReg)
         DoneReg.setOnClickListener() {
@@ -69,6 +73,12 @@ class Register : AppCompatActivity() {
 
                         // Show success message
                         runOnUiThread {
+                            val notification = Notification(
+                                title = "Registration",
+                                message = "User successfully registered",
+                                timestamp = System.currentTimeMillis(),
+                            )
+                            notificationViewModel.insertNotification(notification)
                             Toast.makeText(this@Register, "User successfully registered!", Toast.LENGTH_SHORT).show()
                         }
 

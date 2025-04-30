@@ -2,6 +2,8 @@ package com.example.prog_poe_2025
 
 import Data_Classes.Expenses
 import Data_Classes.Income
+import android.util.Log
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +13,11 @@ import java.sql.Date
 class TransactionViewModel(private val repository: TransactionRepository) : ViewModel() {
     val incomes = MutableLiveData<List<Income>>()
     val expenses = MutableLiveData<List<Expenses>>()
+
+
+
+    private val _currency = MutableLiveData(HomeViewModel.Companion.DEFAULT_CURRENCY)
+    val currency: LiveData<String> = _currency
 
     fun loadUserIncomes(userId : Int){
         viewModelScope.launch{

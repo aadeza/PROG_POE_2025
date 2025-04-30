@@ -24,10 +24,10 @@ class HomeViewModel(
     private val _currency = MutableLiveData(DEFAULT_CURRENCY)
     val currency: LiveData<String> = _currency
 
-    private val _totalIncome = MutableLiveData<Long>(0L)
+    private val _totalIncome = MutableLiveData<Long>()
     val totalIncome: LiveData<Long> = _totalIncome
 
-    private val _totalExpenses = MutableLiveData<Long>(0L)
+    private val _totalExpenses = MutableLiveData<Long>()
     val totalExpenses: LiveData<Long> = _totalExpenses
 
     private val _netSavings = MutableLiveData<Long>()
@@ -35,6 +35,9 @@ class HomeViewModel(
 
     private val _transactions = MutableLiveData<List<TransactionItem>>()
     val latestTransactions: LiveData<List<TransactionItem>> = _transactions
+
+    private val _allTransactions = MutableLiveData<List<TransactionItem>>()
+    val allTransactions: LiveData<List<TransactionItem>> = _allTransactions
 
     init {
         val storedUserId = getUserIdFromPreferences()
@@ -57,6 +60,7 @@ class HomeViewModel(
             _currency.value = selectedCurrency
             calculateNetSavings()
             fetchLatestTransactions(selectedCurrency)
+            fetchAllTransactions(selectedCurrency)
         }
     }
 
@@ -68,11 +72,18 @@ class HomeViewModel(
                 val income = repository.getTotalIncome(userId) ?: 0L
                 val expenses = repository.getTotalExpenses(userId) ?: 0L
 
-                _totalIncome.postValue(income)
-                _totalExpenses.postValue(expenses)
+                Log.d("HomeViewModel", "Total Income: $income, Total Expenses: $expenses")
+
+                val convertedIncome = CurrencyConverter.convertAmount(income, "ZAR", currency.value ?: "USD").roundToLong()
+                val convertedExpenses = CurrencyConverter.convertAmount(expenses, "ZAR", currency.value ?: "USD").roundToLong()
+
+
+                _totalIncome.postValue(convertedIncome)
+                _totalExpenses.postValue(convertedExpenses)
 
                 calculateNetSavings()
                 fetchLatestTransactions(_currency.value ?: DEFAULT_CURRENCY)
+                fetchAllTransactions(_currency.value?:DEFAULT_CURRENCY)
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error loading financial data", e)
             }
@@ -83,27 +94,41 @@ class HomeViewModel(
         val income = _totalIncome.value ?: 0L
         val expenses = _totalExpenses.value ?: 0L
         val difference = income - expenses
-        val fromCurrency = "ZAR"
         val toCurrency = _currency.value ?: DEFAULT_CURRENCY
 
         viewModelScope.launch {
+            val currentUserId = _userId.value ?: return@launch
             try {
-                val converted = CurrencyConverter.convertAmount(difference, fromCurrency, toCurrency)
-                _netSavings.postValue(converted.roundToLong())
+                val converted = repository.calculateNetSavingsInPreferredCurrency(currentUserId, toCurrency)
+                _netSavings.postValue(converted)
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Currency conversion failed: ${e.message}")
-                _netSavings.postValue(difference)
+                _netSavings.postValue(difference) // fallback to raw ZAR difference
             }
         }
     }
 
+
     fun fetchLatestTransactions(preferredCurrency: String) {
         viewModelScope.launch {
+
             try {
-                val transactions = repository.getLatestTransactions(preferredCurrency)
+                val transactions = repository.getLatestTransactions(preferredCurrency).take(5)
                 _transactions.postValue(transactions)
             } catch (e: Exception) {
                 Log.e("HomeViewModel", "Error fetching latest transactions", e)
+            }
+        }
+    }
+
+    fun fetchAllTransactions(preferredCurrency: String) {
+        viewModelScope.launch {
+            val currentUserId = _userId.value ?: return@launch
+            try {
+                val transactions = repository.getAllTransactions(preferredCurrency, currentUserId)
+                _allTransactions.postValue(transactions)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error fetching all transactions", e)
             }
         }
     }
@@ -117,20 +142,4 @@ class HomeViewModel(
             .getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
         return sharedPrefs.getInt("user_id", -1)
     }
-
-    private val _allTransactions = MutableLiveData<List<TransactionItem>>()
-    val allTransactions: LiveData<List<TransactionItem>> = _allTransactions
-
-    fun fetchAllTransactions(preferredCurrency: String) {
-        viewModelScope.launch {
-            try {
-                val transactions = repository.getAllTransactions(preferredCurrency)
-                _allTransactions.postValue(transactions)
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error fetching all transactions", e)
-            }
-        }
-    }
-
-
 }

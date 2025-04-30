@@ -22,10 +22,10 @@ class NotificationActivity : AppCompatActivity() {
         // Initialize the notification container (the LinearLayout where notifications will appear)
         notificationContainer = findViewById(R.id.notificationContainer)
 
-        // Initialize the ViewModel to observe the notifications
+
         viewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
 
-        // Observe the LiveData from the ViewModel
+
         viewModel.notifications.observe(this, Observer { notifications ->
             displayNotifications(notifications)
         })
@@ -38,13 +38,13 @@ class NotificationActivity : AppCompatActivity() {
         for (notification in notifications) {
             val cardBinding = CardNotificationBinding.inflate(LayoutInflater.from(this))
 
-            // Bind notification data to the CardView
             cardBinding.txtTitle.text = notification.title
             cardBinding.txtMessage.text = notification.message
             cardBinding.txtTimestamp.text = DateFormat.format("dd MMM yyyy, hh:mm a", notification.timestamp)
 
-            // Add the CardView to the container
+
             notificationContainer.addView(cardBinding.root)
         }
+
     }
 }

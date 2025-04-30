@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.core.widget.addTextChangedListener
 import kotlinx.coroutines.launch
 import Data_Classes.Category
+import Data_Classes.Notification
 import android.annotation.SuppressLint
 import android.widget.Button
 import android.widget.TextView
@@ -40,6 +41,7 @@ import java.util.Locale
         private lateinit var btnAddBudget: Button
         private lateinit var edtMinGoal: EditText
         private lateinit var edtMaxGoal: EditText
+        private lateinit var notificationViewModel: NotificationViewModel
 
         // 📊 ViewModel
         private lateinit var categoryViewModel: CategoryViewModel
@@ -83,7 +85,7 @@ import java.util.Locale
 
             // 3️⃣ ViewModel
             categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
-
+            notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
             // 4️⃣ Preload Default Categories
             lifecycleScope.launch {
                 val current = categoryViewModel.categories.value.orEmpty()
@@ -229,6 +231,12 @@ import java.util.Locale
                         BudgetCategoryCrossRef(budgetId = budgetId, categoryId = it.id)
                     }
                     categoryViewModel.insertBudgetCategoryCrossRefs(crossRefs)
+                    val notification = Notification(
+                        title = "Budget Creation",
+                        message = "New Budget created successfully",
+                        timestamp = System.currentTimeMillis(),
+                    )
+                    notificationViewModel.insertNotification(notification)
                     Toast.makeText(this@CreateBudget, "Budget created!", Toast.LENGTH_SHORT).show()
                     finish()
                 }

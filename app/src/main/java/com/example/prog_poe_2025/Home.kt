@@ -20,6 +20,7 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.launch
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.Color
 
 class Home : AppCompatActivity() {
 
@@ -30,7 +31,6 @@ class Home : AppCompatActivity() {
     private lateinit var incomeTxt: TextView
     private lateinit var expenseTxt: TextView
     private lateinit var txtNetSavings: TextView
-    private lateinit var moreButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +48,7 @@ class Home : AppCompatActivity() {
         incomeTxt = findViewById(R.id.txtTotalIncome)
         expenseTxt = findViewById(R.id.txtTotalExpense)
         txtNetSavings = findViewById(R.id.txtMyProfit)
-        moreButton = findViewById(R.id.seeMore)
+
 
         val database = AppDatabase.getDatabase(applicationContext)
         val incomeDao = database.incomeDao()
@@ -64,7 +64,7 @@ class Home : AppCompatActivity() {
         val factory = HomeViewModelFactory(application, repository)
 
         viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-
+        notificationViewModel  = ViewModelProvider(this)[NotificationViewModel::class.java]
 
         viewModel.latestTransactions.observe(this) { transactions ->
             displayTransactions(transactions)
@@ -82,10 +82,10 @@ class Home : AppCompatActivity() {
             expenseTxt.text = "- $totalExpenses"
         }
 
-viewModel.netSavings.observe(this){ total ->
-    val netSavings = total ?: 0L
-    txtNetSavings.text = "$netSavings"
-}
+       viewModel.netSavings.observe(this){ total ->
+       val netSavings = total ?: 0L
+       txtNetSavings.text = "$netSavings"
+     }
 
 
 
@@ -114,9 +114,6 @@ viewModel.netSavings.observe(this){ total ->
             startActivity(Intent(this@Home, NotificationActivity::class.java))
         }
 
-        moreButton.setOnClickListener{
-            startActivity(Intent(this@Home, TransactionHistory::class.java))
-        }
 
     }
 

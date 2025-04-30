@@ -1,5 +1,6 @@
 package com.example.prog_poe_2025
 
+import Data_Classes.Notification
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -9,15 +10,19 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
+
+    private lateinit var notificationViewModel: NotificationViewModel
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
         val login = findViewById<Button>(R.id.btnLogin)
 
         login.setOnClickListener {
@@ -38,6 +43,12 @@ class MainActivity : AppCompatActivity() {
                             Toast.makeText(this@MainActivity, "Login successful", Toast.LENGTH_SHORT).show()
                             val intent = Intent(this@MainActivity, Home::class.java)
                             startActivity(intent)
+                            val notification = Notification(
+                                title = "Log in",
+                                message = "User successfully logged in",
+                                timestamp = System.currentTimeMillis(),
+                            )
+                            notificationViewModel.insertNotification(notification)
                             finish()
                         }
                     } else {

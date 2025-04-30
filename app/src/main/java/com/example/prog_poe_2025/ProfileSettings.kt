@@ -1,30 +1,18 @@
 package com.example.prog_poe_2025
 
-
 import DAOs.UserDao
-import Data_Classes.Expenses
-import Data_Classes.Income
 import Data_Classes.Users
-import android.app.DatePickerDialog
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.view.View
+import android.util.Log
 import android.widget.*
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.*
+import kotlinx.coroutines.withContext
 
 class ProfileSettings : AppCompatActivity() {
 
@@ -34,177 +22,150 @@ class ProfileSettings : AppCompatActivity() {
     private lateinit var btnSaveChanges: Button
     private lateinit var btnLogout: Button
     private lateinit var btnChangePassword: Button
-    private lateinit var database: AppDatabase
     private lateinit var userDao: UserDao
     private var currentUser: Users? = null
 
-    private val IMAGE_PICK_REQUEST = 1001
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_profile_settings)
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.profile_settings_root)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
-        }
-
-        btnChangePassword = findViewById(R.id.btnChangePassword)
+        // Initialize Views
         edtUsername = findViewById(R.id.edtUsername)
         edtEmail = findViewById(R.id.edtEmail)
         imgProfilePicture = findViewById(R.id.imgProfilePicture)
         btnSaveChanges = findViewById(R.id.btnSaveChanges)
         btnLogout = findViewById(R.id.btnLogout)
+        btnChangePassword = findViewById(R.id.btnChangePassword)
 
-        database = AppDatabase.getDatabase(applicationContext)
+        // Optionally disable email field if email is not editable
+        edtEmail.isEnabled = false
+
+        // Initialize DAO
+        val database = AppDatabase.getDatabase(applicationContext)
         userDao = database.userDao()
 
-
+        // Load User Profile
         loadUserProfile()
 
-        imgProfilePicture.setOnClickListener {
-            openGallery()
-        }
-
+        // Save Changes
         btnSaveChanges.setOnClickListener {
-            saveProfileChanges()
+            lifecycleScope.launch { saveProfileChanges() }
         }
 
+        // Logout
         btnLogout.setOnClickListener {
             logoutUser()
         }
 
+        // Change Password
         btnChangePassword.setOnClickListener {
             showChangePasswordDialog()
         }
     }
 
     private fun loadUserProfile() {
-        val email = SessionManager.getEmail(this)  // get current logged in email
+        val email = SessionManager.getEmail(this)
 
-        lifecycleScope.launch {
-            currentUser = userDao.getUserByEmail(email ?: "")
-            currentUser?.let { user ->
+        lifecycleScope.launch(Dispatchers.IO) {
+            val user = userDao.getUserByEmail(email ?: "")
+            if (user != null) {
+                currentUser = user
                 runOnUiThread {
                     edtUsername.setText(user.name)
                     edtEmail.setText(user.email)
-                    user.profileImageUri?.let {
-                        imgProfilePicture.setImageURI(Uri.parse(it))
-                    }
+                }
+            } else {
+                runOnUiThread {
+                    Toast.makeText(this@ProfileSettings, "Unable to load user profile", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
+    private suspend fun saveProfileChanges() {
+        val updatedUsername = edtUsername.text.toString().trim()
 
-    private fun saveProfileChanges() {
-        val newUsername = edtUsername.text.toString()
-        val newEmail = edtEmail.text.toString()
+        if (updatedUsername.isBlank()) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@ProfileSettings, "Username cannot be empty", Toast.LENGTH_SHORT).show()
+            }
+            return
+        }
 
-        if (newUsername.isNotBlank() && newEmail.isNotBlank()) {
+        withContext(Dispatchers.IO) {
             currentUser?.let { user ->
-                val updatedUser = user.copy(
-                    name = newUsername,
-                    email = newEmail
-                )
-
-                lifecycleScope.launch {
-                    userDao.updateUser(updatedUser)
-                    SessionManager.saveUsername(this@ProfileSettings, newUsername)
-                    SessionManager.saveEmail(this@ProfileSettings, newEmail)
-
-                    runOnUiThread {
-                        Toast.makeText(this@ProfileSettings, "Profile updated successfully", Toast.LENGTH_SHORT).show()
-                    }
-                }
+                val updatedUser = user.copy(name = updatedUsername)
+                userDao.updateUser(updatedUser)
+                currentUser = updatedUser
             }
-        } else {
-            Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
         }
-    }
 
-    private fun openGallery() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        startActivityForResult(intent, IMAGE_PICK_REQUEST)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == IMAGE_PICK_REQUEST && resultCode == RESULT_OK) {
-            val imageUri = data?.data
-
-            imageUri?.let {
-                imgProfilePicture.setImageURI(it)
-                currentUser?.let { user ->
-                    val updatedUser = user.copy(profileImageUri = it.toString())
-
-                    lifecycleScope.launch {
-                        userDao.updateUser(updatedUser)
-                    }
-                }
-            }
+        withContext(Dispatchers.Main) {
+            Toast.makeText(this@ProfileSettings, "Profile updated successfully", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun showChangePasswordDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_change_password, null)
-        val currentPasswordInput = dialogView.findViewById<EditText>(R.id.currentPassword)
-        val newPasswordInput = dialogView.findViewById<EditText>(R.id.newPassword)
-        val confirmNewPasswordInput = dialogView.findViewById<EditText>(R.id.confirmNewPassword)
+        val view = layoutInflater.inflate(R.layout.dialog_change_password, null)
+        val currentPasswordInput = view.findViewById<EditText>(R.id.currentPassword)
+        val newPasswordInput = view.findViewById<EditText>(R.id.newPassword)
+        val confirmPasswordInput = view.findViewById<EditText>(R.id.confirmNewPassword)
 
         AlertDialog.Builder(this)
             .setTitle("Change Password")
-            .setView(dialogView)
-            .setPositiveButton("Save") { _, _ ->
+            .setView(view)
+            .setPositiveButton("Change") { _, _ ->
                 val currentPassword = currentPasswordInput.text.toString()
                 val newPassword = newPasswordInput.text.toString()
-                val confirmPassword = confirmNewPasswordInput.text.toString()
+                val confirmPassword = confirmPasswordInput.text.toString()
 
-                validateAndChangePassword(currentPassword, newPassword, confirmPassword)
+                lifecycleScope.launch {
+                    validateAndChangePassword(currentPassword, newPassword, confirmPassword)
+                }
             }
-            .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
-            .create()
+            .setNegativeButton("Cancel", null)
             .show()
     }
 
-    private fun validateAndChangePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
-        if (currentUser?.password != currentPassword) {
-            Toast.makeText(this, "Current password is incorrect.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        if (newPassword.length < 6) {
-            Toast.makeText(this, "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show()
-            return
-        }
-
+    private suspend fun validateAndChangePassword(currentPassword: String, newPassword: String, confirmPassword: String) {
         if (newPassword != confirmPassword) {
-            Toast.makeText(this, "Passwords do not match.", Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@ProfileSettings, "New passwords do not match", Toast.LENGTH_SHORT).show()
+            }
             return
         }
 
-        currentUser?.let { user ->
-            val updatedUser = user.copy(password = newPassword)
+        val isValid = withContext(Dispatchers.IO) {
+            PasswordUtils.verifyPassword(currentPassword, currentUser?.password?: " ")
+        }
 
-            lifecycleScope.launch {
-                userDao.updateUser(updatedUser)
-
-                runOnUiThread {
-                    Toast.makeText(this@ProfileSettings, "Password changed successfully", Toast.LENGTH_SHORT).show()
-                }
+        if (!isValid) {
+            withContext(Dispatchers.Main) {
+                Toast.makeText(this@ProfileSettings, "Incorrect current password", Toast.LENGTH_SHORT).show()
             }
+            return
+        }
+
+        val newHashedPassword = withContext(Dispatchers.Default) {
+            PasswordUtils.hashPassword(newPassword)
+        }
+
+        withContext(Dispatchers.IO) {
+            currentUser?.let { user ->
+                val updatedUser = user.copy(password = newHashedPassword)
+                userDao.updateUser(updatedUser)
+                currentUser = updatedUser
+            }
+        }
+
+        withContext(Dispatchers.Main) {
+            Toast.makeText(this@ProfileSettings, "Password changed successfully", Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun logoutUser() {
         SessionManager.clearSession(this)
-        val intent = Intent(this, MainActivity::class.java)
-        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        startActivity(intent)
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }
-
