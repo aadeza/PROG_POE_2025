@@ -1,6 +1,7 @@
 package DAOs
 
 import Data_Classes.Expenses
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -26,7 +27,7 @@ interface ExpensesDAO {
     suspend fun getAllExpenses(): List<Expenses>
 
     @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId")
-    fun getTotalExpenses(userId: Int): Flow<Long?>
+    fun getTotalExpenses(userId: Int): Long?
 
 
     @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId AND category = :category AND date >= :startTime")

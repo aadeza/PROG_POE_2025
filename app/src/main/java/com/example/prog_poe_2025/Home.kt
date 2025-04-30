@@ -1,6 +1,7 @@
 package com.example.prog_poe_2025
 
 
+import Data_Classes.Notification
 import android.R.attr.text
 import android.content.Intent
 import android.os.Bundle
@@ -23,10 +24,13 @@ import android.content.SharedPreferences
 class Home : AppCompatActivity() {
 
     private lateinit var viewModel: HomeViewModel
+    private lateinit var notificationViewModel: NotificationViewModel
     private lateinit var tableLayout: TableLayout
     private lateinit var streakTxt: TextView
     private lateinit var incomeTxt: TextView
     private lateinit var expenseTxt: TextView
+    private lateinit var txtNetSavings: TextView
+    private lateinit var moreButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +47,8 @@ class Home : AppCompatActivity() {
         streakTxt = findViewById(R.id.streakText)
         incomeTxt = findViewById(R.id.txtTotalIncome)
         expenseTxt = findViewById(R.id.txtTotalExpense)
+        txtNetSavings = findViewById(R.id.txtMyProfit)
+        moreButton = findViewById(R.id.seeMore)
 
         val database = AppDatabase.getDatabase(applicationContext)
         val incomeDao = database.incomeDao()
@@ -54,26 +60,33 @@ class Home : AppCompatActivity() {
 
 
 
-        val notificationRepository = NotificationRepository(database.notificationDao())
-        val notificationFactory = NotificationViewModelFactory(application, notificationRepository)
-        val notificationViewModel = ViewModelProvider(this, notificationFactory)[NotificationViewModel::class.java]
-
-
 
         val factory = HomeViewModelFactory(application, repository)
 
-        // Observe latest transactions
-        viewModel.getLatestTransactions.observe(this) { transactions ->
+        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
+
+
+        viewModel.latestTransactions.observe(this) { transactions ->
             displayTransactions(transactions)
         }
 
-        viewModel.totalIncome.observe(this) { income ->
-            incomeTxt.text = "Income: ${income ?: 0}"
+        viewModel.totalIncome.observe(this) { total ->
+            val totalIncome = total ?: 0L
+            incomeTxt.text = "+ $totalIncome"
         }
 
-        viewModel.totalExpenses.observe(this) { expense ->
-            expenseTxt.text = "Expense: ${expense ?: 0}"
+        viewModel.setUserId(1)
+
+        viewModel.totalExpenses.observe(this) { total ->
+            val totalExpenses = total ?: 0L
+            expenseTxt.text = "- $totalExpenses"
         }
+
+viewModel.netSavings.observe(this){ total ->
+    val netSavings = total ?: 0L
+    txtNetSavings.text = "$netSavings"
+}
+
 
 
         viewModel.refreshData()
@@ -100,6 +113,11 @@ class Home : AppCompatActivity() {
         findViewById<ImageButton>(R.id.btnNotification).setOnClickListener {
             startActivity(Intent(this@Home, NotificationActivity::class.java))
         }
+
+        moreButton.setOnClickListener{
+            startActivity(Intent(this@Home, TransactionHistory::class.java))
+        }
+
     }
 
     private fun setupBottomNavigation() {
@@ -132,6 +150,7 @@ class Home : AppCompatActivity() {
         viewModel.setCurrency(selectedCurrency)
         viewModel.refreshData()
     }
+
 
     private fun getPreferredCurrency(context: Context): String {
         val sharedPreferences: SharedPreferences =

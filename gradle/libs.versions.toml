@@ -17,6 +17,7 @@ recyclerview = "1.4.0"
 room = "2.6.1"
 coroutines = "1.7.3"
 lifecycle = "2.7.0"
+androidx-cardview = "1.0.0"
 
 
 [libraries]
@@ -45,6 +46,8 @@ coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-androi
 
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycle" }
 lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-cardview = { group = "androidx.cardview", name = "cardview", version.ref = "androidx-cardview" }
+
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

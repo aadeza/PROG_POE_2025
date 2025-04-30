@@ -197,7 +197,14 @@
                 android:gravity="center"
             />
         </HorizontalScrollView>
-
+        <Button
+            android:id="@+id/seeMore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="see More"
+            android:background="@drawable/rounded_corner"
+            android:layout_gravity="center"
+            />
         <!-- Container for Main Buttons -->
         <LinearLayout
             android:id="@+id/containerButtons"
@@ -235,6 +242,7 @@
                 android:textStyle="bold"
                 android:layout_marginStart="8dp" />
         </LinearLayout>
+
     </LinearLayout>
 
 

@@ -7,81 +7,130 @@ import android.content.Context
 import android.util.Log
 import androidx.lifecycle.*
 import kotlinx.coroutines.launch
+import kotlin.math.roundToLong
 
-class HomeViewModel(application: Application, private val repository: HomeRepository) : AndroidViewModel(application) {
+class HomeViewModel(
+    application: Application,
+    private val repository: HomeRepository
+) : AndroidViewModel(application) {
 
     companion object {
         const val DEFAULT_CURRENCY = "USD"
     }
 
-    // LiveData for selected currency
+    private val _userId = MutableLiveData<Int>()
+    val userId: LiveData<Int> = _userId
+
     private val _currency = MutableLiveData(DEFAULT_CURRENCY)
     val currency: LiveData<String> = _currency
 
-    // LiveData for total income and expenses
-    private val _totalIncome = MutableLiveData<Long>()
+    private val _totalIncome = MutableLiveData<Long>(0L)
     val totalIncome: LiveData<Long> = _totalIncome
 
-    private val _totalExpenses = MutableLiveData<Long>()
+    private val _totalExpenses = MutableLiveData<Long>(0L)
     val totalExpenses: LiveData<Long> = _totalExpenses
 
-    // LiveData for transactions
+    private val _netSavings = MutableLiveData<Long>()
+    val netSavings: LiveData<Long> = _netSavings
+
     private val _transactions = MutableLiveData<List<TransactionItem>>()
-    val getLatestTransactions: LiveData<List<TransactionItem>> = _transactions
+    val latestTransactions: LiveData<List<TransactionItem>> = _transactions
 
-    // LiveData for incomes and expenses list if needed
-    private val _incomes = MutableLiveData<List<Income>>()
-    val incomes: LiveData<List<Income>> = _incomes
+    init {
+        val storedUserId = getUserIdFromPreferences()
+        if (storedUserId != -1) {
+            setUserId(storedUserId)
+        } else {
+            Log.w("HomeViewModel", "User ID not found in SharedPreferences.")
+        }
+    }
 
-    private val _expenses = MutableLiveData<List<Expenses>>()
-    val expenses: LiveData<List<Expenses>> = _expenses
+    fun setUserId(id: Int) {
+        if (_userId.value != id) {
+            _userId.value = id
+            loadFinancialData()
+        }
+    }
 
-    // Store user ID
-    private val userId: Int = getUserIdFromPreferences()
+    fun setCurrency(selectedCurrency: String) {
+        if (_currency.value != selectedCurrency) {
+            _currency.value = selectedCurrency
+            calculateNetSavings()
+            fetchLatestTransactions(selectedCurrency)
+        }
+    }
 
+    private fun loadFinancialData() {
+        val userId = _userId.value ?: return
 
+        viewModelScope.launch {
+            try {
+                val income = repository.getTotalIncome(userId) ?: 0L
+                val expenses = repository.getTotalExpenses(userId) ?: 0L
+
+                _totalIncome.postValue(income)
+                _totalExpenses.postValue(expenses)
+
+                calculateNetSavings()
+                fetchLatestTransactions(_currency.value ?: DEFAULT_CURRENCY)
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error loading financial data", e)
+            }
+        }
+    }
+
+    private fun calculateNetSavings() {
+        val income = _totalIncome.value ?: 0L
+        val expenses = _totalExpenses.value ?: 0L
+        val difference = income - expenses
+        val fromCurrency = "ZAR"
+        val toCurrency = _currency.value ?: DEFAULT_CURRENCY
+
+        viewModelScope.launch {
+            try {
+                val converted = CurrencyConverter.convertAmount(difference, fromCurrency, toCurrency)
+                _netSavings.postValue(converted.roundToLong())
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Currency conversion failed: ${e.message}")
+                _netSavings.postValue(difference)
+            }
+        }
+    }
 
     fun fetchLatestTransactions(preferredCurrency: String) {
         viewModelScope.launch {
             try {
                 val transactions = repository.getLatestTransactions(preferredCurrency)
-                _transactions.value = transactions
+                _transactions.postValue(transactions)
             } catch (e: Exception) {
-                e.printStackTrace()
                 Log.e("HomeViewModel", "Error fetching latest transactions", e)
             }
         }
     }
 
-    fun setCurrency(selectedCurrency: String) {
-        _currency.value = selectedCurrency
-        refreshData()
+    fun refreshData() {
+        loadFinancialData()
     }
 
-    fun refreshData() {
+    private fun getUserIdFromPreferences(): Int {
+        val sharedPrefs = getApplication<Application>()
+            .getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
+        return sharedPrefs.getInt("user_id", -1)
+    }
+
+    private val _allTransactions = MutableLiveData<List<TransactionItem>>()
+    val allTransactions: LiveData<List<TransactionItem>> = _allTransactions
+
+    fun fetchAllTransactions(preferredCurrency: String) {
         viewModelScope.launch {
             try {
-                val selectedCurrency = _currency.value ?: DEFAULT_CURRENCY
-
-                Log.d("HomeViewModel", "Refreshing Data -> Currency: $selectedCurrency, User ID: $userId")
-
-                val latestTransactions = repository.getLatestTransactions(selectedCurrency)
-                _transactions.value = latestTransactions
-
-                if (latestTransactions.isEmpty()) {
-                    Log.d("HomeViewModel", "No transactions found")
-                    _transactions.value = emptyList()
-                }
+                val transactions = repository.getAllTransactions(preferredCurrency)
+                _allTransactions.postValue(transactions)
             } catch (e: Exception) {
-                e.printStackTrace()
-                Log.e("HomeViewModel", "Error refreshing data", e)
+                Log.e("HomeViewModel", "Error fetching all transactions", e)
             }
         }
     }
 
-    private fun getUserIdFromPreferences(): Int {
-        val sharedPrefs = getApplication<Application>().getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-        return sharedPrefs.getInt("user_id", 0)
-    }
-}
 
+}

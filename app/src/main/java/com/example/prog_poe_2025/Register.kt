@@ -1,5 +1,6 @@
 package com.example.prog_poe_2025
 
+import Data_Classes.Notification
 import Data_Classes.Users
 import android.content.Intent
 import android.os.Bundle
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
 class Register : AppCompatActivity() {

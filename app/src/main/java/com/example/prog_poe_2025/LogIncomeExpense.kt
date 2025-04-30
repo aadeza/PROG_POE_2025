@@ -4,6 +4,7 @@ import DAOs.ExpensesDAO
 import DAOs.IncomeDAO
 import Data_Classes.Expenses
 import Data_Classes.Income
+import Data_Classes.Notification
 import android.app.DatePickerDialog
 import android.content.Intent
 import android.net.Uri
@@ -20,7 +21,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -54,6 +58,8 @@ class LogIncomeExpense : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        SmartNotificationManager.createNotificationChannel(this)
 
         // Initialize fields
         edtName = findViewById(R.id.edtName)
@@ -104,6 +110,8 @@ class LogIncomeExpense : AppCompatActivity() {
                 streakRepository.updateStreakAfterLogging()
 
             }
+
+
         }
 
         // Bottom Nav
@@ -160,7 +168,8 @@ class LogIncomeExpense : AppCompatActivity() {
             findViewById<ImageView>(R.id.imgSelectedImage).setImageURI(imageUri)
             imagePath = imageUri?.toString()
         }
-    }private fun saveTransaction(incomeDao: IncomeDAO, expensesDao: ExpensesDAO) {
+    }
+    private fun saveTransaction(incomeDao: IncomeDAO, expensesDao: ExpensesDAO) {
         val amountText = edtName.text.toString()
         val description = edtTxtMlDescription.text.toString()
         val category = spnCategory.selectedItem?.toString() ?: ""
@@ -173,14 +182,13 @@ class LogIncomeExpense : AppCompatActivity() {
 
         val amount = amountText.toLongOrNull() ?: 0L
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
-
         val fullDateTime = formatter.parse("$selectedDate $selectedTime")
         var timestamp = fullDateTime?.time ?: System.currentTimeMillis()
 
         // Adjust timestamp (subtract one month)
         timestamp = adjustTimestamp(timestamp)
 
-        val userId = SessionManager.getUserId(applicationContext) // ✅ Dynamic user id
+        val userId = SessionManager.getUserId(applicationContext) // Dynamic user id
 
         lifecycleScope.launch {
             if (toggleButton.isChecked) {
@@ -195,10 +203,13 @@ class LogIncomeExpense : AppCompatActivity() {
                 )
                 incomeDao.insertIncome(income)
                 Toast.makeText(this@LogIncomeExpense, "Income saved successfully!", Toast.LENGTH_SHORT).show()
-                lifecycleScope.launch {
-                    SmartNotificationManager.createIncomeLoggedNotification(this@LogIncomeExpense, income)
-                }
 
+                // Trigger notification for income transaction
+                SmartNotificationManager.showNotification(
+                    context = this@LogIncomeExpense,
+                    title = "Income Logged",
+                    message = "You saved R$amount in $category"
+                )
             } else {
                 val expense = Expenses(
                     amount = amount,
@@ -211,9 +222,13 @@ class LogIncomeExpense : AppCompatActivity() {
                 )
                 expensesDao.insertExpense(expense)
                 Toast.makeText(this@LogIncomeExpense, "Expense saved successfully!", Toast.LENGTH_SHORT).show()
-                lifecycleScope.launch {
-                    SmartNotificationManager.createExpenseLoggedNotification(this@LogIncomeExpense, expense)
-                }
+
+                // Trigger notification for expense transaction
+                SmartNotificationManager.showNotification(
+                    context = this@LogIncomeExpense,
+                    title = "Expense Logged",
+                    message = "You spent R$amount on $category"
+                )
             }
 
             clearFields()

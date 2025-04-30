@@ -1,6 +1,7 @@
 package DAOs
 
 import Data_Classes.Income
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -26,7 +27,7 @@ interface IncomeDAO {
     suspend fun getAllIncomes(): List<Income>
 
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId")
-    fun getTotalIncome(userId: Int): Flow<Long?>
+    fun getTotalIncome(userId: Int): Long?
 
 
 

@@ -73,6 +73,7 @@ dependencies {
 
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.cardview)
 
 
 

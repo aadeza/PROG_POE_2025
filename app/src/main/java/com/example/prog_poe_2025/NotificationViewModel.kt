@@ -1,22 +1,26 @@
 package com.example.prog_poe_2025
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.launch
 import Data_Classes.Notification
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.flow.Flow
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
-class NotificationViewModel(application: Application,private val repository: NotificationRepository) : AndroidViewModel(application) {
+class NotificationViewModel(application: Application) : AndroidViewModel(application) {
+    private val dao = AppDatabase.getDatabase(application).notificationDao()
 
-    val allNotifications: Flow<List<Notification>> = repository.allNotifications
+    val notifications: LiveData<List<Notification>> = dao.getAllNotifications()
 
-    fun insert(notification: Notification) {
+    fun insertNotification(notification: Notification) {
         viewModelScope.launch {
-            repository.insert(notification)
+            dao.insertNotification(notification)
         }
     }
 
+    fun clearNotifications() {
+        viewModelScope.launch {
+            dao.clearNotifications()
+        }
+    }
 }

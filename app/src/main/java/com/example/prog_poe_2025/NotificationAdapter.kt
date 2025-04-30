@@ -1,21 +1,21 @@
 package com.example.prog_poe_2025
 
+import Data_Classes.Notification
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import Data_Classes.Notification
-import java.text.SimpleDateFormat
-import java.util.*
+import java.text.DateFormat
+import java.util.Date
 
-class NotificationAdapter(private val notificationList: List<Notification>) :
+class NotificationAdapter(private var notifications: List<Notification>) :
     RecyclerView.Adapter<NotificationAdapter.NotificationViewHolder>() {
 
-    inner class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val titleText: TextView = itemView.findViewById(R.id.textViewTitle)
-        val messageText: TextView = itemView.findViewById(R.id.textViewMessage)
-        val timestampText: TextView = itemView.findViewById(R.id.textViewTimestamp)
+    class NotificationViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val title: TextView = itemView.findViewById(R.id.textViewTitle)
+        val message: TextView = itemView.findViewById(R.id.textViewMessage)
+        val timestamp: TextView = itemView.findViewById(R.id.textViewTimestamp)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): NotificationViewHolder {
@@ -25,16 +25,17 @@ class NotificationAdapter(private val notificationList: List<Notification>) :
     }
 
     override fun onBindViewHolder(holder: NotificationViewHolder, position: Int) {
-        val notification = notificationList[position]
-        holder.titleText.text = notification.title
-        holder.messageText.text = notification.message
-        holder.timestampText.text = formatTimestamp(notification.timestamp)
+        val notification = notifications[position]
+        holder.title.text = notification.title
+        holder.message.text = notification.message
+        holder.timestamp.text =
+            DateFormat.getDateTimeInstance().format(Date(notification.timestamp))
     }
 
-    override fun getItemCount(): Int = notificationList.size
+    override fun getItemCount() = notifications.size
 
-    private fun formatTimestamp(timestamp: Long): String {
-        val sdf = SimpleDateFormat("dd MMM yyyy, HH:mm", Locale.getDefault())
-        return sdf.format(Date(timestamp))
+    fun updateData(newNotifications: List<Notification>) {
+        notifications = newNotifications
+        notifyDataSetChanged()
     }
 }

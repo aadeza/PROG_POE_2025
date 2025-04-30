@@ -97,7 +97,7 @@ class BudgetQuiz : AppCompatActivity() {
     private fun preloadQuestionsAndStartQuiz() {
         lifecycleScope.launch {
             withContext(Dispatchers.IO) {
-                // Preload questions if database is empty
+
                 if (database.questionsDao().getAllQuestions().isEmpty()) {
                     val defaultQuestions = listOf(
                         Data_Classes.Questions(
