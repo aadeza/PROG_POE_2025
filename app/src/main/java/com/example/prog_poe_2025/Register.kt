@@ -15,10 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-
 class Register : AppCompatActivity() {
-
-    private lateinit var notificationViewModel: NotificationViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,10 +27,9 @@ class Register : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
-        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
 
         val DoneReg = findViewById<Button>(R.id.btnDoneReg)
-        DoneReg.setOnClickListener() {
+        DoneReg.setOnClickListener {
             val name = findViewById<EditText>(R.id.edtName).text.toString()
             val surname = findViewById<EditText>(R.id.edtSurname).text.toString()
             val email = findViewById<EditText>(R.id.edtEmailAddress).text.toString()
@@ -62,30 +58,19 @@ class Register : AppCompatActivity() {
                 val user = Users(name = name, surname = surname, email = email, password = hashedPassword, number = number)
 
                 lifecycleScope.launch {
-
-
                     try {
-                        // Get the database instance using the Singleton method
                         val db = AppDatabase.getDatabase(applicationContext)
                         val userDao = db.userDao()
 
                         userDao.insertUser(user)
 
-                        // Show success message
                         runOnUiThread {
-                            val notification = Notification(
-                                title = "Registration",
-                                message = "User successfully registered",
-                                timestamp = System.currentTimeMillis(),
-                            )
-                            notificationViewModel.insertNotification(notification)
                             Toast.makeText(this@Register, "User successfully registered!", Toast.LENGTH_SHORT).show()
                         }
 
-                        // Navigate to MainActivity after successful registration
                         val intent = Intent(this@Register, MainActivity::class.java)
                         startActivity(intent)
-                        finish() // Close Register activity to prevent navigating back to it
+                        finish()
 
                     } catch (e: Exception) {
                         Toast.makeText(this@Register, "Error saving user: ${e.message}", Toast.LENGTH_SHORT).show()

@@ -1,12 +1,10 @@
 package com.example.prog_poe_2025
 
-
-import Data_Classes.Notification
-import android.R.attr.text
 import android.content.Intent
+import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
-import android.widget.ImageButton
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -14,21 +12,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import android.content.Context
-import android.content.SharedPreferences
-import android.graphics.Color
+import kotlinx.coroutines.withContext
 
 class Home : AppCompatActivity() {
 
-    private lateinit var viewModel: HomeViewModel
-    private lateinit var notificationViewModel: NotificationViewModel
-    private lateinit var tableLayout: TableLayout
-    private lateinit var streakTxt: TextView
-
+    private lateinit var txtAccAmount: TextView
+    private lateinit var txtSpAmount: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,76 +34,115 @@ class Home : AppCompatActivity() {
             insets
         }
 
-        tableLayout = findViewById(R.id.tableLayout)
-        streakTxt = findViewById(R.id.streakText)
-
-
-
-        val database = AppDatabase.getDatabase(applicationContext)
-        val incomeDao = database.incomeDao()
-        val expenseDao = database.expensesDao()
-        val streakDao = database.streakDao()
-
-        val repository = HomeRepository(incomeDao, expenseDao)
-        val streakRepository = StreakRepository(streakDao)
-
-
-
-
-        val factory = HomeViewModelFactory(application, repository)
-
-        viewModel = ViewModelProvider(this, factory)[HomeViewModel::class.java]
-        notificationViewModel  = ViewModelProvider(this)[NotificationViewModel::class.java]
-
-        viewModel.latestTransactions.observe(this) { transactions ->
-            displayTransactions(transactions)
-        }
-
-        viewModel.totalIncome.observe(this) { total ->
-            val totalIncome = total ?: 0L
-
-        }
-
-        viewModel.setUserId(1)
-
-        viewModel.totalExpenses.observe(this) { total ->
-            val totalExpenses = total ?: 0L
-
-        }
-
-       viewModel.netSavings.observe(this){ total ->
-       val netSavings = total ?: 0L
-
-     }
-
-
-
-        viewModel.refreshData()
-
-        lifecycleScope.launch {
-            val streakCount = streakRepository.getStreakCount()
-            streakTxt.text = "$streakCount"
-        }
+        txtAccAmount = findViewById(R.id.txtAccAmount)
+        txtSpAmount = findViewById(R.id.txtSpAmount)
 
         setupBottomNavigation()
+        fetchTotals() // ✅ Load income & spent totals on startup
+        fetchLatestTransactions() // ✅ Load latest transactions for table
+        // ✅ Set up button navigation
+        findViewById<Button>(R.id.btnCreateBudget).setOnClickListener {
+            startActivity(Intent(this@Home, CreateBudget::class.java))
+        }
 
         findViewById<Button>(R.id.btnGenerateReport).setOnClickListener {
             startActivity(Intent(this@Home, GenReport::class.java))
         }
 
-        findViewById<Button>(R.id.btnCreateBudget).setOnClickListener {
-            startActivity(Intent(this@Home, CreateBudget::class.java))
+    }
+
+    // ✅ Fetch total accumulated income & spent amount
+    private fun fetchTotals() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(applicationContext)
+            val userId = SessionManager.getUserId(applicationContext)
+
+            val totalIncome = db.incomeDao().getTotalIncome(userId) ?: 0.0
+            val totalSpent = db.expensesDao().getTotalExpenses(userId) ?: 0.0
+
+            Log.d("DEBUG", "Total Income: $totalIncome | Total Spent: $totalSpent") // ✅ Debug log
+
+            withContext(Dispatchers.Main) {
+                txtAccAmount.text = "R${String.format("%.2f", totalIncome)}"
+                txtSpAmount.text = "R${String.format("%.2f", totalSpent)}"
+            }
+        }
+    }
+
+    private fun fetchLatestTransactions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val db = AppDatabase.getDatabase(applicationContext)
+            val userId = SessionManager.getUserId(applicationContext)
+
+            val latestIncomes = db.incomeDao().getLatestIncomes(userId) ?: emptyList()
+            val latestExpenses = db.expensesDao().getLatestExpenses(userId) ?: emptyList()
+
+            val combinedTransactions = (latestIncomes + latestExpenses)
+                .sortedByDescending { it.date }
+                .take(3) // ✅ Ensures only the latest 3 are taken
+
+            Log.d("DEBUG", "Latest 3 Transactions: $combinedTransactions")
+
+            withContext(Dispatchers.Main) {
+                updateTable(combinedTransactions)
+            }
+        }
+    }
+
+    // ✅ Populate the Recent Transactions Table
+    private fun updateTable(transactions: List<spTransaction>) {
+        val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
+        tableLayout.removeAllViews() // ✅ Clears previous rows
+
+        if (transactions.isEmpty()) {
+            val placeholderRow = TableRow(this)
+            val placeholderText = TextView(this).apply {
+                text = "No Recent Transactions"
+                setPadding(16, 16, 16, 16)
+                textSize = 18f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+                setTextColor(Color.GRAY)
+            }
+            placeholderRow.addView(placeholderText)
+            tableLayout.addView(placeholderRow)
+            return
         }
 
-        findViewById<ImageButton>(R.id.btnSettings).setOnClickListener {
-            startActivity(Intent(this@Home, Settings::class.java))
+        val headerRow = TableRow(this)
+        val headers = listOf("Type", "Amount", "Date", "Category")
+
+        for (headerText in headers) {
+            val textView = TextView(this).apply {
+                text = headerText
+                setPadding(16, 16, 16, 16)
+                textSize = 15f
+                setTypeface(null, android.graphics.Typeface.BOLD)
+            }
+            headerRow.addView(textView)
         }
+        tableLayout.addView(headerRow)
 
-        findViewById<ImageButton>(R.id.btnNotification).setOnClickListener {
-            startActivity(Intent(this@Home, NotificationActivity::class.java))
+        for (transaction in transactions) { // ✅ Loops properly through 3 items
+            val row = TableRow(this)
+
+            row.addView(createCell(if (transaction.isExpense) "Expense" else "Income"))
+            row.addView(createCell("R${String.format("%.2f", transaction.amount.toFloat())}"))
+            row.addView(createCell(formatDate(transaction.date)))
+            row.addView(createCell(transaction.category))
+
+            tableLayout.addView(row)
         }
-
-
+    }
+    private fun formatDate(millis: Long): String {
+        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
+        return sdf.format(java.util.Date(millis))
+    }
+    private fun createCell(text: String): TextView {
+        return TextView(this).apply {
+            this.text = text
+            setPadding(16, 16, 16, 16)
+            textSize = 13f
+        }
     }
 
     private fun setupBottomNavigation() {
@@ -135,72 +167,5 @@ class Home : AppCompatActivity() {
                 else -> false
             }
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        val selectedCurrency = getPreferredCurrency(this)
-        viewModel.setCurrency(selectedCurrency)
-        viewModel.refreshData()
-    }
-
-
-    private fun getPreferredCurrency(context: Context): String {
-        val sharedPreferences: SharedPreferences =
-            context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
-
-        return sharedPreferences.getString("preferred_currency", "USD") ?: "USD"
-    }
-
-    private fun displayTransactions(transactions: List<TransactionItem>) {
-        tableLayout.removeAllViews()
-
-        val headerRow = TableRow(this)
-        val headers = listOf("Entry Type", "Amount", "Date", "Category", "Transaction Type")
-
-        for (headerText in headers) {
-            val textView = TextView(this).apply {
-                text = headerText
-                setPadding(16, 16, 16, 16)
-                textSize = 15f
-                setTypeface(null, android.graphics.Typeface.BOLD)
-            }
-            headerRow.addView(textView)
-        }
-        tableLayout.addView(headerRow)
-
-        for (transaction in transactions) {
-            val row = TableRow(this)
-            when (transaction) {
-                is TransactionItem.IncomeItem -> {
-                    row.addView(createCell("Income"))
-                    row.addView(createCell(transaction.income.amount.toString()))
-                    row.addView(createCell(formatDate(transaction.income.date)))
-                    row.addView(createCell(transaction.income.category))
-                    row.addView(createCell(transaction.income.transaction_type))
-                }
-                is TransactionItem.ExpenseItem -> {
-                    row.addView(createCell("Expense"))
-                    row.addView(createCell(transaction.expense.amount.toString()))
-                    row.addView(createCell(formatDate(transaction.expense.date)))
-                    row.addView(createCell(transaction.expense.category))
-                    row.addView(createCell(transaction.expense.transaction_type))
-                }
-            }
-            tableLayout.addView(row)
-        }
-    }
-
-    private fun createCell(text: String): TextView {
-        return TextView(this).apply {
-            this.text = text
-            setPadding(16, 16, 16, 16)
-            textSize = 13f
-        }
-    }
-
-    private fun formatDate(millis: Long): String {
-        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date(millis))
     }
 }

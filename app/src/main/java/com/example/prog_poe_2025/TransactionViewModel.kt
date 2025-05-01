@@ -16,8 +16,7 @@ class TransactionViewModel(private val repository: TransactionRepository) : View
 
 
 
-    private val _currency = MutableLiveData(HomeViewModel.Companion.DEFAULT_CURRENCY)
-    val currency: LiveData<String> = _currency
+
 
     fun loadUserIncomes(userId : Int){
         viewModelScope.launch{

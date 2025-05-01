@@ -25,5 +25,12 @@ interface IncomeDAO {
     suspend fun getTotalIncomeInCategory(userId: Int, category: String, budgetId: Int, startTime: Long): Float
 
     @Query("SELECT * FROM Income")
-    fun getAllIncome(): List<Income> // ✅ This fetches all expense transactions
+    fun getAllIncome(): List<Income>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM Income WHERE user_id = :userId")
+    suspend fun getTotalIncome(userId: Int): Double
+
+    @Query("SELECT * FROM Income WHERE user_id = :userId ORDER BY date DESC LIMIT 3")
+    suspend fun getLatestIncomes(userId: Int): List<Income>
+
 }

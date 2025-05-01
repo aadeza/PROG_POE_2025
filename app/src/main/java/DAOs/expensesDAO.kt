@@ -24,6 +24,13 @@ interface ExpensesDAO {
     suspend fun updateExpenseAmount(userId: Int, category: String, newAmount: Float, budgetId: Int)
 
     @Query("SELECT * FROM Expenses")
-    fun getAllExpenses(): List<Expenses> // ✅ This fetches all expense transactions
+    fun getAllExpenses(): List<Expenses>
+
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM Expenses WHERE user_id = :userId")
+    suspend fun getTotalExpenses(userId: Int): Double
+
+    @Query("SELECT * FROM Expenses WHERE user_id = :userId ORDER BY date DESC LIMIT 3")
+    suspend fun getLatestExpenses(userId: Int): List<Expenses>
+
 }
 

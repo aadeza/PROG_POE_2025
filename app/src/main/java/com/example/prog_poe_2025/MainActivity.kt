@@ -16,13 +16,13 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var notificationViewModel: NotificationViewModel
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        notificationViewModel = ViewModelProvider(this)[NotificationViewModel::class.java]
+
         val login = findViewById<Button>(R.id.btnLogin)
 
         login.setOnClickListener {
@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity() {
                                 message = "User successfully logged in",
                                 timestamp = System.currentTimeMillis(),
                             )
-                            notificationViewModel.insertNotification(notification)
+
                             finish()
                         }
                     } else {

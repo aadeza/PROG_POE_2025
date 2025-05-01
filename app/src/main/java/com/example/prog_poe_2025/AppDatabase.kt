@@ -15,7 +15,7 @@ import androidx.room.*
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 6, // ✅ Ensure the version number matches changes in schema
+    version = 9, // ✅ Ensure the version number matches changes in schema
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -27,6 +27,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun incomeDao(): IncomeDAO
     abstract fun budgetCategoryDao(): BudgetCategoryDAO
     abstract fun quizScoresDao(): QuizScoresDAO
+
 
     companion object {
         @Volatile

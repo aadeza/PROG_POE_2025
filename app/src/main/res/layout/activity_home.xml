@@ -95,11 +95,86 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerTextViews"
             android:layout_width="match_parent"
-            android:layout_height="253dp"
+            android:layout_height="296dp"
 
 
             android:background="@drawable/card"
-            app:layout_constraintTop_toBottomOf="@id/containerOther" />
+            app:layout_constraintTop_toBottomOf="@id/containerOther">
+
+            <TextView
+                android:id="@+id/txtTotAccumulated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="27dp"
+                android:layout_marginTop="53dp"
+                android:layout_marginEnd="247dp"
+                android:shadowColor="#80FF80"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="8"
+                android:text="Accumulated:"
+                android:textColor="#00FF00"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/txtTotSpent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="27dp"
+                android:layout_marginTop="60dp"
+                android:layout_marginEnd="320dp"
+                android:shadowColor="#FF8080"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="8"
+                android:text="Spent:"
+                android:textColor="#FF0000"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtAccAmount" />
+
+            <TextView
+                android:id="@+id/txtAccAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="265dp"
+                android:shadowColor="#80FF80"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="10"
+                android:text="TextView"
+                android:textColor="#E6E6FA"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtTotAccumulated" />
+
+            <TextView
+                android:id="@+id/txtSpAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:layout_marginEnd="265dp"
+                android:shadowColor="#FF8080"
+                android:shadowDx="0"
+                android:shadowDy="0"
+                android:shadowRadius="10"
+                android:text="TextView"
+                android:textColor="#E6E6FA"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtTotSpent" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
         <TextView
             android:id="@+id/recentTransHeading"
             android:layout_width="wrap_content"
@@ -113,6 +188,13 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/containerTextViews"
             />
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="100dp"
+            android:fillViewport="true"
+            android:scrollbars="vertical">
+
+
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -128,12 +210,13 @@
                 android:gravity="center"
             />
         </HorizontalScrollView>
+    </ScrollView>
 
         <LinearLayout
             android:id="@+id/containerButtons"
             android:layout_width="match_parent"
             android:layout_height="152dp"
-            android:layout_marginTop="60dp"
+            android:layout_marginTop="10dp"
             android:layout_marginBottom="16dp"
             android:gravity="center"
             android:orientation="horizontal"
