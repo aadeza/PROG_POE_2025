@@ -28,9 +28,7 @@ class Home : AppCompatActivity() {
     private lateinit var notificationViewModel: NotificationViewModel
     private lateinit var tableLayout: TableLayout
     private lateinit var streakTxt: TextView
-    private lateinit var incomeTxt: TextView
-    private lateinit var expenseTxt: TextView
-    private lateinit var txtNetSavings: TextView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,9 +43,7 @@ class Home : AppCompatActivity() {
 
         tableLayout = findViewById(R.id.tableLayout)
         streakTxt = findViewById(R.id.streakText)
-        incomeTxt = findViewById(R.id.txtTotalIncome)
-        expenseTxt = findViewById(R.id.txtTotalExpense)
-        txtNetSavings = findViewById(R.id.txtMyProfit)
+
 
 
         val database = AppDatabase.getDatabase(applicationContext)
@@ -72,19 +68,19 @@ class Home : AppCompatActivity() {
 
         viewModel.totalIncome.observe(this) { total ->
             val totalIncome = total ?: 0L
-            incomeTxt.text = "+ $totalIncome"
+
         }
 
         viewModel.setUserId(1)
 
         viewModel.totalExpenses.observe(this) { total ->
             val totalExpenses = total ?: 0L
-            expenseTxt.text = "- $totalExpenses"
+
         }
 
        viewModel.netSavings.observe(this){ total ->
        val netSavings = total ?: 0L
-       txtNetSavings.text = "$netSavings"
+
      }
 
 

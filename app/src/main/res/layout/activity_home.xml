@@ -22,7 +22,6 @@
         tools:layout_editor_absoluteX="16dp">
 
 
-
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerOther"
             android:layout_width="match_parent"
@@ -31,144 +30,76 @@
 
             <ImageButton
                 android:id="@+id/btnSettings"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="5dp"
+                android:layout_width="46dp"
+                android:layout_height="32dp"
+                android:layout_marginEnd="24dp"
                 android:background="@android:color/transparent"
                 android:contentDescription="Settings Button"
                 android:src="@drawable/baseline_settings_24"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
-
-            <ImageButton
-                android:id="@+id/btnNotification"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/bell"
-                app:layout_constraintEnd_toStartOf="@id/btnSettings"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent" />
+                app:layout_constraintTop_toTopOf="parent" />
 
             <LinearLayout
                 android:id="@+id/streakLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/btnNotification"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintTop_toTopOf="parent">
 
-                <ImageButton
-                    android:id="@+id/btnStreak"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/flame" />
-
-                <TextView
-                    android:id="@+id/streakText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="5 days"
-                    android:paddingStart="8dp"
-                    android:textSize="16sp"
-                    android:textColor="@android:color/black" />
             </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageButton
+                android:id="@+id/btnStreak"
+                android:layout_width="50dp"
+                android:layout_height="42dp"
+                android:layout_marginTop="35dp"
+                android:layout_marginEnd="1dp"
+                android:layout_marginBottom="29dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/flame"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/streakText"
+                app:layout_constraintTop_toTopOf="parent" />
 
+            <TextView
+                android:id="@+id/streakText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="34dp"
+                android:layout_marginEnd="143dp"
+                android:paddingStart="8dp"
+                android:text="5 days"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toStartOf="@+id/btnNotification"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageButton
+                android:id="@+id/btnNotification"
+                android:layout_width="29dp"
+                android:layout_height="27dp"
+                android:layout_marginEnd="24dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/bell"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/btnSettings"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.515" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/containerTextViews"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="253dp"
 
 
             android:background="@drawable/card"
-            app:layout_constraintTop_toBottomOf="@id/containerOther">
-
-            <TextView
-                android:id="@+id/txtMyProfit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/bokor"
-                android:text="@string/txtTotalIncome"
-                android:textColor="@color/white"
-                android:textSize="55sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <TextView
-                android:id="@+id/txtGross"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:fontFamily="@font/tiro_devanagari_marathi"
-                android:text="@string/txtProfit"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtMyProfit" />
-
-            <TextView
-                android:id="@+id/txtTotalExpense"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:fontFamily="@font/bokor"
-                android:text="@string/txtMyAmount"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtGross" />
-
-            <TextView
-                android:id="@+id/txtExpense"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:fontFamily="@font/tiro_devanagari_marathi"
-                android:text="@string/txtExpense"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtTotalExpense" />
-
-            <TextView
-                android:id="@+id/txtTotalIncome"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:fontFamily="@font/bokor"
-                android:text="@string/txtTotalExpenses"
-                android:textColor="@color/white"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtExpense" />
-
-            <TextView
-                android:id="@+id/txtProfit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
-                android:fontFamily="@font/tiro_devanagari_marathi"
-                android:text="@string/txtIncome"
-                android:textColor="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/txtTotalIncome" />
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toBottomOf="@id/containerOther" />
         <TextView
             android:id="@+id/recentTransHeading"
             android:layout_width="wrap_content"
@@ -201,38 +132,38 @@
         <LinearLayout
             android:id="@+id/containerButtons"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
+            android:layout_height="152dp"
+            android:layout_marginTop="60dp"
             android:layout_marginBottom="16dp"
-            android:layout_marginTop="30dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:padding="16dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tableLayout"
-            android:padding="16dp">
+            app:layout_constraintTop_toBottomOf="@id/tableLayout">
 
             <Button
                 android:id="@+id/btnCreateBudget"
                 android:layout_width="0dp"
-                android:layout_height="58dp"
+                android:layout_height="75dp"
+                android:layout_marginEnd="8dp"
                 android:layout_weight="1"
-                android:background = "@drawable/rounded_corner"
+                android:background="@drawable/rounded_corner"
                 android:text="@string/btnCreateBudget"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginEnd="8dp" />
+                android:textStyle="bold" />
 
             <Button
                 android:id="@+id/btnGenerateReport"
                 android:layout_width="0dp"
-                android:layout_height="58dp"
+                android:layout_height="76dp"
+                android:layout_marginStart="8dp"
                 android:layout_weight="1"
-                android:background = "@drawable/rounded_corner"
+                android:background="@drawable/rounded_corner"
                 android:text="@string/btnGenerateReport"
                 android:textColor="@color/white"
                 android:textSize="12sp"
-                android:textStyle="bold"
-                android:layout_marginStart="8dp" />
+                android:textStyle="bold" />
         </LinearLayout>
 
     </LinearLayout>
