@@ -3,6 +3,7 @@ package com.example.prog_poe_2025
 import Data_Classes.Category
 import android.content.Intent
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,52 +27,60 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(budget: VbBudget) {
+            Log.d("DEBUG", "Binding Budget ID: ${budget.id}, Name: ${budget.name}")
+            Log.d("DEBUG", "Spent Amounts Map: ${budget.spentAmounts}")
+            //Log.d("DEBUG", "Total Spent: ${budget.totalSpent} | Remaining: ${budget.remainingAmount}")
+
             binding.budgetName.text = budget.name
             binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
 
-            val adjustedSpent = budget.spentAmounts.values.sum()
-            binding.txtSpent.text = "Spent: R${adjustedSpent}"
-            binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
+            //binding.txtSpent.text = "Spent: R${budget.totalSpent}"
+            //binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
 
-            val progress = (adjustedSpent / budget.maxMonthGoal * 100).coerceIn(0F, 100F) // Prevents negative values
+            val progress = (budget.totalSpent / budget.maxMonthGoal * 100).coerceIn(0F, 100F)
             binding.progressBar.progress = progress.toInt()
 
-            if (binding.pieChart.data == null || binding.pieChart.data.entryCount == 0) {
-                setupPieChart(budget.spentAmounts) // Refresh only when necessary
-            }
-
+            setupPieChart(budget.spentAmounts)
             setupDateFilterSpinner(budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
         }
-
         private fun setupPieChart(spentAmounts: Map<Category, Float>) {
+            Log.d("DEBUG", "Setting up Pie Chart with: $spentAmounts")
+
             val entries = spentAmounts.filter { it.value > 0 }
                 .map { (category, amount) -> PieEntry(amount, category.name) }
 
-            binding.pieChart.clear() // Clears old data to force refresh
+            Log.d("DEBUG", "Pie Chart Entries Before Setup: $entries")
 
-            if (entries.isNotEmpty()) {
-                val dataSet = PieDataSet(entries, "").apply {
-                    colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
-                    sliceSpace = 2f
-                    valueTextSize = 12f
-                    valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            return "R$value"
-                        }
+            if (entries.isEmpty()) {
+                Log.d("DEBUG", "Pie Chart has NO valid data. Keeping previous data.")
+                return // ✅ Don't reset the pie chart if no new data exists!
+            }
+
+            Log.d("DEBUG", "Pie Chart Entries After Filtering: $entries")
+
+            binding.pieChart.visibility = View.VISIBLE
+            binding.pieChart.clear() // ✅ Clears old data only when necessary
+
+            val dataSet = PieDataSet(entries, "").apply {
+                colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
+                sliceSpace = 2f
+                valueTextSize = 12f
+                valueFormatter = object : ValueFormatter() {
+                    override fun getFormattedValue(value: Float): String {
+                        return "${String.format("%.1f", value)}%" // ✅ Rounds to 1 decimal place and adds "%"
                     }
                 }
+            }
 
-                binding.pieChart.apply {
-                    data = PieData(dataSet)
-                    description.isEnabled = false
-                    setUsePercentValues(true)
-                    animateY(1000)
-                    invalidate() // Ensures chart updates immediately
-                }
-            } else {
-                binding.pieChart.setNoDataText("No spending data available.")
+            binding.pieChart.apply {
+                data = PieData(dataSet)
+                description.isEnabled = false
+                setUsePercentValues(true)
+                animateY(1000)
+                Log.d("DEBUG", "Pie Chart Updated and Visible")
+                invalidate()
             }
         }
 
@@ -144,16 +153,25 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 val budgetId = SessionManager.getSelectedBudgetId(binding.root.context)
 
                 val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime) ?: 0f
+                    val totalSpent = db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime) ?: 0f
+                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budgetId, startTime) ?: 0f
+                    val finalSpent = maxOf(totalSpent - totalIncome, 0f)
+
+                    Log.d("DEBUG", "Filtering Category: ${category.name} - Total Spent: $totalSpent, Total Income: $totalIncome, Final Spent: $finalSpent") // ✅ Logs filter results
+
+                    finalSpent
                 }
 
                 val totalSpent = spentAmounts.values.sum()
                 val remainingAmount = budget.maxMonthGoal - totalSpent
 
+                Log.d("DEBUG", "Updating UI - Filtered Total Spent: $totalSpent, Remaining: $remainingAmount") // ✅ Confirms correct transaction retrieval
+
                 withContext(Dispatchers.Main) {
-                    binding.txtSpent.text = "Spent: R$totalSpent"
-                    binding.remainingAmount.text = "Remaining: R$remainingAmount"
-                    setupPieChart(spentAmounts) // Ensures chart updates dynamically
+                    //binding.txtSpent.text = "Spent: R${String.format("%.2f", totalSpent)}"
+                    //binding.remainingAmount.text = "Remaining: R${String.format("%.2f", remainingAmount)}"
+
+                    setupPieChart(spentAmounts) // ✅ Ensure the pie chart updates dynamically
                 }
             }
         }

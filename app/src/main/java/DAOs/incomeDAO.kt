@@ -21,8 +21,8 @@ interface IncomeDAO {
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
     suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?
 
-    @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
-    suspend fun getTotalIncomeInCategory(userId: Int, category: String, startTime: Long): Float?
+    @Query("SELECT COALESCE(SUM(amount), 0) FROM Income WHERE user_id = :userId AND category = :category AND budgetId = :budgetId AND date >= :startTime")
+    suspend fun getTotalIncomeInCategory(userId: Int, category: String, budgetId: Int, startTime: Long): Float
 
     @Query("SELECT * FROM Income")
     fun getAllIncome(): List<Income> // ✅ This fetches all expense transactions

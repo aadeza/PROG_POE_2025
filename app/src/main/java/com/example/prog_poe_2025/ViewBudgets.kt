@@ -2,6 +2,7 @@ package com.example.prog_poe_2025
 import Data_Classes.Category
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
@@ -22,7 +23,7 @@ data class VbBudget(
     val name: String,
     val maxMonthGoal: Long,
     val spentAmounts: Map<Category, Float>,
-    val totalSpent: Float, // Added this
+   val totalSpent: Float,
     val remainingAmount: Float // Added this
 )
 class ViewBudgets : AppCompatActivity() {
@@ -88,12 +89,38 @@ class ViewBudgets : AppCompatActivity() {
 
     fun fetchBudgets() {
         val userId = SessionManager.getUserId(applicationContext)
-        // Use a default start time of 0L ("All") for fetching the baseline data
-        val defaultStartTime = 0L
+        val defaultStartTime = 0L // Fetch all transactions
 
         lifecycleScope.launch(Dispatchers.IO) {
             val budgets = budgetDao.getBudgetsForUser(userId)
+            Log.d("DEBUG", "Fetched budgets: $budgets")
 
+            // ✅ Process mapping in IO thread BEFORE switching back to Main
+            val vbBudgetsList = budgets.map { budget ->
+                val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
+
+                Log.d("DEBUG", "Budget ID: ${budget.id}, Categories: ${budgetWithCategories.categories.map { it.name }}")
+
+                val spentAmounts = budgetWithCategories.categories.associateWith { category ->
+                    val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
+                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
+                    val finalSpent = maxOf(totalSpent - totalIncome, 0f)
+
+                    Log.d("DEBUG", "Category: ${category.name}, Total Spent: $totalSpent, Total Income: $totalIncome, Final Spent: $finalSpent")
+
+                    finalSpent
+                }
+
+                val totalSpent = spentAmounts.values.sum()
+                val remainingAmount = budget.maxMonthGoal - totalSpent
+
+                Log.d("DEBUG", "Budget ID: ${budget.id}, Total Spent: $totalSpent, Remaining: $remainingAmount")
+
+                VbBudget(budget.id, budget.name, budget.maxMonthGoal, spentAmounts, totalSpent, remainingAmount)
+
+            }
+
+            // ✅ Switch to Main thread only AFTER processing budgets in IO
             withContext(Dispatchers.Main) {
                 if (budgets.isEmpty()) {
                     binding.txtNoBudgetsMessage.apply {
@@ -101,34 +128,16 @@ class ViewBudgets : AppCompatActivity() {
                         text = "No budgets created yet. Add a new budget to start tracking!"
                     }
                     budgetAdapter.updateBudgets(emptyList())
-                    budgetsRecyclerView.adapter = budgetAdapter  // Ensure full UI refresh
                     return@withContext
                 }
 
                 binding.txtNoBudgetsMessage.visibility = View.GONE
                 budgetsRecyclerView.visibility = View.VISIBLE
 
-                val vbBudgetsList = budgets.map { budget ->
-                    // Retrieve the budget along with its categories
-                    val budgetId = SessionManager.getSelectedBudgetId(binding.root.context) // ✅ Fix reference issue
-                    val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
-
-                    // Use the default start time so that all transactions are included globally
-                    val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, budgetId, defaultStartTime) ?: 0f
-                        val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, defaultStartTime) ?: 0f
-                        val adjustedSpent = totalSpent - totalIncome
-                        maxOf(adjustedSpent, 0f)
-                    }
-
-                    val totalSpent = spentAmounts.values.sum()
-                    val remainingAmount = budget.maxMonthGoal - totalSpent
-
-                    VbBudget(budget.id, budget.name, budget.maxMonthGoal, spentAmounts, totalSpent, remainingAmount)
-                }
-
                 budgetAdapter.updateBudgets(vbBudgetsList)
-                budgetsRecyclerView.adapter = budgetAdapter  // Force full UI refresh if needed
+                budgetsRecyclerView.adapter?.notifyDataSetChanged()
+
+                Log.d("DEBUG", "UI Updated - Budgets refreshed successfully")
             }
         }
     }
