@@ -28,8 +28,8 @@ class Register : AppCompatActivity() {
             insets
         }
 
-        val DoneReg = findViewById<Button>(R.id.btnDoneReg)
-        DoneReg.setOnClickListener {
+        val doneRegButton = findViewById<Button>(R.id.btnDoneReg)
+        doneRegButton.setOnClickListener {
             val name = findViewById<EditText>(R.id.edtName).text.toString()
             val surname = findViewById<EditText>(R.id.edtSurname).text.toString()
             val email = findViewById<EditText>(R.id.edtEmailAddress).text.toString()
@@ -37,7 +37,14 @@ class Register : AppCompatActivity() {
             val password = findViewById<EditText>(R.id.edtRegPassword).text.toString()
             val number = findViewById<EditText>(R.id.edtPhoneNum).text.toString()
 
+            // Ensure all fields are filled
             if (name.isNotEmpty() && surname.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && number.isNotEmpty()) {
+
+                // Check that name and surname contain no digits
+                if (name.contains(Regex("[0-9]")) || surname.contains(Regex("[0-9]"))) {
+                    Toast.makeText(this, "Name and Surname cannot contain numbers", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
 
                 if (!isValidEmail(email)) {
                     Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
