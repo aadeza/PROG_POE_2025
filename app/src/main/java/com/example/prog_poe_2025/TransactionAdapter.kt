@@ -15,7 +15,7 @@ import java.util.Locale
 
 class TransactionAdapter(
     private val transactions: List<spTransaction>,
-    private val isExpenseList: Boolean // ✅ Determines if transactions are expenses or income
+    private val isExpenseList: Boolean // Determines if transactions are expenses or income
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -32,12 +32,13 @@ class TransactionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = transactions[position]
 
-        holder.txtDetails.text = "${transaction.category} - R${transaction.amount} (${formatDate(transaction.date)})"
+        holder.txtDetails.text =
+            "${transaction.category} - R${transaction.amount} (${formatDate(transaction.date)})"
 
-        // 🔥 Apply color based on whether this is an Expense or Income
-        holder.txtDetails.setTextColor(if (transaction.isExpense) Color.RED else Color.GREEN) // ✅ Uses transaction type instead of toggle state
+        // Apply color based on whether this is an Expense or Income
+        holder.txtDetails.setTextColor(if (transaction.isExpense) Color.RED else Color.GREEN) //  Uses transaction type instead of toggle state
 
-        // ✅ Load image safely and handle exceptions
+        //  Load image safely and handle exceptions
         if (!transaction.imagePath.isNullOrEmpty()) {
             try {
                 holder.imgTransaction.visibility = View.VISIBLE
@@ -56,9 +57,18 @@ class TransactionAdapter(
 
     override fun getItemCount() = transactions.size
 
-    // ✅ Format date for better readability
+    // Format date for better readability
     private fun formatDate(timestamp: Long): String {
         val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         return formatter.format(Date(timestamp))
     }
 }
+//(W3Schools,2025)
+
+/*References List
+GeeksforGeeks. 2025. SimpleAdapter in Android with Example, n.d. [Online]. Available at:
+https://www.geeksforgeeks.org/simpleadapter-in-android-with-example/ [Accessed 25 April 2025].
+
+W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
+https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
+*/

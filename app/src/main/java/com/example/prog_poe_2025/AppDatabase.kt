@@ -15,7 +15,7 @@ import androidx.room.*
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 11, // ✅ Ensure the version number matches changes in schema
+    version = 11, //  Ensure the version number matches changes in schema
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -40,7 +40,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "PennyWise"
                 )
-                    .fallbackToDestructiveMigration() // ✅ Wipes all data when schema changes
+                    .fallbackToDestructiveMigration() // Wipes all data when schema changes
                     .build()
 
                 INSTANCE = instance
@@ -49,3 +49,10 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
+//(Android Developers,2025)
+
+
+/* References List
+Android Developer, 2025. Save data in a local database using Room, 23 April 2025. [Online]. Available at:
+https://developer.android.com/training/data-storage/room/ [ Accessed 20 April 2025].
+*/

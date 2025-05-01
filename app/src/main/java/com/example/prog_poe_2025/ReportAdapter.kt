@@ -32,7 +32,7 @@ class ReportAdapter(private var reportList: List<Report>) : RecyclerView.Adapter
 
     private val adapterScope = CoroutineScope(Dispatchers.Main)
     private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-    private val currencyFormat = NumberFormat.getCurrencyInstance() // ✅ Ensures proper formatting for monetary values
+    private val currencyFormat = NumberFormat.getCurrencyInstance() //  Ensures proper formatting for monetary values
 
     inner class ReportViewHolder(private val binding: ReportItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(report: Report) {
@@ -41,11 +41,11 @@ class ReportAdapter(private var reportList: List<Report>) : RecyclerView.Adapter
             binding.reportStartDate.text = "Start date: ${dateFormat.format(Date(report.startDate))}"
             binding.reportEndDate.text = "End date: ${dateFormat.format(Date(report.endDate))}"
 
-            // ✅ Display highest expense and highest income with proper currency format
+            //  Display highest expense and highest income with proper currency format
             binding.reportHighestExpense.text = "Highest Expense: ${currencyFormat.format(report.highestExpense)}"
             binding.reportHighestIncome.text = "Highest Income: ${currencyFormat.format(report.highestIncome)}"
 
-            // ✅ Display categories related to the budget safely
+            // Display categories related to the budget safely
             binding.reportCategories.text = if (report.categories.isNotEmpty()) {
                 "Categories: ${report.categories.joinToString(", ")}"
             } else {
@@ -67,10 +67,17 @@ class ReportAdapter(private var reportList: List<Report>) : RecyclerView.Adapter
 
     fun updateBudgets(newReport: List<Report>) {
         reportList = newReport
-        notifyDataSetChanged() // ✅ Refresh list properly
+        notifyDataSetChanged() // Refresh list properly
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
         adapterScope.cancel()
     }
 }
+// (W3Schools,2025)
+
+/*
+Reference List:
+W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
+https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
+ */

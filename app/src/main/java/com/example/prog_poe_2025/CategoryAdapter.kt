@@ -72,3 +72,10 @@ class CategoryAdapter(
         notifyDataSetChanged()
     }
 }
+//GeeksforGeeks(2025)
+
+/*References List
+GeeksforGeeks. 2025. SimpleAdapter in Android with Example, n.d. [Online]. Available at:
+https://www.geeksforgeeks.org/simpleadapter-in-android-with-example/ [Accessed 25 April 2025].
+*/
+

@@ -79,7 +79,7 @@ class ViewBudgets : AppCompatActivity() {
                     startActivity(Intent(this, Home::class.java))
                     true
                 }
-                R.id.nav_viewBudgets -> true // ✅ Keeps user on current screen
+                R.id.nav_viewBudgets -> true // Keeps user on current screen
                 R.id.nav_game -> {
                     startActivity(Intent(this, BudgetQuiz::class.java))
                     true
@@ -97,18 +97,18 @@ class ViewBudgets : AppCompatActivity() {
             val budgets = budgetDao.getBudgetsForUser(userId)
             Log.d("DEBUG", "Fetched budgets: $budgets")
 
-            // ✅ Process categories and spending separately for clarity
+            // Process categories and spending separately for clarity
             val vbBudgetsList = budgets.map { budget ->
                 val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
 
                 Log.d("DEBUG", "Budget ID: ${budget.id}, Categories: ${budgetWithCategories.categories.map { it.name }}")
 
-                // ✅ Raw expense values (used for home screen & reports)
+                // Raw expense values (used for home screen & reports)
                 val spentAmountsRaw = budgetWithCategories.categories.associateWith { category ->
                     expensesDao.getTotalSpentInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
                 }
 
-                // ✅ Adjusted values for the pie chart (expense minus income)
+                // Adjusted values for the pie chart (expense minus income)
                 val spentAmountsForPieChart = budgetWithCategories.categories.associateWith { category ->
                     val totalSpent = spentAmountsRaw[category] ?: 0f
                     val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
@@ -124,13 +124,13 @@ class ViewBudgets : AppCompatActivity() {
                     budget.id,
                     budget.name,
                     budget.maxMonthGoal,
-                    spentAmountsRaw, // ✅ Keeps raw expenses intact for home & reports
+                    spentAmountsRaw, // Keeps raw expenses intact for home & reports
                     totalSpent,
                     remainingAmount
                 )
             }
 
-            // ✅ Switch to Main thread only AFTER processing budgets in IO
+            // Switch to Main thread only AFTER processing budgets in IO
             withContext(Dispatchers.Main) {
                 if (vbBudgetsList.isEmpty()) {
                     binding.txtNoBudgetsMessage.apply {
@@ -149,3 +149,10 @@ class ViewBudgets : AppCompatActivity() {
         }
     }
 }
+// (W3Schools,2025)
+
+/*
+Reference List:
+W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
+https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
+ */

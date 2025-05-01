@@ -58,10 +58,10 @@ class GenReport : AppCompatActivity() {
         // Generate report (conditionally based on budget availability)
         generateReport()
 
-        // ✅ Initialize Bottom Navigation
-        val bottomNavigationView = findViewById<    BottomNavigationView>(R.id.bottom_navigation)
+        //  Initialize Bottom Navigation
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-// ✅ Highlight Home tab when viewing reports
+// Highlight Home tab when viewing reports
         bottomNavigationView.selectedItemId = R.id.nav_home
 
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -98,13 +98,13 @@ class GenReport : AppCompatActivity() {
 
             recyclerTransactions.layoutManager = LinearLayoutManager(this)
             lifecycleScope.launch(Dispatchers.IO) {
-                val expenses = db.expensesDao().getExpensesByUser(SessionManager.getUserId(applicationContext)) // ✅ No need for copy()
-                val income = db.incomeDao().getIncomeByUser(SessionManager.getUserId(applicationContext)) // ✅ No need for copy()
+                val expenses = db.expensesDao().getExpensesByUser(SessionManager.getUserId(applicationContext)) //No need for copy()
+                val income = db.incomeDao().getIncomeByUser(SessionManager.getUserId(applicationContext)) // No need for copy()
 
-                val allTransactions = (expenses + income).sortedByDescending { it.date.toLong() } // ✅ Sort transactions
+                val allTransactions = (expenses + income).sortedByDescending { it.date.toLong() } // Sort transactions
 
                 withContext(Dispatchers.Main) {
-                    recyclerTransactions.adapter = TransactionAdapter(allTransactions, false) // ✅ Uses the data model's built-in `isExpense`
+                    recyclerTransactions.adapter = TransactionAdapter(allTransactions, false) //Uses the data model's built-in `isExpense`
                 }
             }
 
@@ -149,7 +149,7 @@ class GenReport : AppCompatActivity() {
         val userID = SessionManager.getUserId(applicationContext)
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val budgets = budgetDAO.getBudgetsForUser(userID) // ✅ Correct query
+            val budgets = budgetDAO.getBudgetsForUser(userID) //Correct query
 
             withContext(Dispatchers.Main) {
                 if (budgets.isEmpty()) {
@@ -177,10 +177,15 @@ class GenReport : AppCompatActivity() {
                         )
                     }
 
-                    reportAdapter.updateBudgets(reports) // ✅ Fixed type mismatch
+                    reportAdapter.updateBudgets(reports) //  Fixed type mismatch
                 }
             }
         }
     }
 
-}
+}//(W3Schools,2025)
+
+/*Reference List
+W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
+https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
+*/

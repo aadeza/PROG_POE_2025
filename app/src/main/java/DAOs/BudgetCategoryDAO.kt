@@ -25,3 +25,11 @@ interface BudgetCategoryDAO {
     @Query("SELECT * FROM Category WHERE id = :categoryId")
     suspend fun getCategoryWithBudgets(categoryId: Int): CategoryWithBudgets
 }
+
+//(Android Developers,2025)
+
+
+/* References List
+Android Developer, 2025. Save data in a local database using Room, 23 April 2025. [Online]. Available at:
+https://developer.android.com/training/data-storage/room/ [ Accessed 20 April 2025].
+*/

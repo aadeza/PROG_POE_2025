@@ -172,4 +172,9 @@ class EditBudget : AppCompatActivity() {
                 }
             }
     }
-}
+}//(W3Schools,2205)
+
+/*Reference List
+W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
+https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
+*/
