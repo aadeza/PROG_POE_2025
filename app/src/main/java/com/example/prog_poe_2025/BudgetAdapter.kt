@@ -1,13 +1,13 @@
 package com.example.prog_poe_2025
 
 import Data_Classes.Category
-import android.widget.ArrayAdapter
-import android.widget.AdapterView
 import android.content.Intent
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
@@ -17,13 +17,10 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.*
-
 import java.util.Calendar
 
 class BudgetAdapter(private var budgetList: List<VbBudget>) :
     RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
-
-    private val adapterScope = CoroutineScope(Dispatchers.Main) // Prevent memory leaks
 
     inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -31,56 +28,55 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         fun bind(budget: VbBudget) {
             binding.budgetName.text = budget.name
             binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
-            // Use baseline data passed from ViewBudgets.kt (fetched with a default filter)
+
             val adjustedSpent = budget.spentAmounts.values.sum()
             binding.txtSpent.text = "Spent: R${adjustedSpent}"
             binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
 
-            val progress = if (budget.maxMonthGoal > 0) {
-                (adjustedSpent / budget.maxMonthGoal * 100).toInt()
-            } else 0
-            binding.progressBar.progress = progress
+            val progress = (adjustedSpent / budget.maxMonthGoal * 100).coerceIn(0F, 100F) // Prevents negative values
+            binding.progressBar.progress = progress.toInt()
 
-            setupPieChart(budget.spentAmounts)
+            if (binding.pieChart.data == null || binding.pieChart.data.entryCount == 0) {
+                setupPieChart(budget.spentAmounts) // Refresh only when necessary
+            }
+
             setupDateFilterSpinner(budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
         }
 
         private fun setupPieChart(spentAmounts: Map<Category, Float>) {
-            val entries = spentAmounts
-                .filter { it.value > 0 }
+            val entries = spentAmounts.filter { it.value > 0 }
                 .map { (category, amount) -> PieEntry(amount, category.name) }
+
+            binding.pieChart.clear() // Clears old data to force refresh
 
             if (entries.isNotEmpty()) {
                 val dataSet = PieDataSet(entries, "").apply {
                     colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
                     sliceSpace = 2f
                     valueTextSize = 12f
-                    // Ensure the correct method is overridden for your MPAndroidChart version.
                     valueFormatter = object : ValueFormatter() {
                         override fun getFormattedValue(value: Float): String {
                             return "R$value"
                         }
                     }
                 }
-                val pieData = PieData(dataSet)
+
                 binding.pieChart.apply {
-                    data = pieData
+                    data = PieData(dataSet)
                     description.isEnabled = false
                     setUsePercentValues(true)
                     animateY(1000)
-                    invalidate()
+                    invalidate() // Ensures chart updates immediately
                 }
             } else {
-                binding.pieChart.clear()
                 binding.pieChart.setNoDataText("No spending data available.")
             }
         }
 
         private fun setupDateFilterSpinner(budget: VbBudget) {
-            val dateOptions =
-                listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
+            val dateOptions = listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
             val dateAdapter = ArrayAdapter(
                 binding.root.context,
                 android.R.layout.simple_spinner_item, dateOptions
@@ -90,15 +86,11 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
 
             binding.spinDateFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>,
-                    view: View?,
-                    position: Int,
-                    id: Long
+                    parent: AdapterView<*>, view: View?, position: Int, id: Long
                 ) {
                     val selectedFilter = parent.getItemAtPosition(position)?.toString() ?: "All"
                     filterExpenses(selectedFilter, budget)
                 }
-
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         }
@@ -129,44 +121,39 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         }
 
         private fun deleteBudget(budgetId: Int) {
-            // Delete the budget; per-item deletion may also handle related categories if needed.
             val db = AppDatabase.getDatabase(binding.root.context)
             val budgetDao = db.budgetDao()
 
-            adapterScope.launch(Dispatchers.IO) {
+            CoroutineScope(Dispatchers.IO).launch { // Run deletion in the background
                 budgetDao.deleteBudgetById(budgetId)
+
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(
-                        binding.root.context,
-                        "Budget deleted successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    // Refresh the list by calling fetchBudgets() in ViewBudgets.
+                    Toast.makeText(binding.root.context, "Budget deleted successfully!", Toast.LENGTH_SHORT).show()
                     (binding.root.context as? ViewBudgets)?.fetchBudgets()
                 }
             }
         }
 
         private fun filterExpenses(selectedFilter: String, budget: VbBudget) {
-            // Use the spinner's selected filter to determine the effective start time.
             val startTime = getStartTimeMillis(selectedFilter)
             val userId = SessionManager.getUserId(binding.root.context)
 
-            adapterScope.launch {
+            CoroutineScope(Dispatchers.IO).launch {
                 val db = AppDatabase.getDatabase(binding.root.context)
                 val budgetWithCategories = db.budgetDao().getBudgetWithCategories(budget.id)
-                val budgetId = SessionManager.getSelectedBudgetId(binding.root.context) 
+                val budgetId = SessionManager.getSelectedBudgetId(binding.root.context)
 
                 val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId,0L)
-                        ?: 0f
+                    db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime) ?: 0f
                 }
+
                 val totalSpent = spentAmounts.values.sum()
                 val remainingAmount = budget.maxMonthGoal - totalSpent
 
                 withContext(Dispatchers.Main) {
                     binding.txtSpent.text = "Spent: R$totalSpent"
                     binding.remainingAmount.text = "Remaining: R$remainingAmount"
+                    setupPieChart(spentAmounts) // Ensures chart updates dynamically
                 }
             }
         }
@@ -205,9 +192,5 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
     fun updateBudgets(newBudgets: List<VbBudget>) {
         budgetList = newBudgets
         notifyDataSetChanged()
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        adapterScope.cancel() // Prevent memory leaks
     }
 }
