@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.prog_poe_2025.databinding.ActivityViewBudgetsBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -63,15 +64,25 @@ class ViewBudgets : AppCompatActivity() {
     }
 
     private fun setupBottomNavigation() {
-        val bottomNavigationView = binding.bottomNavigation
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_viewBudgets
         bottomNavigationView.setOnItemSelectedListener { item ->
             when (item.itemId) {
-                R.id.nav_transaction -> startActivity(Intent(this, LogIncomeExpense::class.java))
-                R.id.nav_home -> startActivity(Intent(this, Home::class.java))
-                R.id.nav_game -> startActivity(Intent(this, BudgetQuiz::class.java))
+                R.id.nav_transaction -> {
+                    startActivity(Intent(this, LogIncomeExpense::class.java))
+                    true
+                }
+                R.id.nav_home -> {
+                    startActivity(Intent(this, Home::class.java))
+                    true
+                }
+                R.id.nav_viewBudgets -> true // ✅ Keeps user on current screen
+                R.id.nav_game -> {
+                    startActivity(Intent(this, BudgetQuiz::class.java))
+                    true
+                }
+                else -> false
             }
-            true
         }
     }
 
