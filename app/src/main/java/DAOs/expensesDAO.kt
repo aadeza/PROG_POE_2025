@@ -17,10 +17,13 @@ interface ExpensesDAO {
     @Query("DELETE FROM Expenses")
     suspend fun deleteAllExpenses()
 
-    @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId AND category = :category AND date >= :startTime")
-    suspend fun getTotalSpentInCategory(userId: Int, category: String, startTime: Long): Float?
+    @Query("SELECT SUM(amount) FROM Expenses WHERE user_id = :userId AND category = :category AND budgetId = :budgetId AND date >= :startTime")
+    suspend fun getTotalSpentInCategory(userId: Int, category: String, budgetId: Int, startTime: Long): Float?
 
-    @Query("UPDATE Expenses SET amount = :newAmount WHERE user_id = :userId AND category = :category")
-    suspend fun updateExpenseAmount(userId: Int, category: String, newAmount: Float)
+    @Query("UPDATE Expenses SET amount = :newAmount WHERE user_id = :userId AND category = :category AND budgetId = :budgetId")
+    suspend fun updateExpenseAmount(userId: Int, category: String, newAmount: Float, budgetId: Int)
+
+    @Query("SELECT * FROM Expenses")
+    fun getAllExpenses(): List<Expenses> // ✅ This fetches all expense transactions
 }
 

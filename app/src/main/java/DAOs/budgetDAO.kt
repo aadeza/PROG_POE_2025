@@ -58,7 +58,13 @@ interface BudgetDAO {
     @Insert
     suspend fun insertReport(budget: Budgets)
 
+    @Query("SELECT MAX(amount) FROM Expenses WHERE budgetId = :budgetId")
+    suspend fun getHighestExpense(budgetId: Int): Long?
 
+    @Query("SELECT MAX(amount) FROM Income WHERE budgetId = :budgetId")
+    suspend fun getHighestIncome(budgetId: Int): Long?
 
+    @Query("SELECT * FROM Budgets WHERE id IN (SELECT budgetId FROM BudgetCategoryCrossRef WHERE categoryId IN (SELECT id FROM Category WHERE name = :category))")
+    suspend fun getBudgetsForCategory(category: String): List<Budgets>
 }
 

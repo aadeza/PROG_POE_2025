@@ -22,25 +22,40 @@ import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
 import com.github.mikephil.charting.formatter.ValueFormatter
 import kotlinx.coroutines.*
-
+import java.util.*
 import java.util.Calendar
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
-class ReportAdapter (private var reportList:List<Report>) :  RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
+class ReportAdapter(private var reportList: List<Report>) : RecyclerView.Adapter<ReportAdapter.ReportViewHolder>() {
 
     private val adapterScope = CoroutineScope(Dispatchers.Main)
+    private val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    private val currencyFormat = NumberFormat.getCurrencyInstance() // ✅ Ensures proper formatting for monetary values
 
-    inner class ReportViewHolder(private val binding: ReportItemBinding): RecyclerView.ViewHolder(binding.root){
+    inner class ReportViewHolder(private val binding: ReportItemBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(report: Report) {
-            binding.reportMaxAmount.text= report.budgetName
-            binding.reportMaxAmount.text= "Max budget amount: ${report.maxAmount}"
-            binding.reportStartDate.text= "Start date: ${report.startDate}"
-            binding.reportEndDate.text="End date: ${report.endDate}"
+            binding.reportBudgetName.text = report.budgetName
+            binding.reportMaxAmount.text = "Max budget amount: ${currencyFormat.format(report.maxAmount)}"
+            binding.reportStartDate.text = "Start date: ${dateFormat.format(Date(report.startDate))}"
+            binding.reportEndDate.text = "End date: ${dateFormat.format(Date(report.endDate))}"
+
+            // ✅ Display highest expense and highest income with proper currency format
+            binding.reportHighestExpense.text = "Highest Expense: ${currencyFormat.format(report.highestExpense)}"
+            binding.reportHighestIncome.text = "Highest Income: ${currencyFormat.format(report.highestIncome)}"
+
+            // ✅ Display categories related to the budget safely
+            binding.reportCategories.text = if (report.categories.isNotEmpty()) {
+                "Categories: ${report.categories.joinToString(", ")}"
+            } else {
+                "Categories: None"
+            }
         }
-
-
     }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReportViewHolder {
-        val binding =  ReportItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ReportItemBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ReportViewHolder(binding)
     }
 
@@ -52,10 +67,10 @@ class ReportAdapter (private var reportList:List<Report>) :  RecyclerView.Adapte
 
     fun updateBudgets(newReport: List<Report>) {
         reportList = newReport
-        notifyDataSetChanged()
+        notifyDataSetChanged() // ✅ Refresh list properly
     }
 
     override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        adapterScope.cancel() // Prevent memory leaks
+        adapterScope.cancel()
     }
 }

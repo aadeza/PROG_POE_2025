@@ -14,38 +14,74 @@
         android:orientation="vertical"
         android:padding="12dp">
 
+        <!-- 🔥 Budget Name: Larger text, bold, colored -->
         <TextView
             android:id="@+id/reportBudgetName"
-            android:text="budgetName"
             android:textStyle="bold"
-            android:textSize="20sp"
-
+            android:textSize="22sp"
+            android:textColor="#37474F"
+            android:letterSpacing="0.05"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
+        <!-- 🔥 Max Budget Amount: Medium size with italic style -->
         <TextView
             android:id="@+id/reportMaxAmount"
-            android:text="budgetName"
             android:textSize="18sp"
-
+            android:textStyle="italic"
+            android:textColor="#009688"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
+        <!-- 🔥 Start & End Date: Consistent text size, slight shadow -->
         <TextView
             android:id="@+id/reportStartDate"
-            android:text="budgetName"
             android:textSize="18sp"
-
+            android:textColor="#616161"
+            android:shadowColor="#BDBDBD"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
 
         <TextView
             android:id="@+id/reportEndDate"
-            android:text="budgetName"
             android:textSize="18sp"
-
+            android:textColor="#616161"
+            android:shadowColor="#BDBDBD"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content" />
+
+        <!-- 🔥 Highest Expense: Red color to indicate spending -->
+        <TextView
+            android:id="@+id/reportHighestExpense"
+            android:textSize="18sp"
+            android:textColor="#D32F2F"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- 🔥 Highest Income: Green color for positive balance -->
+        <TextView
+            android:id="@+id/reportHighestIncome"
+            android:textSize="18sp"
+            android:textColor="#388E3C"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <!-- 🔥 Categories: Blue color, spaced out for clarity -->
+        <TextView
+            android:id="@+id/reportCategories"
+            android:textSize="18sp"
+            android:textColor="#1976D2"
+            android:letterSpacing="0.08"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>

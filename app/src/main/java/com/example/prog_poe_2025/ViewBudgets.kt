@@ -99,11 +99,12 @@ class ViewBudgets : AppCompatActivity() {
 
                 val vbBudgetsList = budgets.map { budget ->
                     // Retrieve the budget along with its categories
+                    val budgetId = SessionManager.getSelectedBudgetId(binding.root.context) // ✅ Fix reference issue
                     val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
 
                     // Use the default start time so that all transactions are included globally
                     val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, defaultStartTime) ?: 0f
+                        val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, budgetId, defaultStartTime) ?: 0f
                         val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, defaultStartTime) ?: 0f
                         val adjustedSpent = totalSpent - totalIncome
                         maxOf(adjustedSpent, 0f)

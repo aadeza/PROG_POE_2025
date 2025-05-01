@@ -155,9 +155,10 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
             adapterScope.launch {
                 val db = AppDatabase.getDatabase(binding.root.context)
                 val budgetWithCategories = db.budgetDao().getBudgetWithCategories(budget.id)
+                val budgetId = SessionManager.getSelectedBudgetId(binding.root.context) 
 
                 val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    db.expensesDao().getTotalSpentInCategory(userId, category.name, startTime)
+                    db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId,0L)
                         ?: 0f
                 }
                 val totalSpent = spentAmounts.values.sum()

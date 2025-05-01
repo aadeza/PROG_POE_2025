@@ -3,9 +3,7 @@ package com.example.prog_poe_2025
 import DAOs.*
 import Data_Classes.*
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
+import androidx.room.*
 
 @Database(
     entities = [
@@ -17,7 +15,7 @@ import androidx.room.RoomDatabase
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 4, // ⬅ Bumped version to fix schema mismatch
+    version = 6, // ✅ Ensure the version number matches changes in schema
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -41,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "PennyWise"
                 )
-                    .fallbackToDestructiveMigration() // ✅ Auto-wipes DB if schema mismatch (use only for dev)
+                    .fallbackToDestructiveMigration() // ✅ Wipes all data when schema changes
                     .build()
 
                 INSTANCE = instance

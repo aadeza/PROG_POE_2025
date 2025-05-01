@@ -23,4 +23,7 @@ interface IncomeDAO {
 
     @Query("SELECT SUM(amount) FROM Income WHERE user_id = :userId AND category = :category AND date >= :startTime")
     suspend fun getTotalIncomeInCategory(userId: Int, category: String, startTime: Long): Float?
+
+    @Query("SELECT * FROM Income")
+    fun getAllIncome(): List<Income> // ✅ This fetches all expense transactions
 }
