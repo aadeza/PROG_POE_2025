@@ -1,15 +1,9 @@
 package com.example.prog_poe_2025
 
-
 import DAOs.*
 import Data_Classes.*
 import android.content.Context
-import androidx.room.Database
-import androidx.room.Room
-import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteDatabase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
+import androidx.room.*
 
 @Database(
     entities = [
@@ -19,16 +13,13 @@ import kotlinx.coroutines.launch
         Expenses::class,
         Income::class,
         BudgetCategoryCrossRef::class,
-        QuizScores::class,
-        Questions::class,
-        Streak::class,
-        Currency::class,
-        Notification::class
+        QuizScores::class
     ],
-    version = 10,
+    version = 6, // ✅ Ensure the version number matches changes in schema
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
+
     abstract fun userDao(): UserDao
     abstract fun budgetDao(): BudgetDAO
     abstract fun categoryDao(): CategoryDAO
@@ -36,11 +27,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun incomeDao(): IncomeDAO
     abstract fun budgetCategoryDao(): BudgetCategoryDAO
     abstract fun quizScoresDao(): QuizScoresDAO
-    abstract fun questionsDao(): QuestionsDAO
-    abstract fun streakDao(): streakDAO
-    abstract fun currencyDao(): currencyDAO
-    abstract fun notificationDao(): NotificationDao
-
 
     companion object {
         @Volatile
@@ -53,7 +39,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "PennyWise"
                 )
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration() // ✅ Wipes all data when schema changes
                     .build()
 
                 INSTANCE = instance
@@ -62,7 +48,3 @@ abstract class AppDatabase : RoomDatabase() {
         }
     }
 }
-
-
-
-

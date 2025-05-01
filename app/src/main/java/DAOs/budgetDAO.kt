@@ -48,5 +48,23 @@ interface BudgetDAO {
 
     @Query("DELETE FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId")
     suspend fun deleteBudgetCategoryCrossRefsForBudget(budgetId: Int)
+
+    @Query("DELETE FROM BudgetCategoryCrossRef WHERE budgetId = :budgetId")
+    suspend fun deleteBudgetCategories(budgetId: Int)
+
+    @Query("DELETE FROM Budgets WHERE id = :budgetId")
+    suspend fun deleteBudgetById(budgetId: Int)
+
+    @Insert
+    suspend fun insertReport(budget: Budgets)
+
+    @Query("SELECT MAX(amount) FROM Expenses WHERE budgetId = :budgetId")
+    suspend fun getHighestExpense(budgetId: Int): Long?
+
+    @Query("SELECT MAX(amount) FROM Income WHERE budgetId = :budgetId")
+    suspend fun getHighestIncome(budgetId: Int): Long?
+
+    @Query("SELECT * FROM Budgets WHERE id IN (SELECT budgetId FROM BudgetCategoryCrossRef WHERE categoryId IN (SELECT id FROM Category WHERE name = :category))")
+    suspend fun getBudgetsForCategory(category: String): List<Budgets>
 }
 

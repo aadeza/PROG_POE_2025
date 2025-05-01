@@ -2,8 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- ✅ Corrected Permissions -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,14 +15,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PROG_POE_2025">
+
         <activity
             android:name=".EditBudget"
-            android:exported="false" />
-        <activity
-            android:name=".TransactionHistory"
-            android:exported="false"/>
-        <activity
-            android:name=".ProfileSettings"
             android:exported="false" />
         <activity
             android:name=".ViewBudgets"
@@ -34,19 +31,11 @@
         <activity
             android:name=".CreateBudget"
             android:exported="false" />
-        <activity android:name=".Settings"
-            android:exported="false"/>
-
-        <activity android:name=".NotificationActivity"
-            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">
-
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
