@@ -80,23 +80,36 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         }
 
         private fun setupDateFilterSpinner(budget: VbBudget) {
-            val dateOptions =
-                listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
+            val dateOptions = listOf(
+                "Last 3 Minutes",
+                "Last Hour",
+                "Last 12 Hours",
+                "Today",
+                "Week",
+                "Month",
+                "Year",
+                "All"
+            )
             val context = binding.root.context
-            val dateAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, dateOptions)
+            val dateAdapter =
+                ArrayAdapter(context, android.R.layout.simple_spinner_item, dateOptions)
             dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinDateFilter.adapter = dateAdapter
 
-            binding.spinDateFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(
-                    parent: AdapterView<*>, view: View?, position: Int, id: Long
-                ) {
-                    val selectedFilter = parent.getItemAtPosition(position)?.toString() ?: "All"
-                    filterExpenses(selectedFilter, budget)
-                }
+            binding.spinDateFilter.onItemSelectedListener =
+                object : AdapterView.OnItemSelectedListener {
+                    override fun onItemSelected(
+                        parent: AdapterView<*>,
+                        view: View?,
+                        position: Int,
+                        id: Long
+                    ) {
+                        val selectedFilter = parent.getItemAtPosition(position)?.toString() ?: "All"
+                        filterExpenses(selectedFilter, budget)
+                    }
 
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-            }
+                    override fun onNothingSelected(parent: AdapterView<*>?) {}
+                }
         }
 
         private fun setupEditButton(budget: VbBudget) {
@@ -151,10 +164,12 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 // Compute net spent for each category (expenses minus income)
                 val spentAmounts = budgetWithCategories.categories.associateWith { category ->
                     val totalSpent =
-                        db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime)
+                        db.expensesDao()
+                            .getTotalSpentInCategory(userId, category.name, budgetId, startTime)
                             ?: 0f
                     val totalIncome =
-                        db.incomeDao().getTotalIncomeInCategory(userId, category.name, budgetId, startTime)
+                        db.incomeDao()
+                            .getTotalIncomeInCategory(userId, category.name, budgetId, startTime)
                             ?: 0f
                     maxOf(totalSpent - totalIncome, 0f)
                 }
@@ -162,7 +177,10 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 val totalSpentSum = spentAmounts.values.sum()
                 val remainingAmount = budget.maxMonthGoal - totalSpentSum
 
-                Log.d("DEBUG", "Updating UI - Filtered Total Spent: $totalSpentSum, Remaining: $remainingAmount")
+                Log.d(
+                    "DEBUG",
+                    "Updating UI - Filtered Total Spent: $totalSpentSum, Remaining: $remainingAmount"
+                )
 
                 withContext(Dispatchers.Main) {
                     // Update the pie chart based on the filtered data
@@ -174,6 +192,10 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         private fun getStartTimeMillis(filter: String): Long {
             val calendar = Calendar.getInstance()
             when (filter) {
+                "Last 3 Minutes" -> calendar.add(
+                    Calendar.MINUTE,
+                    -3
+                ) // ✅ Adds support for 3-minute filtering
                 "Last Hour" -> calendar.add(Calendar.HOUR, -1)
                 "Last 12 Hours" -> calendar.add(Calendar.HOUR, -12)
                 "Today" -> {
@@ -181,6 +203,7 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                     calendar.set(Calendar.MINUTE, 0)
                     calendar.set(Calendar.SECOND, 0)
                 }
+
                 "Week" -> calendar.add(Calendar.DAY_OF_YEAR, -7)
                 "Month" -> calendar.add(Calendar.MONTH, -1)
                 "Year" -> calendar.add(Calendar.YEAR, -1)
@@ -189,7 +212,6 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
             return calendar.timeInMillis
         }
     }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BudgetViewHolder {
         val binding = ItemBudgetBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BudgetViewHolder(binding)
