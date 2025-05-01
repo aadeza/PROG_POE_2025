@@ -29,67 +29,61 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         fun bind(budget: VbBudget) {
             Log.d("DEBUG", "Binding Budget ID: ${budget.id}, Name: ${budget.name}")
             Log.d("DEBUG", "Spent Amounts Map: ${budget.spentAmounts}")
-            //Log.d("DEBUG", "Total Spent: ${budget.totalSpent} | Remaining: ${budget.remainingAmount}")
 
             binding.budgetName.text = budget.name
             binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
 
-            //binding.txtSpent.text = "Spent: R${budget.totalSpent}"
-            //binding.remainingAmount.text = "Remaining: R${budget.remainingAmount}"
-
+            // Calculate progress percentage based on total spent relative to max goal
             val progress = (budget.totalSpent / budget.maxMonthGoal * 100).coerceIn(0F, 100F)
             binding.progressBar.progress = progress.toInt()
 
+            // Setup UI components
             setupPieChart(budget.spentAmounts)
             setupDateFilterSpinner(budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
         }
+
         private fun setupPieChart(spentAmounts: Map<Category, Float>) {
             Log.d("DEBUG", "Setting up Pie Chart with: $spentAmounts")
 
+            // Convert non-zero spent amounts into Pie chart entries
             val entries = spentAmounts.filter { it.value > 0 }
                 .map { (category, amount) -> PieEntry(amount, category.name) }
 
             Log.d("DEBUG", "Pie Chart Entries Before Setup: $entries")
-
             if (entries.isEmpty()) {
-                Log.d("DEBUG", "Pie Chart has NO valid data. Keeping previous data.")
-                return // ✅ Don't reset the pie chart if no new data exists!
-            }
-
-            Log.d("DEBUG", "Pie Chart Entries After Filtering: $entries")
-
-            binding.pieChart.visibility = View.VISIBLE
-            binding.pieChart.clear() // ✅ Clears old data only when necessary
-
-            val dataSet = PieDataSet(entries, "").apply {
-                colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
-                sliceSpace = 2f
-                valueTextSize = 12f
-                valueFormatter = object : ValueFormatter() {
-                    override fun getFormattedValue(value: Float): String {
-                        return "${String.format("%.1f", value)}%" // ✅ Rounds to 1 decimal place and adds "%"
-                    }
-                }
+                Log.d("DEBUG", "Pie Chart has NO valid data. Keeping previous chart data.")
+                return // Do not update the chart if there are no valid entries.
             }
 
             binding.pieChart.apply {
+                visibility = View.VISIBLE
+                clear()
+                val dataSet = PieDataSet(entries, "").apply {
+                    colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
+                    sliceSpace = 2f
+                    valueTextSize = 12f
+                    valueFormatter = object : ValueFormatter() {
+                        override fun getFormattedValue(value: Float): String {
+                            return "${String.format("%.1f", value)}%"
+                        }
+                    }
+                }
                 data = PieData(dataSet)
                 description.isEnabled = false
                 setUsePercentValues(true)
                 animateY(1000)
-                Log.d("DEBUG", "Pie Chart Updated and Visible")
                 invalidate()
+                Log.d("DEBUG", "Pie Chart Updated and Visible")
             }
         }
 
         private fun setupDateFilterSpinner(budget: VbBudget) {
-            val dateOptions = listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
-            val dateAdapter = ArrayAdapter(
-                binding.root.context,
-                android.R.layout.simple_spinner_item, dateOptions
-            )
+            val dateOptions =
+                listOf("Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
+            val context = binding.root.context
+            val dateAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, dateOptions)
             dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.spinDateFilter.adapter = dateAdapter
 
@@ -100,15 +94,17 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                     val selectedFilter = parent.getItemAtPosition(position)?.toString() ?: "All"
                     filterExpenses(selectedFilter, budget)
                 }
+
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
         }
 
         private fun setupEditButton(budget: VbBudget) {
-            binding.btnEditBudget.setOnClickListener {
-                val intent = Intent(it.context, EditBudget::class.java)
-                intent.putExtra("budgetId", budget.id)
-                it.context.startActivity(intent)
+            binding.btnEditBudget.setOnClickListener { view ->
+                val intent = Intent(view.context, EditBudget::class.java).apply {
+                    putExtra("budgetId", budget.id)
+                }
+                view.context.startActivity(intent)
             }
         }
 
@@ -122,56 +118,55 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
             AlertDialog.Builder(binding.root.context)
                 .setTitle("Delete Budget")
                 .setMessage("Are you sure you want to delete this budget?")
-                .setPositiveButton("Delete") { _, _ ->
-                    deleteBudget(budgetId)
-                }
+                .setPositiveButton("Delete") { _, _ -> deleteBudget(budgetId) }
                 .setNegativeButton("Cancel", null)
                 .show()
         }
 
         private fun deleteBudget(budgetId: Int) {
-            val db = AppDatabase.getDatabase(binding.root.context)
+            val context = binding.root.context
+            val db = AppDatabase.getDatabase(context)
             val budgetDao = db.budgetDao()
 
-            CoroutineScope(Dispatchers.IO).launch { // Run deletion in the background
+            CoroutineScope(Dispatchers.IO).launch {
                 budgetDao.deleteBudgetById(budgetId)
-
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(binding.root.context, "Budget deleted successfully!", Toast.LENGTH_SHORT).show()
-                    (binding.root.context as? ViewBudgets)?.fetchBudgets()
+                    Toast.makeText(context, "Budget deleted successfully!", Toast.LENGTH_SHORT)
+                        .show()
+                    (context as? ViewBudgets)?.fetchBudgets()
                 }
             }
         }
 
         private fun filterExpenses(selectedFilter: String, budget: VbBudget) {
+            val context = binding.root.context
             val startTime = getStartTimeMillis(selectedFilter)
-            val userId = SessionManager.getUserId(binding.root.context)
+            val userId = SessionManager.getUserId(context)
 
             CoroutineScope(Dispatchers.IO).launch {
-                val db = AppDatabase.getDatabase(binding.root.context)
+                val db = AppDatabase.getDatabase(context)
                 val budgetWithCategories = db.budgetDao().getBudgetWithCategories(budget.id)
-                val budgetId = SessionManager.getSelectedBudgetId(binding.root.context)
+                val budgetId = SessionManager.getSelectedBudgetId(context)
 
+                // Compute net spent for each category (expenses minus income)
                 val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    val totalSpent = db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime) ?: 0f
-                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budgetId, startTime) ?: 0f
-                    val finalSpent = maxOf(totalSpent - totalIncome, 0f)
-
-                    Log.d("DEBUG", "Filtering Category: ${category.name} - Total Spent: $totalSpent, Total Income: $totalIncome, Final Spent: $finalSpent") // ✅ Logs filter results
-
-                    finalSpent
+                    val totalSpent =
+                        db.expensesDao().getTotalSpentInCategory(userId, category.name, budgetId, startTime)
+                            ?: 0f
+                    val totalIncome =
+                        db.incomeDao().getTotalIncomeInCategory(userId, category.name, budgetId, startTime)
+                            ?: 0f
+                    maxOf(totalSpent - totalIncome, 0f)
                 }
 
-                val totalSpent = spentAmounts.values.sum()
-                val remainingAmount = budget.maxMonthGoal - totalSpent
+                val totalSpentSum = spentAmounts.values.sum()
+                val remainingAmount = budget.maxMonthGoal - totalSpentSum
 
-                Log.d("DEBUG", "Updating UI - Filtered Total Spent: $totalSpent, Remaining: $remainingAmount") // ✅ Confirms correct transaction retrieval
+                Log.d("DEBUG", "Updating UI - Filtered Total Spent: $totalSpentSum, Remaining: $remainingAmount")
 
                 withContext(Dispatchers.Main) {
-                    //binding.txtSpent.text = "Spent: R${String.format("%.2f", totalSpent)}"
-                    //binding.remainingAmount.text = "Remaining: R${String.format("%.2f", remainingAmount)}"
-
-                    setupPieChart(spentAmounts) // ✅ Ensure the pie chart updates dynamically
+                    // Update the pie chart based on the filtered data
+                    setupPieChart(spentAmounts)
                 }
             }
         }
@@ -196,8 +191,7 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BudgetViewHolder {
-        val binding =
-            ItemBudgetBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding = ItemBudgetBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BudgetViewHolder(binding)
     }
 

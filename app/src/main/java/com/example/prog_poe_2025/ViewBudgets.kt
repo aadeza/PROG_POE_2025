@@ -44,24 +44,26 @@ class ViewBudgets : AppCompatActivity() {
         binding = ActivityViewBudgetsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialize RecyclerView
-        budgetsRecyclerView = binding.budgetsRecyclerView
-        budgetsRecyclerView.layoutManager = LinearLayoutManager(this)
+        // Set up RecyclerView
+        setupRecyclerView()
 
-        // Set up adapter initially with an empty list
-        budgetAdapter = BudgetAdapter(emptyList())
-        budgetsRecyclerView.adapter = budgetAdapter
-
-        // Fetch real data from the database
+        // Fetch initial budget data
         fetchBudgets()
 
-        // Bottom Navigation setup
+        // Set up Bottom Navigation
         setupBottomNavigation()
     }
 
     override fun onResume() {
         super.onResume()
-        fetchBudgets()  // Auto-refresh budget list when coming back
+        fetchBudgets() // Auto-refresh budget list when returning
+    }
+
+    private fun setupRecyclerView() {
+        budgetsRecyclerView = binding.budgetsRecyclerView
+        budgetsRecyclerView.layoutManager = LinearLayoutManager(this)
+        budgetAdapter = BudgetAdapter(emptyList()) // Initialize with empty list
+        budgetsRecyclerView.adapter = budgetAdapter
     }
 
     private fun setupBottomNavigation() {
@@ -87,7 +89,7 @@ class ViewBudgets : AppCompatActivity() {
         }
     }
 
-    fun fetchBudgets() {
+    public fun fetchBudgets() {
         val userId = SessionManager.getUserId(applicationContext)
         val defaultStartTime = 0L // Fetch all transactions
 
@@ -95,49 +97,54 @@ class ViewBudgets : AppCompatActivity() {
             val budgets = budgetDao.getBudgetsForUser(userId)
             Log.d("DEBUG", "Fetched budgets: $budgets")
 
-            // ✅ Process mapping in IO thread BEFORE switching back to Main
+            // ✅ Process categories and spending separately for clarity
             val vbBudgetsList = budgets.map { budget ->
                 val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
 
                 Log.d("DEBUG", "Budget ID: ${budget.id}, Categories: ${budgetWithCategories.categories.map { it.name }}")
 
-                val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    val totalSpent = expensesDao.getTotalSpentInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
-                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
-                    val finalSpent = maxOf(totalSpent - totalIncome, 0f)
-
-                    Log.d("DEBUG", "Category: ${category.name}, Total Spent: $totalSpent, Total Income: $totalIncome, Final Spent: $finalSpent")
-
-                    finalSpent
+                // ✅ Raw expense values (used for home screen & reports)
+                val spentAmountsRaw = budgetWithCategories.categories.associateWith { category ->
+                    expensesDao.getTotalSpentInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
                 }
 
-                val totalSpent = spentAmounts.values.sum()
+                // ✅ Adjusted values for the pie chart (expense minus income)
+                val spentAmountsForPieChart = budgetWithCategories.categories.associateWith { category ->
+                    val totalSpent = spentAmountsRaw[category] ?: 0f
+                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
+                    maxOf(totalSpent - totalIncome, 0f)
+                }
+
+                val totalSpent = spentAmountsRaw.values.sum()
                 val remainingAmount = budget.maxMonthGoal - totalSpent
 
                 Log.d("DEBUG", "Budget ID: ${budget.id}, Total Spent: $totalSpent, Remaining: $remainingAmount")
 
-                VbBudget(budget.id, budget.name, budget.maxMonthGoal, spentAmounts, totalSpent, remainingAmount)
-
+                VbBudget(
+                    budget.id,
+                    budget.name,
+                    budget.maxMonthGoal,
+                    spentAmountsRaw, // ✅ Keeps raw expenses intact for home & reports
+                    totalSpent,
+                    remainingAmount
+                )
             }
 
             // ✅ Switch to Main thread only AFTER processing budgets in IO
             withContext(Dispatchers.Main) {
-                if (budgets.isEmpty()) {
+                if (vbBudgetsList.isEmpty()) {
                     binding.txtNoBudgetsMessage.apply {
                         visibility = View.VISIBLE
                         text = "No budgets created yet. Add a new budget to start tracking!"
                     }
                     budgetAdapter.updateBudgets(emptyList())
-                    return@withContext
+                } else {
+                    binding.txtNoBudgetsMessage.visibility = View.GONE
+                    budgetsRecyclerView.visibility = View.VISIBLE
+                    budgetAdapter.updateBudgets(vbBudgetsList)
+                    budgetsRecyclerView.adapter?.notifyDataSetChanged()
+                    Log.d("DEBUG", "UI Updated - Budgets refreshed successfully")
                 }
-
-                binding.txtNoBudgetsMessage.visibility = View.GONE
-                budgetsRecyclerView.visibility = View.VISIBLE
-
-                budgetAdapter.updateBudgets(vbBudgetsList)
-                budgetsRecyclerView.adapter?.notifyDataSetChanged()
-
-                Log.d("DEBUG", "UI Updated - Budgets refreshed successfully")
             }
         }
     }

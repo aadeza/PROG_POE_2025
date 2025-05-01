@@ -211,7 +211,7 @@ class LogIncomeExpense : AppCompatActivity() {
                             budgetId = budgetId
                         )
                         incomeDao.insertIncome(income)
-                        expensesDao.updateExpenseAmount(userId, category, newExpenseAmount, budgetId)
+
                     } else {
                         val expense = Expenses(
                             amount = amount,
