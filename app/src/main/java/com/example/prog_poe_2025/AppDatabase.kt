@@ -15,8 +15,8 @@ import androidx.room.*
         BudgetCategoryCrossRef::class,
         QuizScores::class
     ],
-    version = 11, //  Ensure the version number matches changes in schema
-    exportSchema = false
+    version = 16, //  Ensure the version number matches changes in schema
+
 )
 abstract class AppDatabase : RoomDatabase() {
 
