@@ -25,8 +25,11 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v2
 
+      - name: Grant execute permissions to Gradle wrapper
+        run: chmod +x ./gradlew  # ✅ Fixes "Permission Denied" issue
+
       - name: Run Unit Tests
         run: ./gradlew test
 
       - name: Run UI Tests
-        run: ./gradlew connectedAndroidTest 
+        run: ./gradlew connectedAndroidTest
