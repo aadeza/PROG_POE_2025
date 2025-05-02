@@ -12,3 +12,11 @@ class TransactionViewModelFactory(private val repository: TransactionRepository)
         throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
+// (W3Schools,2025)
+
+/*
+Reference List:
+W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
+https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
+ */

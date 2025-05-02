@@ -14,7 +14,7 @@
         android:orientation="vertical"
         android:padding="12dp">
 
-        <!-- 🔥 Budget Name: Larger text, bold, colored -->
+        <!--  Budget Name: Larger text, bold, colored -->
         <TextView
             android:id="@+id/reportBudgetName"
             android:textStyle="bold"
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- 🔥 Max Budget Amount: Medium size with italic style -->
+        <!--  Max Budget Amount: Medium size with italic style -->
         <TextView
             android:id="@+id/reportMaxAmount"
             android:textSize="18sp"
@@ -33,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- 🔥 Start & End Date: Consistent text size, slight shadow -->
+        <!--  Start & End Date: Consistent text size, slight shadow -->
         <TextView
             android:id="@+id/reportStartDate"
             android:textSize="18sp"
@@ -56,7 +56,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- 🔥 Highest Expense: Red color to indicate spending -->
+        <!--  Highest Expense: Red color to indicate spending -->
         <TextView
             android:id="@+id/reportHighestExpense"
             android:textSize="18sp"
@@ -64,7 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- 🔥 Highest Income: Green color for positive balance -->
+        <!-- Highest Income: Green color for positive balance -->
         <TextView
             android:id="@+id/reportHighestIncome"
             android:textSize="18sp"
@@ -72,7 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-        <!-- 🔥 Categories: Blue color, spaced out for clarity -->
+        <!-- Categories: Blue color, spaced out for clarity -->
         <TextView
             android:id="@+id/reportCategories"
             android:textSize="18sp"
@@ -85,3 +85,10 @@
     </LinearLayout>
 
 </androidx.cardview.widget.CardView>
+
+    <!--(GeeksForGeeks,2022)-->
+
+    <!--Reference List
+    GeeksForGeeks, 2022. A Complete Guide to Learn XML For Android App Development, n.d. [Online]. Available at:
+    https://www.geeksforgeeks.org/a-complete-guide-to-learn-xml-for-android-app-development/ [Accessed 19 April 2025].
+    -->

@@ -147,3 +147,10 @@
         app:layout_constraintTop_toBottomOf="@id/categoryRecyclerView"
         android:layout_marginTop="16dp"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!--(GeeksForGeeks,2022)-->
+
+    <!--Reference List
+    GeeksForGeeks, 2022. A Complete Guide to Learn XML For Android App Development, n.d. [Online]. Available at:
+    https://www.geeksforgeeks.org/a-complete-guide-to-learn-xml-for-android-app-development/ [Accessed 19 April 2025].
+    -->

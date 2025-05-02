@@ -41,13 +41,13 @@ import java.util.Locale
         private lateinit var edtMinGoal: EditText
         private lateinit var edtMaxGoal: EditText
 
-        // 📊 ViewModel
+        //  ViewModel
         private lateinit var categoryViewModel: CategoryViewModel
 
-        // 📁 Categories
+        //  Categories
         private var allCategories = listOf<Category>()
 
-        // 🗓️ Dates
+        // Dates
         private var startDateMillis: Long = 0
         private var endDateMillis: Long = 0
 
@@ -55,7 +55,7 @@ import java.util.Locale
             super.onCreate(savedInstanceState)
             setContentView(R.layout.activity_create_budget)
 
-            // 1️⃣ Initialize Views
+            // Initialize Views
             categoryRecyclerView = findViewById(R.id.categoryRecyclerView)
             searchEditText = findViewById(R.id.searchEditText)
             budgetTypeCat = findViewById(R.id.spinCategories)
@@ -66,7 +66,7 @@ import java.util.Locale
             edtMaxGoal = findViewById(R.id.edtMaxGoal)
             btnAddBudget = findViewById(R.id.btnAddBudget)
 
-            // 2️⃣ Setup Budget Type Spinner
+            //  Setup Budget Type Spinner
             val budgetTypes = listOf(
                 "Personal Budget",
                 "Business Budget",
@@ -81,13 +81,13 @@ import java.util.Locale
                 setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             }
 
-            // 3️⃣ ViewModel
-            categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
+            //  ViewModel
+            categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]//Medium(2023)
 
 
 
 
-            // 5️⃣ Observe Live Category Data
+            //  Observe Live Category Data
             categoryViewModel.categories.observe(this) { categories ->
                 allCategories = categories
                 categoryAdapter = CategoryAdapter(categories.toMutableList())
@@ -98,7 +98,7 @@ import java.util.Locale
                 categoryAdapter.setOnCreateCategoryListener { newCategoryName ->
                     val existingCategory = allCategories.find { it.name.equals(newCategoryName, ignoreCase = true) }
 
-                    if (existingCategory == null) { // ✅ Only insert if category does NOT exist
+                    if (existingCategory == null) { // Only insert if category does NOT exist
                         val newCategory = Category(name = newCategoryName, selected = true)
                         categoryViewModel.insert(newCategory)
 
@@ -115,7 +115,7 @@ import java.util.Locale
                 }
             }
 
-            // 6️⃣ Handle Search Filtering + Category Creation
+            // Handle Search Filtering + Category Creation
             searchEditText.addTextChangedListener {
                 val query = it.toString().trim()
                 val filtered = allCategories.filter { cat -> cat.name.contains(query, ignoreCase = true) }
@@ -131,14 +131,15 @@ import java.util.Locale
                 }
             }
 
-            // 7️⃣ Select Date Range
+            // Select Date Range
             btnSelectDate.setOnClickListener { showStartDatePicker() }
 
-            // 8️⃣ Create Budget
+            // Create Budget
             btnAddBudget.setOnClickListener { showConfirmDialog() }
         }
 
-        // 📆 Start Date Picker
+
+        //Start Date Picker
         private fun showStartDatePicker() {
             MaterialDatePicker.Builder.datePicker()
                 .setTitleText("Select Start Date")
@@ -149,9 +150,10 @@ import java.util.Locale
                         showEndDatePicker(it)
                     }
                 }
-        }
+        }/* TutorialsPoint(2025)
+        */
 
-        // 📆 End Date Picker
+        // End Date Picker
         @SuppressLint("SetTextI18n")
         private fun showEndDatePicker(minDate: Long) {
             MaterialDatePicker.Builder.datePicker()
@@ -168,7 +170,7 @@ import java.util.Locale
                 }
         }
 
-        // ✅ Confirmation Dialog
+        // Confirmation Dialog
         private fun showConfirmDialog() {
             val budgetNameText = budgetName.text.toString()
             val budgetTypeText = budgetTypeCat.selectedItem.toString()
@@ -232,8 +234,17 @@ import java.util.Locale
                 Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
             }
         }
-    }
+    }//(W3Schools,2025)
 
+/*References List
+Svaghasiya, 2023. Using ViewModel in Android With Kotlin, 18 September 2023. [Online]. Available at:
+https://medium.com/@ssvaghasiya61/using-viewmodel-in-android-with-kotlin-16ca735c644f [Accessed 25 April 2025].
+
+TutorialsPoint, 2025. Android- Date Picker, n.d. [Online]. Available at:
+https://www.tutorialspoint.com/android/android_datepicker_control.htm [Accessed 21 April 2025].
+[3]W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
+https://www.w3schools.com/kotlin/index.php [Accessed 25 April 2025].
+*/
 
 
 

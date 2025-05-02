@@ -81,10 +81,10 @@ class LogIncomeExpense : AppCompatActivity() {
 
         // 🔹 Determine whether transactions are expenses or income based on toggle button state
         toggleButton.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launch(Dispatchers.IO) { // ✅ Runs database queries in the background
+            lifecycleScope.launch(Dispatchers.IO) { // Runs database queries in the background
                 val transactions = if (isChecked) expensesDao.getAllExpenses() else incomeDao.getAllIncome()
 
-                withContext(Dispatchers.Main) { // ✅ Switches back to the main thread for UI updates
+                withContext(Dispatchers.Main) { // Switches back to the main thread for UI updates
                     recyclerTransactions.adapter = TransactionAdapter(transactions, isChecked)
                 }
             }
@@ -92,16 +92,16 @@ class LogIncomeExpense : AppCompatActivity() {
 
         btnLogDate.setOnClickListener { showDatePicker() }
 
-        // 🔹 Set up transaction type spinner
+        // Set up transaction type spinner
         val transactionTypes = resources.getStringArray(R.array.transaction_types)
         val transactTypeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, transactionTypes)
         transactTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spnTransactType.adapter = transactTypeAdapter
 
-        // 🔹 Initialize ViewModel for categories
+        // Initialize ViewModel for categories
         categoryViewModel = ViewModelProvider(this)[CategoryViewModel::class.java]
 
-        // 🔥 WATCH THE CATEGORIES LIST
+        // WATCH THE CATEGORIES LIST
         categoryViewModel.categories.observe(this, Observer { categories ->
             if (categories.isEmpty()) {
                 showNoCategoriesDialog()
@@ -113,12 +113,12 @@ class LogIncomeExpense : AppCompatActivity() {
             }
         })
 
-        // 🔹 Handle Save button
+        // Handle Save button
         btnLogDone.setOnClickListener {
             saveTransaction(incomeDao, expensesDao)
         }
 
-        // 🔹 Bottom Navigation
+        //Bottom Navigation
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_transaction
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -159,7 +159,7 @@ class LogIncomeExpense : AppCompatActivity() {
         val amount = amountText.toLongOrNull() ?: 0L
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
 
-        // ✅ Parse selected date & time safely
+        // Parse selected date & time safely
         val fullDateTime = formatter.parse("$selectedDate $selectedTime")
         val timestamp = fullDateTime?.time ?: System.currentTimeMillis()
 
@@ -169,7 +169,7 @@ class LogIncomeExpense : AppCompatActivity() {
         lifecycleScope.launch {
             val db = AppDatabase.getDatabase(this@LogIncomeExpense)
 
-            // ✅ Ensure user exists before proceeding
+            // Ensure user exists before proceeding
             val userExists = db.userDao().getUserById(userId)
             if (userExists == null) {
                 Log.e("DB_ERROR", "User ID $userId not found! Cannot insert transaction.")
@@ -177,7 +177,7 @@ class LogIncomeExpense : AppCompatActivity() {
                 return@launch
             }
 
-            // 🔥 Ensure at least one valid budget exists for the category
+            // Ensure at least one valid budget exists for the category
             val budgetsForCategory = db.budgetDao().getBudgetsForCategory(category)
             if (budgetsForCategory.isEmpty()) {
                 Toast.makeText(this@LogIncomeExpense, "No budget found for this category!", Toast.LENGTH_SHORT).show()
@@ -187,7 +187,7 @@ class LogIncomeExpense : AppCompatActivity() {
             for (budget in budgetsForCategory) {
                 val budgetId = budget.id
 
-                // ✅ Validate that `budgetId` exists in database
+                // Validate that `budgetId` exists in database
                 val budgetExists = db.budgetDao().getBudgetById(budgetId)
                 if (budgetExists == null) {
                     Log.e("DB_ERROR", "Budget ID $budgetId not found! Cannot insert transaction.")
@@ -284,7 +284,7 @@ class LogIncomeExpense : AppCompatActivity() {
             findViewById<ImageView>(R.id.imgSelectedImage).setImageURI(imageUri)
             imagePath = imageUri.toString()
 
-            // ✅ Persist URI permission for future use
+            // Persist URI permission for future use
             try {
                 val takeFlags: Int = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                 contentResolver.takePersistableUriPermission(imageUri, takeFlags)
@@ -294,7 +294,7 @@ class LogIncomeExpense : AppCompatActivity() {
         }
     }
 
-    // 🔥 Show dialog if no categories exist
+    // Show dialog if no categories exist
     private fun showNoCategoriesDialog() {
         AlertDialog.Builder(this)
             .setTitle("No Categories Found")
@@ -321,5 +321,10 @@ class LogIncomeExpense : AppCompatActivity() {
 
         return calendar.timeInMillis
     }
-}
+}//(W3Schools,2025)
+
+/*Reference List
+W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
+https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
+*/
 

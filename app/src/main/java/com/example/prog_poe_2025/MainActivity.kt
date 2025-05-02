@@ -83,4 +83,10 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences = context.getSharedPreferences("UserPrefs", Context.MODE_PRIVATE)
         return sharedPreferences.getInt("user_id", -1)  // Default value is -1 if no user_id is found
     }
-}
+}//(W3Schools,2025)
+
+/*Reference List
+W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
+https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
+*/
+

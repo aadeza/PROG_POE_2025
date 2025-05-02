@@ -122,7 +122,7 @@ class Home : AppCompatActivity() {
         }
         tableLayout.addView(headerRow)
 
-        for (transaction in transactions) { // ✅ Loops properly through 3 items
+        for (transaction in transactions) { // Loops properly through 3 items
             val row = TableRow(this)
 
             row.addView(createCell(if (transaction.isExpense) "Expense" else "Income"))
@@ -169,3 +169,11 @@ class Home : AppCompatActivity() {
         }
     }
 }
+/*References List
+Svaghasiya, 2023. Using ViewModel in Android With Kotlin, 18 September 2023. [Online]. Available at:
+https://medium.com/@ssvaghasiya61/using-viewmodel-in-android-with-kotlin-16ca735c644f [Accessed 25 April 2025].
+
+TutorialsPoint, 2025. Android- Date Picker, n.d. [Online]. Available at:
+https://www.tutorialspoint.com/android/android_datepicker_control.htm [Accessed 21 April 2025].
+*
+* */
