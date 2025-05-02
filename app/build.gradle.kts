@@ -61,6 +61,10 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     implementation (libs.androidx.lifecycle.viewmodel.ktx)
     implementation (libs.material)
+    testImplementation (libs.junit)
+    androidTestImplementation (libs.androidx.junit.v115)
+    androidTestImplementation (libs.androidx.espresso.core.v351)
+    testImplementation (libs.mockito.core)
 
 
     ksp(libs.androidx.room.compiler.v250)
