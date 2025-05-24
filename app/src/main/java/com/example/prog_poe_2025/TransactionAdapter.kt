@@ -1,21 +1,19 @@
 package com.example.prog_poe_2025
 
 import android.graphics.Color
-import android.net.Uri
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 class TransactionAdapter(
-    private val transactions: List<spTransaction>,
-    private val isExpenseList: Boolean // Determines if transactions are expenses or income
+    private var transactions: List<Transaction>, // Now uses Transaction objects
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -32,35 +30,50 @@ class TransactionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = transactions[position]
 
-        holder.txtDetails.text =
-            "${transaction.category} - R${transaction.amount} (${formatDate(transaction.date)})"
+        val category = "Unknown" // Default, since Transaction model doesn’t store category info
+        val amount = transaction.amount
+        val dateString = formatDate(transaction.date)
 
-        // Apply color based on whether this is an Expense or Income
-        holder.txtDetails.setTextColor(if (transaction.isExpense) Color.RED else Color.GREEN) //  Uses transaction type instead of toggle state
+        holder.txtDetails.text = "$category - R${"%.2f".format(amount)} ($dateString)"
+        holder.txtDetails.setTextColor(if (transaction.isExpense) Color.RED else Color.GREEN)
 
-        //  Load image safely and handle exceptions
-        if (!transaction.imagePath.isNullOrEmpty()) {
-            try {
-                holder.imgTransaction.visibility = View.VISIBLE
-                holder.imgTransaction.setImageURI(Uri.parse(transaction.imagePath))
-            } catch (e: SecurityException) {
-                Log.e("IMAGE_ERROR", "Error loading image: ${e.message}")
-                holder.imgTransaction.visibility = View.GONE
-            } catch (e: Exception) {
-                Log.e("IMAGE_ERROR", "Unexpected error loading image: ${e.message}")
-                holder.imgTransaction.visibility = View.GONE
-            }
+        // Hide image view (since Transaction model lacks image handling)
+        holder.imgTransaction.visibility = View.GONE
+    }
+
+    override fun getItemCount(): Int = transactions.size
+
+    fun updateTransactions(newTransactions: List<Transaction>) {
+        val diffCallback = TransactionDiffCallback(transactions, newTransactions)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+
+        transactions = newTransactions
+        diffResult.dispatchUpdatesTo(this)
+    }
+
+    private fun formatDate(timestamp: Long): String {
+        return if (timestamp > 0) {
+            val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+            formatter.format(Date(timestamp))
         } else {
-            holder.imgTransaction.visibility = View.GONE
+            "Unknown date"
         }
     }
 
-    override fun getItemCount() = transactions.size
+    class TransactionDiffCallback(
+        private val oldList: List<Transaction>,
+        private val newList: List<Transaction>
+    ) : DiffUtil.Callback() {
+        override fun getOldListSize(): Int = oldList.size
+        override fun getNewListSize(): Int = newList.size
 
-    // Format date for better readability
-    private fun formatDate(timestamp: Long): String {
-        val formatter = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-        return formatter.format(Date(timestamp))
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
     }
 }
 //(W3Schools,2025)

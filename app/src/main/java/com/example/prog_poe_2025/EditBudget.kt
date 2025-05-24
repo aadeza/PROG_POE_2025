@@ -1,10 +1,9 @@
 package com.example.prog_poe_2025
 
-import Data_Classes.BudgetCategoryCrossRef
-import Data_Classes.Budgets
-import Data_Classes.Category
+
 import android.os.Bundle
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.lifecycleScope
@@ -12,10 +11,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
-
 
 class EditBudget : AppCompatActivity() {
 
@@ -30,24 +30,27 @@ class EditBudget : AppCompatActivity() {
     private lateinit var edtMinGoal: EditText
     private lateinit var edtMaxGoal: EditText
 
-    private var budgetId: Int = -1
+    // Use a String for Firestore document ID.
+    private var budgetId: String = ""
     private var startDateMillis: Long = 0
     private var endDateMillis: Long = 0
     private var allCategories = listOf<Category>()
+
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_budget)
 
-        // Retrieve budget ID from intent
-        budgetId = intent.getIntExtra("budgetId", -1)
-        if (budgetId == -1) {
+        // Retrieve budget ID from the intent (expecting a String).
+        budgetId = intent.getStringExtra("budgetId") ?: ""
+        if (budgetId.isEmpty()) {
             Toast.makeText(this, "Invalid budget ID.", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        // Initialize UI elements
+        // Initialize UI elements.
         categoryRecyclerView = findViewById(R.id.categoryRecyclerView)
         searchEditText = findViewById(R.id.searchEditText)
         budgetTypeCat = findViewById(R.id.spinCategories)
@@ -58,19 +61,20 @@ class EditBudget : AppCompatActivity() {
         edtMaxGoal = findViewById(R.id.edtMaxGoal)
         btnUpdateBudget = findViewById(R.id.btnUpdateBudget)
 
-        // Load budget data
+        // Load budget data from Firestore.
         loadBudgetDetails()
 
         btnSelectDate.setOnClickListener { showStartDatePicker() }
         btnUpdateBudget.setOnClickListener { updateBudget() }
 
-        // Handle category creation in search
+        // Handle category search/creation.
         searchEditText.addTextChangedListener {
             val query = it.toString().trim()
             val filtered = allCategories.filter { cat -> cat.name.contains(query, ignoreCase = true) }
-
             if (filtered.isEmpty() && query.isNotEmpty()) {
-                val capitalized = query.split(" ").joinToString(" ") { word -> word.replaceFirstChar(Char::uppercase) }
+                val capitalized = query.split(" ").joinToString(" ") { word ->
+                    word.replaceFirstChar { ch -> ch.uppercase() }
+                }
                 val tempCategory = Category(name = capitalized, selected = false)
                 categoryAdapter.setCreateMode(true, capitalized)
                 categoryAdapter.updateData(mutableListOf(tempCategory))
@@ -83,29 +87,58 @@ class EditBudget : AppCompatActivity() {
 
     private fun loadBudgetDetails() {
         lifecycleScope.launch {
-            val budget = AppDatabase.getDatabase(this@EditBudget).budgetDao().getBudgetById(budgetId)
-            budget?.let {
-                budgetName.setText(it.name)
-                edtMinGoal.setText(it.minMonthGoal.toString())
-                edtMaxGoal.setText(it.maxMonthGoal.toString())
-                startDateMillis = it.startDate
-                endDateMillis = it.endDate
+            try {
+                // Fetch the budget document from Firestore.
+                val docSnapshot = db.collection("budgets").document(budgetId).get().await()
+                if (docSnapshot != null && docSnapshot.exists()) {
+                    // Populate budget fields.
+                    budgetName.setText(docSnapshot.getString("name") ?: "")
+                    edtMinGoal.setText(docSnapshot.getLong("minMonthGoal")?.toString() ?: "0")
+                    edtMaxGoal.setText(docSnapshot.getLong("maxMonthGoal")?.toString() ?: "0")
+                    startDateMillis = docSnapshot.getLong("startDate") ?: 0L
+                    endDateMillis = docSnapshot.getLong("endDate") ?: 0L
 
-                val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                txtDateRange.text = "From ${sdf.format(startDateMillis)} to ${sdf.format(endDateMillis)}"
+                    val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+                    txtDateRange.text = "From ${sdf.format(Date(startDateMillis))} to ${sdf.format(Date(endDateMillis))}"
 
-                val budgetTypes = listOf("Personal Budget", "Business Budget", "Event & Special Purpose Budget", "Savings Budget")
-                val adapter = ArrayAdapter(this@EditBudget, android.R.layout.simple_spinner_item, budgetTypes)
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-                budgetTypeCat.adapter = adapter
-                budgetTypeCat.setSelection(budgetTypes.indexOf(it.budgetType))
+                    // Setup the budget type spinner.
+                    val budgetTypes = listOf("Personal Budget", "Business Budget", "Event & Special Purpose Budget", "Savings Budget")
+                    val spinnerAdapter = ArrayAdapter(this@EditBudget, android.R.layout.simple_spinner_item, budgetTypes)
+                    spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+                    budgetTypeCat.adapter = spinnerAdapter
+                    val budgetType = docSnapshot.getString("budgetType") ?: "Personal Budget"
+                    budgetTypeCat.setSelection(budgetTypes.indexOf(budgetType))
 
-                val categories = AppDatabase.getDatabase(this@EditBudget).budgetDao().getCategoriesForBudget(it.id)
-                allCategories = AppDatabase.getDatabase(this@EditBudget).categoryDao().getAllCategories()
-                categoryAdapter = CategoryAdapter(allCategories.toMutableList())
-                categoryRecyclerView.adapter = categoryAdapter
-                categoryRecyclerView.layoutManager = LinearLayoutManager(this@EditBudget)
-                categoryAdapter.setSelectedCategories(categories)
+                    // Load budget categories.
+                    // Assume the "categories" field is stored as a List<String> of category IDs.
+                    val budgetCategoriesIds = docSnapshot.get("categories") as? List<String> ?: emptyList()
+
+                    // Load all categories from Firestore.
+                    val categoriesSnapshot = db.collection("categories").get().await()
+                    allCategories = categoriesSnapshot.documents.map { document ->
+                        Category(
+                            id = document.id,
+                            name = document.getString("name") ?: "Unknown",
+                            selected = false
+                        )
+                    }
+                    // Mark the categories that are assigned to this budget.
+                    allCategories = allCategories.map { cat ->
+                        cat.copy(selected = budgetCategoriesIds.contains(cat.id))
+                    }
+
+                    // Setup the CategoryAdapter.
+                    categoryAdapter = CategoryAdapter(allCategories.toMutableList())
+                    categoryRecyclerView.adapter = categoryAdapter
+                    categoryRecyclerView.layoutManager = LinearLayoutManager(this@EditBudget)
+                    categoryAdapter.updateData(allCategories.toMutableList())
+                } else {
+                    Toast.makeText(this@EditBudget, "Budget not found", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+            } catch (e: Exception) {
+                Toast.makeText(this@EditBudget, "Error loading budget details: ${e.message}", Toast.LENGTH_SHORT).show()
+                finish()
             }
         }
     }
@@ -113,8 +146,8 @@ class EditBudget : AppCompatActivity() {
     private fun updateBudget() {
         val budgetNameText = budgetName.text.toString()
         val budgetTypeText = budgetTypeCat.selectedItem.toString()
-        val minGoal = edtMinGoal.text.toString().toLongOrNull() ?: 0
-        val maxGoal = edtMaxGoal.text.toString().toLongOrNull() ?: 0
+        val minGoal = edtMinGoal.text.toString().toLongOrNull() ?: 0L
+        val maxGoal = edtMaxGoal.text.toString().toLongOrNull() ?: 0L
         val selectedCategories = categoryAdapter.getSelectedCategories()
 
         if (budgetNameText.isBlank() || selectedCategories.isEmpty()) {
@@ -123,26 +156,27 @@ class EditBudget : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val updatedBudget = Budgets(
-                id = budgetId,
-                budgetType = budgetTypeText,
-                name = budgetNameText,
-                startDate = startDateMillis,
-                endDate = endDateMillis,
-                minMonthGoal = minGoal,
-                maxMonthGoal = maxGoal,
-                user_id = SessionManager.getUserId(applicationContext)
-            )
+            try {
+                // Build a map for the updated budget.
+                val updatedBudget = hashMapOf(
+                    "name" to budgetNameText,
+                    "budgetType" to budgetTypeText,
+                    "startDate" to startDateMillis,
+                    "endDate" to endDateMillis,
+                    "minMonthGoal" to minGoal,
+                    "maxMonthGoal" to maxGoal,
+                    "categories" to selectedCategories.map { it.id },
+                    "userId" to SessionManager.getUserId(applicationContext)
+                )
 
-            val db = AppDatabase.getDatabase(this@EditBudget)
-            db.budgetDao().updateBudget(updatedBudget)
+                // Update the budget document.
+                db.collection("budgets").document(budgetId).update(updatedBudget as Map<String, Any>).await()
 
-            db.budgetDao().deleteBudgetCategoryCrossRefsForBudget(budgetId)
-            val crossRefs = selectedCategories.map { BudgetCategoryCrossRef(budgetId = budgetId, categoryId = it.id) }
-            db.budgetDao().insertBudgetCategoryCrossRefs(crossRefs)
-
-            Toast.makeText(this@EditBudget, "Budget updated successfully!", Toast.LENGTH_SHORT).show()
-            finish()
+                Toast.makeText(this@EditBudget, "Budget updated successfully!", Toast.LENGTH_SHORT).show()
+                finish()
+            } catch (e: Exception) {
+                Toast.makeText(this@EditBudget, "Error updating budget: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -161,18 +195,19 @@ class EditBudget : AppCompatActivity() {
     private fun showEndDatePicker(minDate: Long) {
         MaterialDatePicker.Builder.datePicker()
             .setTitleText("Select End Date")
-            .setSelection(minDate + 86400000) // Ensures end date is after start date
+            .setSelection(minDate + 86400000) // Ensures end date is after start date.
             .setCalendarConstraints(CalendarConstraints.Builder().setStart(minDate).build())
             .build().apply {
                 show(supportFragmentManager, "endDatePicker")
                 addOnPositiveButtonClickListener {
                     endDateMillis = it
                     val sdf = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
-                    txtDateRange.text = "From ${sdf.format(startDateMillis)} to ${sdf.format(endDateMillis)}"
+                    txtDateRange.text = "From ${sdf.format(Date(startDateMillis))} to ${sdf.format(Date(endDateMillis))}"
                 }
             }
     }
-}//(W3Schools,2205)
+}
+//(W3Schools,2205)
 
 /*Reference List
 W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:

@@ -8,24 +8,29 @@ import android.widget.Button
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
 
 class Home : AppCompatActivity() {
 
     private lateinit var txtAccAmount: TextView
     private lateinit var txtSpAmount: TextView
+    private val firestore = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContentView(R.layout.activity_home)
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
@@ -40,7 +45,7 @@ class Home : AppCompatActivity() {
         setupBottomNavigation()
         fetchTotals() // ✅ Load income & spent totals on startup
         fetchLatestTransactions() // ✅ Load latest transactions for table
-        // ✅ Set up button navigation
+
         findViewById<Button>(R.id.btnCreateBudget).setOnClickListener {
             startActivity(Intent(this@Home, CreateBudget::class.java))
         }
@@ -48,49 +53,102 @@ class Home : AppCompatActivity() {
         findViewById<Button>(R.id.btnGenerateReport).setOnClickListener {
             startActivity(Intent(this@Home, GenReport::class.java))
         }
-
     }
 
-    // ✅ Fetch total accumulated income & spent amount
+    // ✅ Fetch total accumulated income & spent amount from Firestore
     private fun fetchTotals() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(applicationContext)
             val userId = SessionManager.getUserId(applicationContext)
 
-            val totalIncome = db.incomeDao().getTotalIncome(userId) ?: 0.0
-            val totalSpent = db.expensesDao().getTotalExpenses(userId) ?: 0.0
+            try {
+                if (userId.isNullOrEmpty()) {
+                    Log.e("Home", "Error: User ID is null or empty")
+                    return@launch
+                }
 
-            Log.d("DEBUG", "Total Income: $totalIncome | Total Spent: $totalSpent") // ✅ Debug log
+                val incomeSnapshot = firestore.collection("incomes")
+                    .whereEqualTo("userId", userId) // ✅ Fetch directly from "incomes"
+                    .get()
+                    .await()
 
-            withContext(Dispatchers.Main) {
-                txtAccAmount.text = "R${String.format("%.2f", totalIncome)}"
-                txtSpAmount.text = "R${String.format("%.2f", totalSpent)}"
+                val expenseSnapshot = firestore.collection("expenses")
+                    .whereEqualTo("userId", userId) // ✅ Fetch directly from "expenses"
+                    .get()
+                    .await()
+
+                val totalIncome = incomeSnapshot.documents.sumOf { it.getDouble("amount") ?: 0.0 }
+                val totalSpent = expenseSnapshot.documents.sumOf { it.getDouble("amount") ?: 0.0 }
+
+                Log.d("DEBUG", "Total Income: $totalIncome | Total Spent: $totalSpent")
+
+                withContext(Dispatchers.Main) {
+                    txtAccAmount.text = "R${String.format("%.2f", totalIncome)}"
+                    txtSpAmount.text = "R${String.format("%.2f", totalSpent)}"
+                }
+            } catch (e: Exception) {
+                Log.e("Home", "Error fetching totals", e)
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(applicationContext, "Failed to load totals.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     private fun fetchLatestTransactions() {
         lifecycleScope.launch(Dispatchers.IO) {
-            val db = AppDatabase.getDatabase(applicationContext)
             val userId = SessionManager.getUserId(applicationContext)
+            if (userId.isNullOrEmpty()) {
+                Log.e("Home", "Error: User ID is null or empty")
+                return@launch
+            }
 
-            val latestIncomes = db.incomeDao().getLatestIncomes(userId) ?: emptyList()
-            val latestExpenses = db.expensesDao().getLatestExpenses(userId) ?: emptyList()
+            try {
+                Log.d("DEBUG", "Fetching latest transactions for user: $userId")
 
-            val combinedTransactions = (latestIncomes + latestExpenses)
-                .sortedByDescending { it.date }
-                .take(3) // ✅ Ensures only the latest 3 are taken
+                val incomesSnapshot = firestore.collection("incomes")
+                    .whereEqualTo("userId", userId) // ✅ Fixed field name
+                    .orderBy("date", Query.Direction.DESCENDING)
+                    .limit(3)
+                    .get()
+                    .await()
 
-            Log.d("DEBUG", "Latest 3 Transactions: $combinedTransactions")
+                val expensesSnapshot = firestore.collection("expenses")
+                    .whereEqualTo("userId", userId) // ✅ Fixed field name
+                    .orderBy("date", Query.Direction.DESCENDING)
+                    .limit(3)
+                    .get()
+                    .await()
 
-            withContext(Dispatchers.Main) {
-                updateTable(combinedTransactions)
+                Log.d("DEBUG", "Fetched incomes count: ${incomesSnapshot.documents.size}")
+                Log.d("DEBUG", "Fetched expenses count: ${expensesSnapshot.documents.size}")
+
+                val latestTransactions = (incomesSnapshot.documents.mapNotNull { doc ->
+                    val id = doc.id
+                    val amount = doc.getDouble("amount") ?: return@mapNotNull null
+                    val date = doc.getLong("date") ?: return@mapNotNull null
+                    Income(id, amount, date)
+                } + expensesSnapshot.documents.mapNotNull { doc ->
+                    val id = doc.id
+                    val amount = doc.getDouble("amount") ?: return@mapNotNull null
+                    val date = doc.getLong("date") ?: return@mapNotNull null
+                    Expense(id, amount, date)
+                }).sortedByDescending { it.date }
+
+                withContext(Dispatchers.Main) {
+                    updateTable(latestTransactions)
+                }
+
+            } catch (e: Exception) {
+                Log.e("Home", "Error fetching latest transactions: ${e.message}")
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(applicationContext, "Failed to load transactions.", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
 
     // ✅ Populate the Recent Transactions Table
-    private fun updateTable(transactions: List<spTransaction>) {
+    private fun updateTable(transactions: List<Transaction>) {
         val tableLayout = findViewById<TableLayout>(R.id.tableLayout)
         tableLayout.removeAllViews() // ✅ Clears previous rows
 
@@ -109,7 +167,7 @@ class Home : AppCompatActivity() {
         }
 
         val headerRow = TableRow(this)
-        val headers = listOf("Type", "Amount", "Date", "Category")
+        val headers = listOf("Type", "Amount", "Date")
 
         for (headerText in headers) {
             val textView = TextView(this).apply {
@@ -122,21 +180,21 @@ class Home : AppCompatActivity() {
         }
         tableLayout.addView(headerRow)
 
-        for (transaction in transactions) { // Loops properly through 3 items
+        for (transaction in transactions) {
             val row = TableRow(this)
-
             row.addView(createCell(if (transaction.isExpense) "Expense" else "Income"))
-            row.addView(createCell("R${String.format("%.2f", transaction.amount.toFloat())}"))
+            row.addView(createCell("R${String.format("%.2f", transaction.amount)}"))
             row.addView(createCell(formatDate(transaction.date)))
-            row.addView(createCell(transaction.category))
 
             tableLayout.addView(row)
         }
     }
+
     private fun formatDate(millis: Long): String {
-        val sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale.getDefault())
-        return sdf.format(java.util.Date(millis))
+        val sdf = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
+        return sdf.format(Date(millis))
     }
+
     private fun createCell(text: String): TextView {
         return TextView(this).apply {
             this.text = text

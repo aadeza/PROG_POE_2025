@@ -2,7 +2,9 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false
-    id("com.google.devtools.ksp") version "1.9.24-1.0.20" apply false
+    alias(libs.plugins.kotlin.kapt) apply false
+    alias(libs.plugins.google.services) apply false // ✅ Firebase Google Services Plugin
+    alias(libs.plugins.ksp) apply false // ✅ Use alias, NOT manual version
 
 
 }

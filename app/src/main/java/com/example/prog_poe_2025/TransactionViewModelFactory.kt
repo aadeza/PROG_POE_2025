@@ -3,13 +3,14 @@ package com.example.prog_poe_2025
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 
-class TransactionViewModelFactory(private val repository: TransactionRepository) : ViewModelProvider.Factory {
+class TransactionViewModelFactory : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(TransactionViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return TransactionViewModel(repository) as T
+        return when {
+            modelClass.isAssignableFrom(TransactionViewModel::class.java) -> {
+                TransactionViewModel() as T
+            }
+            else -> throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

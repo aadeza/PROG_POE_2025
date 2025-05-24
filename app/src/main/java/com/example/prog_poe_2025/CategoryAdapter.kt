@@ -1,7 +1,5 @@
 package com.example.prog_poe_2025
 
-import Data_Classes.Category
-import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

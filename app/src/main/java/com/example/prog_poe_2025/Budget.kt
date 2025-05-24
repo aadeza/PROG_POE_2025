@@ -13,10 +13,10 @@ data class Budget(
     val lastUpdated: LocalDate
 )
 
-data class Transaction(
-    val amount: Double,
-    val date: LocalDate,
-    val description: String
+data class Category(
+    val id: String = "",
+    val name: String = "",
+    var selected: Boolean = false
 )
 
 // (W3Schools,2025)

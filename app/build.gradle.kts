@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.ksp)
+    alias(libs.plugins.google.services) // ✅ Firebase plugin
 }
 
 android {
@@ -14,15 +16,12 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-
     buildTypes {
         debug {
-            // Enable debugging mode
-            isDebuggable = true
+            isDebuggable = true // ✅ Enable debugging mode
         }
         release {
             isMinifyEnabled = false
@@ -32,7 +31,6 @@ android {
             )
         }
     }
-
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -49,29 +47,34 @@ android {
 }
 
 dependencies {
-    implementation(libs.mpandroidchart.vv310)
+    // ✅ Firebase Dependencies
+    implementation(platform(libs.firebase.bom))
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-database-ktx") // 
+    implementation("com.google.firebase:firebase-storage-ktx") //
+    implementation("com.google.firebase:firebase-messaging-ktx") //
+
+    // ✅ AndroidX Libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.media3.common.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    // ✅ Third-Party Libraries
+    implementation(libs.mpandroidchart)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    implementation (libs.androidx.lifecycle.viewmodel.ktx)
-    implementation (libs.material)
-    testImplementation (libs.junit)
-    androidTestImplementation (libs.androidx.junit.v115)
-    androidTestImplementation (libs.androidx.espresso.core.v351)
-    testImplementation (libs.mockito.core)
+    testImplementation(libs.mockito.core)
 
+    // ✅ Testing Dependencies
+    androidTestImplementation(libs.androidx.junit.v115)
+    androidTestImplementation(libs.androidx.espresso.core.v351)
 
-    ksp(libs.androidx.room.compiler.v250)
-
-    // Room database dependencies
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx.v251)
+    //
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    kapt("com.github.bumptech.glide:compiler:4.16.0") // Required for annotation processing
 
 }

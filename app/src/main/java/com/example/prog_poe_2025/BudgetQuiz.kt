@@ -15,12 +15,24 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+
+// Local data class representing a quiz question.
+data class QuizQuestion(
+    val text: String = "",
+    val option1: String = "",
+    val option2: String = "",
+    val option3: String = "",
+    val correctAnswer: String = ""
+)
 
 class BudgetQuiz : AppCompatActivity() {
 
+    // UI components
     private lateinit var txtQuestion: TextView
     private lateinit var btnOption1: Button
     private lateinit var btnOption2: Button
@@ -33,20 +45,21 @@ class BudgetQuiz : AppCompatActivity() {
     private lateinit var txtSub: TextView
     private lateinit var progressBar: ProgressBar
 
+    // Quiz state
     private var currentQuestionIndex = 0
     private var score = 0
     private var selectedAnswer: String? = null
     private var timer: CountDownTimer? = null
 
-    private lateinit var database: AppDatabase
-    private var quizQuestions: List<Data_Classes.Questions> = listOf()
+    // Firebase instance for quiz questions
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
+    private var quizQuestions: List<QuizQuestion> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_budget_quiz)
 
-        // Initialize database and views
-        database = AppDatabase.getDatabase(this)
+        // Initialize views
         txtQuestion = findViewById(R.id.txtQuestion)
         btnOption1 = findViewById(R.id.btnOption1)
         btnOption2 = findViewById(R.id.btnOption2)
@@ -61,6 +74,7 @@ class BudgetQuiz : AppCompatActivity() {
 
         progressBar.max = 10
         progressBar.progress = 0
+
         // Set up BottomNavigationView
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_game
@@ -70,32 +84,61 @@ class BudgetQuiz : AppCompatActivity() {
                     startActivity(Intent(this, Home::class.java))
                     true
                 }
-
                 R.id.nav_transaction -> {
                     startActivity(Intent(this, LogIncomeExpense::class.java))
                     true
                 }
-
                 R.id.nav_viewBudgets -> {
                     startActivity(Intent(this, ViewBudgets::class.java))
                     true
                 }
-
                 R.id.nav_game -> true // Stay here
                 else -> false
             }
         }
 
-        // Start the quiz
-
+        // Setup quiz control listeners
+        btnStartQuiz.setOnClickListener {
+            loadQuizQuestions()  // Load quiz questions from Firestore
+            startSpinningTitle()
+            startBackgroundColorAnimation()
+            startQuiz()
+        }
         btnOption1.setOnClickListener { selectAnswer(btnOption1.text.toString()) }
         btnOption2.setOnClickListener { selectAnswer(btnOption2.text.toString()) }
         btnOption3.setOnClickListener { selectAnswer(btnOption3.text.toString()) }
         btnNext.setOnClickListener { nextQuestion() }
     }
 
+    // Load quiz questions from the "quizQuestions" collection in Firestore.
+    private fun loadQuizQuestions() {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                val snapshot = firestore.collection("quizQuestions").get().await()
+                quizQuestions = snapshot.documents.mapNotNull { doc ->
+                    val text = doc.getString("text") ?: return@mapNotNull null
+                    val option1 = doc.getString("option1") ?: return@mapNotNull null
+                    val option2 = doc.getString("option2") ?: return@mapNotNull null
+                    val option3 = doc.getString("option3") ?: return@mapNotNull null
+                    val correctAnswer = doc.getString("correctAnswer") ?: return@mapNotNull null
+                    QuizQuestion(text, option1, option2, option3, correctAnswer)
+                }
+                withContext(Dispatchers.Main) {
+                    if (quizQuestions.isNotEmpty()) {
+                        progressBar.max = quizQuestions.size
+                    } else {
+                        txtQuestion.text = "No quiz questions available."
+                    }
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    txtQuestion.text = "Error loading quiz questions."
+                }
+            }
+        }
+    }
 
-
+    // Animate the background color of the intro text.
     private fun startBackgroundColorAnimation() {
         val colorFrom = Color.parseColor("#6388B4")
         val colorTo = Color.parseColor("#E7C6FF")
@@ -103,14 +146,14 @@ class BudgetQuiz : AppCompatActivity() {
             duration = 5000
             repeatMode = ValueAnimator.REVERSE
             repeatCount = ValueAnimator.INFINITE
-            addUpdateListener {
-                txtIntro.setBackgroundColor(it.animatedValue as Int)
+            addUpdateListener { animator ->
+                txtIntro.setBackgroundColor(animator.animatedValue as Int)
             }
         }
         colorAnimation.start()
     }
 
-    // Make the quiz title spin
+    // Spin the quiz heading.
     private fun startSpinningTitle() {
         val flip = ObjectAnimator.ofFloat(txtQuizHeading, "rotationY", 0f, 360f).apply {
             duration = 2500
@@ -120,7 +163,7 @@ class BudgetQuiz : AppCompatActivity() {
         flip.start()
     }
 
-
+    // Prepare and start the quiz.
     private fun startQuiz() {
         btnStartQuiz.visibility = View.GONE
         txtQuestion.visibility = View.VISIBLE
@@ -133,17 +176,25 @@ class BudgetQuiz : AppCompatActivity() {
         txtSub.visibility = View.GONE
 
         startEmojiCountdown()
-        showQuestion()
+        if (quizQuestions.isNotEmpty()) {
+            currentQuestionIndex = 0
+            score = 0
+            progressBar.progress = 1
+            showQuestion()
+        } else {
+            txtQuestion.text = "No quiz questions available."
+        }
     }
 
+    // Reset the background colors of the option buttons.
     private fun resetAnswerButtons() {
         val defaultColor = ContextCompat.getColor(this, R.color.default_button_background)
-
         btnOption1.setBackgroundColor(defaultColor)
         btnOption2.setBackgroundColor(defaultColor)
         btnOption3.setBackgroundColor(defaultColor)
     }
 
+    // Display the current question and its options.
     private fun showQuestion() {
         val question = quizQuestions[currentQuestionIndex]
         resetAnswerButtons()
@@ -154,19 +205,16 @@ class BudgetQuiz : AppCompatActivity() {
         selectedAnswer = null
     }
 
+    // Reset option styles (currently the same as resetting answer buttons).
     private fun resetOptionStyles() {
-        val defaultColor = ContextCompat.getColor(this, R.color.default_button_background)
-        btnOption1.setBackgroundColor(defaultColor)
-        btnOption2.setBackgroundColor(defaultColor)
-        btnOption3.setBackgroundColor(defaultColor)
+        resetAnswerButtons()
     }
 
+    // Record the selected answer and highlight its button.
     private fun selectAnswer(answer: String) {
         selectedAnswer = answer
         resetOptionStyles()
-
         val selectedColor = ContextCompat.getColor(this, R.color.selected_button_background)
-
         when (answer) {
             btnOption1.text -> btnOption1.setBackgroundColor(selectedColor)
             btnOption2.text -> btnOption2.setBackgroundColor(selectedColor)
@@ -174,6 +222,7 @@ class BudgetQuiz : AppCompatActivity() {
         }
     }
 
+    // Proceed to the next question or end the quiz.
     private fun nextQuestion() {
         if (selectedAnswer == quizQuestions[currentQuestionIndex].correctAnswer) {
             score++
@@ -187,6 +236,7 @@ class BudgetQuiz : AppCompatActivity() {
         }
     }
 
+    // End the quiz and display the final score.
     private fun endQuiz() {
         timer?.cancel()
         txtQuestion.text = "Quiz Over! Your score: $score/${quizQuestions.size}"
@@ -197,18 +247,18 @@ class BudgetQuiz : AppCompatActivity() {
         txtTimer.visibility = View.GONE
     }
 
-
+    // Start an emoji-based countdown timer.
     private fun startEmojiCountdown() {
-        val emojis = listOf("⏳", "😬", "😱", "💣", "🔥") // Different emojis for different times
+        val emojis = listOf("⏳", "😬", "😱", "💣", "🔥")
         timer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = millisUntilFinished / 1000
                 val emojiIndex = when {
-                    secondsLeft > 30 -> 0 // Hourglass
-                    secondsLeft > 20 -> 1 // Nervous face
-                    secondsLeft > 10 -> 2 // Shocked face
-                    secondsLeft > 5 -> 3 // Bomb
-                    else -> 4 // Fire
+                    secondsLeft > 30 -> 0
+                    secondsLeft > 20 -> 1
+                    secondsLeft > 10 -> 2
+                    secondsLeft > 5 -> 3
+                    else -> 4
                 }
                 txtTimer.text = "Time Left: ${secondsLeft}s ${emojis[emojiIndex]}"
             }

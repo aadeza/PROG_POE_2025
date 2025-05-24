@@ -1,56 +1,87 @@
 package com.example.prog_poe_2025
 
-import DAOs.BudgetDAO
-import Data_Classes.Budgets
-import Data_Classes.BudgetCategoryCrossRef
-import Data_Classes.Category
 import android.app.Application
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.tasks.await
 
 class CategoryViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val budgetDao = AppDatabase.getDatabase(application).budgetDao()
-    private val categoryDao = AppDatabase.getDatabase(application).categoryDao()
+    private val db = FirebaseFirestore.getInstance()
+    private val context = getApplication<Application>().applicationContext
 
-    // We want LiveData for observing in the UI
-    val categories: LiveData<List<Category>> = categoryDao.getAllCategoriesLive()
+    /** Add a single category under the user */
+    fun insertCategory(userId: String, category: Category) {
+        db.collection("categories")
+            .document(userId)
+            .collection("userCategories")
+            .add(category)
+            .addOnSuccessListener {
+                Toast.makeText(context, "Category added!", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to add category.", Toast.LENGTH_SHORT).show()
+            }
+    }
 
-    // Insert a single category
-    fun insert(category: Category) {
-        viewModelScope.launch(Dispatchers.IO) {
-            categoryDao.insertCategory(category)
+    /** Insert multiple categories at once */
+    fun insertAllCategories(userId: String, categories: List<Category>) {
+        val batch = db.batch()
+        val collectionRef = db.collection("categories")
+            .document(userId)
+            .collection("userCategories")
+
+        for (category in categories) {
+            val newDoc = collectionRef.document()
+            batch.set(newDoc, category)
         }
+
+        batch.commit()
+            .addOnSuccessListener {
+                Toast.makeText(context, "All categories added.", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener {
+                Toast.makeText(context, "Failed to add categories.", Toast.LENGTH_SHORT).show()
+            }
     }
 
-    // Insert multiple categories
-    fun insertAll(categories: List<Category>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            categoryDao.insertAll(categories)
+    /** Delete all categories for a user */
+    suspend fun deleteAllCategories(userId: String) {
+        val snapshot = db.collection("categories")
+            .document(userId)
+            .collection("userCategories")
+            .get()
+            .await()
+
+        val batch = db.batch()
+        for (doc in snapshot.documents) {
+            batch.delete(doc.reference)
         }
+        batch.commit().await()
     }
 
-    // Delete all categories if needed
-    fun deleteAllCategories() {
-        viewModelScope.launch(Dispatchers.IO) {
-            categoryDao.deleteAllCategories()
-        }
-    }
-
-    // Insert a new budget
-    suspend fun insertBudget(budget: Budgets): Long {
-        return budgetDao.insertBudget(budget)
+    /** Insert a new budget under the user and return its document ID */
+    suspend fun insertBudget(userId: String, budget: Budget): String {
+        val docRef = db.collection("budgets").document(userId)
+        docRef.set(budget).await()
+        return docRef.id
     }
 
 
-    // Insert BudgetCategoryCrossRef to link categories to a budget
-    suspend fun insertBudgetCategoryCrossRefs(crossRefs: List<BudgetCategoryCrossRef>) {
-        budgetDao.insertBudgetCategoryCrossRefs(crossRefs)
+
+    /** Optional: Fetch categories (return as callback or suspend function) */
+    suspend fun getAllCategories(userId: String): List<Category> {
+        val snapshot = db.collection("categories")
+            .document(userId)
+            .collection("userCategories")
+            .get()
+            .await()
+
+        return snapshot.documents.mapNotNull { it.toObject(Category::class.java) }
     }
 }
+
 //Medium(2023)
 
 
