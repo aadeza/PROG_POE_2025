@@ -106,7 +106,7 @@ class Home : AppCompatActivity() {
                 Log.d("DEBUG", "Fetching latest transactions for user: $userId")
 
                 val incomesSnapshot = firestore.collection("incomes")
-                    .whereEqualTo("userId", userId) // ✅ Fixed field name
+                    .whereEqualTo("user_id", userId) // ✅ Fixed field name
                     .orderBy("date", Query.Direction.DESCENDING)
                     .limit(3)
                     .get()

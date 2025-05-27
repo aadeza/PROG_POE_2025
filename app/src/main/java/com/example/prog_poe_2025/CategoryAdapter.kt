@@ -35,23 +35,36 @@ class CategoryAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val category = categories[position]
 
-        holder.checkBox.text = if (isCreateMode) "Create category \"${createCategoryName}\"" else category.name
+        val isCreating = isCreateMode && category.name == createCategoryName
+
+        holder.checkBox.setOnCheckedChangeListener(null) // prevent recycled listener bug
+
+        holder.checkBox.text = if (isCreating) {
+            "Create category \"$createCategoryName\""
+        } else {
+            category.name
+        }
+
         holder.checkBox.isChecked = category.selected
 
-        holder.checkBox.setOnCheckedChangeListener(null)
-
         holder.checkBox.setOnCheckedChangeListener { _, isChecked ->
-            category.selected = isChecked
+            if (isCreating && isChecked) {
+                // Trigger category creation
+                val capitalizedName = createCategoryName.trim().split(" ")
+                    .joinToString(" ") { it.replaceFirstChar(Char::uppercaseChar) }
 
-            if (isCreateMode && isChecked) {
-                val capitalizedName = createCategoryName.replaceFirstChar { it.uppercase() }
                 createListener?.invoke(capitalizedName)
+
+                // Reset mode
                 isCreateMode = false
+                createCategoryName = ""
+            } else {
+                category.selected = isChecked
             }
         }
     }
 
-    override fun getItemCount() = categories.size
+    override fun getItemCount(): Int = categories.size
 
     fun updateData(newCategories: List<Category>) {
         categories.clear()
@@ -70,10 +83,3 @@ class CategoryAdapter(
         notifyDataSetChanged()
     }
 }
-//GeeksforGeeks(2025)
-
-/*References List
-GeeksforGeeks. 2025. SimpleAdapter in Android with Example, n.d. [Online]. Available at:
-https://www.geeksforgeeks.org/simpleadapter-in-android-with-example/ [Accessed 25 April 2025].
-*/
-

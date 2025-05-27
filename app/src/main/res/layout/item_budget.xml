@@ -23,40 +23,22 @@
             android:textStyle="bold"
             android:textSize="18sp" />
 
-        <!-- Pie Chart -->
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/pieChart"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_marginTop="10dp" />
 
+        <!-- Budget Range -->
         <TextView
-            android:id="@+id/maxBudgetGoal"
+            android:id="@+id/budgetRange"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Max Budget Goal: R0.00"
+            android:text="Budget Range: R0.00 - R0.00"
             android:textSize="16sp"
             android:layout_marginTop="8dp"/>
 
-
-
-       <!-- <TextView
-            android:id="@+id/remainingAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remaining: R0.00"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"/> -->
-
-
-        <!--
-        <TextView
-            android:id="@+id/txtSpent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Spent: R0.00"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"/>-->
+        <!-- Horizontal Bar Chart -->
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/barChart"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="10dp" />
 
         <!-- Progress Bar -->
         <ProgressBar
@@ -67,11 +49,6 @@
             android:layout_marginTop="10dp"
             android:max="100"/>
 
-        <Spinner
-            android:id="@+id/spinDateFilter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
 
         <!-- Edit Budget Button -->
         <Button
