@@ -2,6 +2,7 @@ package com.example.prog_poe_2025
 
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.AdapterView
@@ -26,6 +27,8 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
 
     private val db = FirebaseFirestore.getInstance()
 
+    private var filteredSpentAmounts: Map<Category, Float>? = null
+
     inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
@@ -34,15 +37,18 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
             binding.budgetRange.text =
                 "Budget Range: Min R${budget.minMonthGoal} - Max R${budget.maxMonthGoal}"
 
-            val progress = if (budget.maxMonthGoal > 0)
-                ((budget.totalSpent / budget.maxMonthGoal) * 100).toInt().coerceIn(0, 100)
-            else 0
+            val spent = budget.totalSpent
+            val minGoal = budget.minMonthGoal.toFloat()
+            val maxGoal = budget.maxMonthGoal.toFloat()
 
-            binding.progressBar.progress = progress
 
             setupBarChart(budget.spentAmounts, budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
+            binding.progressWrapper.post {
+                updateCustomBar(spent, minGoal, maxGoal)
+            }
+
         }
 
         private fun setupEditButton(budget: VbBudget) {
@@ -84,7 +90,7 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 binding.barChart as? com.github.mikephil.charting.charts.HorizontalBarChart
                     ?: return
 
-            // Create entries: each index maps to a Category
+
             val entries = spentMap.entries.mapIndexed { index, entry ->
                 BarEntry(index.toFloat(), entry.value)
             }
@@ -139,7 +145,10 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                     addLimitLine(maxLimit)
 
                     axisMinimum = 0f
-                    axisMaximum = maxOf(budget.maxMonthGoal.toFloat(), spentMap.values.maxOrNull() ?: 0f) * 1.1f
+                    axisMaximum = maxOf(
+                        budget.maxMonthGoal.toFloat(),
+                        spentMap.values.maxOrNull() ?: 0f
+                    ) * 1.1f
 
                     setDrawGridLines(true)
                     enableGridDashedLine(10f, 10f, 0f)
@@ -155,6 +164,65 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 invalidate()
             }
         }
+
+        private fun updateCustomBar(spent: Float, min: Float, max: Float) {
+            val wrapper = binding.progressWrapper
+            val bar = binding.actualSpendingBar
+            val minLine = binding.minLine
+            val maxLine = binding.maxLine
+            val minLabel = binding.minLabel
+            val maxLabel = binding.maxLabel
+            val statusText = binding.statusText
+
+            val wrapperWidth = wrapper.width.takeIf { it > 0 } ?: wrapper.measuredWidth
+            if (wrapperWidth <= 0) return
+
+            val scaleFactor = 1.2f
+            val visualMax = max * scaleFactor
+
+            val barPercentage = (spent / visualMax).coerceIn(0f, 1f)
+            val barWidth = (wrapperWidth * barPercentage).toInt()
+            val minPosition = (wrapperWidth * (min / visualMax)).toInt()
+            val maxPosition = (wrapperWidth * (max / visualMax)).toInt()
+
+            bar.layoutParams.width = barWidth
+            bar.requestLayout()
+
+            minLine.translationX = minPosition.toFloat()
+            maxLine.translationX = maxPosition.toFloat()
+
+            maxLabel.post {
+                maxLabel.translationX = maxPosition.toFloat() - (maxLabel.width / 2)
+            }
+            minLabel.post {
+                minLabel.translationX = minPosition.toFloat() - (minLabel.width / 2)
+            }
+
+
+            minLabel.text = "R${"%.2f".format(min)}"
+            maxLabel.text = "R${"%.2f".format(max)}"
+
+
+            val gradient = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                when {
+                    spent < min -> intArrayOf(0xFFFFF176.toInt(), 0xFFFFEB3B.toInt())
+                    spent <= max -> intArrayOf(0xFF81C784.toInt(), 0xFF4CAF50.toInt())
+                    else -> intArrayOf(0xFFE57373.toInt(), 0xFFF44336.toInt())
+                }
+            )
+            gradient.cornerRadius = bar.height / 2f
+            bar.background = gradient
+
+            statusText.text = when {
+                spent < min -> "Status: Below Goal"
+                spent <= max -> "Status: Within Goal"
+                else -> "Status: Over Goal"
+            }
+        }
+
+
+
 
 
     }

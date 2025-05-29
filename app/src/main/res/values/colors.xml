@@ -6,6 +6,8 @@
     <color name="darker_gray">#A9A9A9</color>
     <color name="purple">#800080</color>
     <color name="lightpink">#DDDDFF</color>
+    <color name="green">#4CAF50</color>
+    <color name="red">#8b0000</color>
     <color name="default_button_background">#6388B4</color>
     <color name="selected_button_background">#D1C4E9</color>
 
