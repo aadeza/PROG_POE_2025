@@ -1,52 +1,47 @@
-    [versions]
-    agp = "8.8.0"
-    androidxJunit = "1.1.5"
-    espressoCoreVersion = "3.5.1"
-    kotlin = "1.9.24"
-    coreKtx = "1.15.0"
-    junit = "4.13.2"
-    appcompat = "1.7.0"
-    lifecycleViewmodelKtx = "2.8.7"
-    material = "1.12.0"
-    activity = "1.10.1"
-    constraintlayout = "2.2.1"
-    mockitoCore = "4.2.0"
-    # Use a single, clear version name for MPAndroidChart
-    mpandroidchart = "3.1.0"
-    media3CommonKtx = "1.6.1"
+[versions]
+agp = "8.8.0"
+androidxJunit = "1.1.5"
+espressoCoreVersion = "3.5.1"
+kotlin = "1.9.24"
+coreKtx = "1.15.0"
+junit = "4.13.2"
+appcompat = "1.7.0"
+lifecycleViewmodelKtx = "2.8.7"
+material = "1.12.0"
+activity = "1.10.1"
+constraintlayout = "2.2.1"
+mockitoCore = "4.2.0"
+mpandroidchart = "3.1.0"
+media3CommonKtx = "1.6.1"
+firebaseBom = "32.0.0"
+googleServices = "4.3.15"
+work = "2.9.0"
 
-    # --- Firebase Versions ---
-    firebaseBom = "32.0.0" # Or a newer version if available and desired
-    googleServices = "4.3.15" # Or a newer version if available and desired
-    # -----------------------
-
-    [libraries]
-    androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-    androidx-espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
-    androidx-junit-v115 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
-    androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
-    junit = { group = "junit", name = "junit", version.ref = "junit" }
-    androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-    material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-    androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
-    androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
-    mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
-    # Use a single, clear library name for MPAndroidChart
-    mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
-    androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
-
-    # --- Firebase Library Reference ---
-    firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
-    # ----------------------------------
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core-v351 = { module = "androidx.test.espresso:espresso-core", version.ref = "espressoCoreVersion" }
+androidx-junit-v115 = { module = "androidx.test.ext:junit", version.ref = "androidxJunit" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
+androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockitoCore" }
+mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
+androidx-work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "work" }
 
 
-    [plugins]
-    android-application = { id = "com.android.application", version.ref = "agp" }
-    kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-    kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
-    ksp = { id = "com.google.devtools.ksp", version = "1.9.24-1.0.20" } # KSP version often tied to Kotlin version
-    # It's good practice to tie the KSP version to the Kotlin version if you aren't strictly following a specific version reference from an external source.
 
-    # --- Firebase Plugin ---
-    google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
-    # -----------------------
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version = "1.9.24-1.0.20" } # KSP version often tied to Kotlin version
+# It's good practice to tie the KSP version to the Kotlin version if you aren't strictly following a specific version reference from an external source.
+
+# --- Firebase Plugin ---
+google-services = { id = "com.google.gms.google-services", version.ref = "googleServices" }
+# -----------------------

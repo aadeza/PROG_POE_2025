@@ -5,6 +5,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
@@ -52,6 +53,10 @@ class Home : AppCompatActivity() {
 
         findViewById<Button>(R.id.btnGenerateReport).setOnClickListener {
             startActivity(Intent(this@Home, GenReport::class.java))
+        }
+
+        findViewById<ImageButton>(R.id.btnSettings).setOnClickListener{
+            startActivity(Intent(this@Home, Settings::class.java))
         }
     }
 
