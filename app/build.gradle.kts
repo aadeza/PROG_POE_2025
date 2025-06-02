@@ -73,8 +73,10 @@ dependencies {
     androidTestImplementation(libs.androidx.junit.v115)
     androidTestImplementation(libs.androidx.espresso.core.v351)
 
-    //
+
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0") // Required for annotation processing
+
+    implementation(libs.androidx.work.runtime.ktx)
 
 }
