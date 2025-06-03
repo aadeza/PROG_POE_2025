@@ -1,8 +1,12 @@
 package com.example.prog_poe_2025
 
+import android.Manifest
+import com.google.firebase.storage.StorageReference
 import android.app.DatePickerDialog
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.*
@@ -10,15 +14,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -41,28 +44,30 @@ class LogIncomeExpense : AppCompatActivity() {
     private lateinit var btnLogDate: Button
     private lateinit var btnLogDone: Button
     private lateinit var toggleButton: ToggleButton
-    private lateinit var recyclerTransactions: RecyclerView
+
+    private lateinit var imgLog: ImageButton
     private lateinit var imgSelectedImage: ImageView
     private lateinit var txtSelectedDate: TextView
     private lateinit var txtSelectedTime: TextView
-
 
     private var selectedDate: String? = null
     private var selectedTime: String? = null
     private var imageUri: Uri? = null
     private var currentUserId: String? = null
-    private var selectedBudgetId: String? = null
 
     private lateinit var categoryNames: MutableList<String>
-    private lateinit var transactionAdapter: TransactionAdapter
 
-    private val TAG = "LogIncomeExpense"
+    // Use a single TAG for date parsing errors:
+    private val TAG_DATE = "LogIncExp_DATE"
+    private val TAG_UPLOAD = "LogIncExp_UPLOAD"
+    private val TAG_SAVE = "LogIncExp_SAVE"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_log_income_expense)
 
+        // Apply edge-to-edge padding
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
@@ -90,20 +95,11 @@ class LogIncomeExpense : AppCompatActivity() {
         btnLogDate = findViewById(R.id.btnLogDate)
         btnLogDone = findViewById(R.id.btnLogDone)
         toggleButton = findViewById(R.id.tgbtnPickIncExp)
-        recyclerTransactions = findViewById(R.id.recyclerTransactions)
+
+        imgLog = findViewById(R.id.imgLog)                   // <-- pick image on this button
         imgSelectedImage = findViewById(R.id.imgSelectedImage)
         txtSelectedDate = findViewById(R.id.txtSelectedDate)
         txtSelectedTime = findViewById(R.id.txtSelectedTime)
-
-        // RecyclerView setup
-        recyclerTransactions.layoutManager = LinearLayoutManager(this)
-        transactionAdapter = TransactionAdapter(emptyList())
-        recyclerTransactions.adapter = transactionAdapter
-
-        toggleButton.setOnCheckedChangeListener { _, isChecked ->
-            fetchTransactions(isChecked)
-        }
-        fetchTransactions(toggleButton.isChecked) // initial fetch
 
         // Setup transaction type spinner
         val transactionTypes = resources.getStringArray(R.array.transaction_types)
@@ -116,12 +112,9 @@ class LogIncomeExpense : AppCompatActivity() {
         fetchCategories()
 
         btnLogDate.setOnClickListener { showDatePicker() }
+        btnLogDone.setOnClickListener { saveTransaction() }
 
-        btnLogDone.setOnClickListener {
-            saveTransaction()
-        }
-
-        // Bottom navigation setup (unchanged)
+        // Bottom navigation setup
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_transaction
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -143,24 +136,33 @@ class LogIncomeExpense : AppCompatActivity() {
             }
         }
 
+        requestStoragePermission()
+        // Get instance of Firebase Storage
+        val storage = FirebaseStorage.getInstance()
+
+        // Reference to your default bucket
+        val storageRef: StorageReference = storage.reference
+
+        // Optional: reference to folder/path inside bucket
+        val imagesRef = storageRef.child("images")
+
+
+
+        // Register image picker for "imgLog" button clicks
         imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == RESULT_OK && result.data != null) {
-                imageUri = result.data?.data
+                imageUri = result.data!!.data
                 imgSelectedImage.setImageURI(imageUri)
-                Log.d(TAG, "Image selected: $imageUri")
+                Log.d(TAG_UPLOAD, "User selected image URI = $imageUri")
             }
         }
-        imgSelectedImage.setOnClickListener {
-            Log.d(TAG, "Image button clicked!") // ✅ Debugging
-            val intent = Intent(Intent.ACTION_PICK)
-            intent.type = "image/*"
-            imagePickerLauncher.launch(intent) // ✅ Use Activity Result API
+        imgLog.setOnClickListener {
+            // Launch gallery picker when the user clicks the "imgLog" ImageButton
+            val intent = Intent(Intent.ACTION_PICK).apply {
+                type = "image/*"
+            }
+            imagePickerLauncher.launch(intent)
         }
-        val retrievedBudgetId = SessionManager.getSelectedBudgetId(applicationContext)
-        Log.d(TAG, "SessionManager stored budget ID: $retrievedBudgetId") // ✅ Check what it returns
-
-        selectedBudgetId = retrievedBudgetId ?: ""
-        Log.d(TAG, "Assigned selected budget ID: $selectedBudgetId") // ✅ Confirm it's set properly
     }
 
     private fun fetchCategories() {
@@ -171,76 +173,36 @@ class LogIncomeExpense : AppCompatActivity() {
             .get()
             .addOnSuccessListener { budgetSnapshot ->
                 if (budgetSnapshot.isEmpty) {
-                    showNoCategoriesDialog() // No budgets exist for this user.
+                    showNoCategoriesDialog()
                     return@addOnSuccessListener
                 }
 
                 val categoryIds = mutableSetOf<String>()
-
                 for (budgetDoc in budgetSnapshot.documents) {
                     val budgetCategories = budgetDoc.get("categories") as? List<String> ?: emptyList()
-                    categoryIds.addAll(budgetCategories) // Merge categories from all budgets
+                    categoryIds.addAll(budgetCategories)
                 }
-
                 if (categoryIds.isEmpty()) {
-                    showNoCategoriesDialog() // Budgets exist but have no categories.
+                    showNoCategoriesDialog()
                     return@addOnSuccessListener
                 }
 
-                // Fetch category names based on collected IDs
                 categoryNames.clear()
-
-                firestore.collection("categories").whereIn(FieldPath.documentId(), categoryIds.toList())
+                firestore.collection("categories")
+                    .whereIn(FieldPath.documentId(), categoryIds.toList())
                     .get()
                     .addOnSuccessListener { categorySnapshot ->
-                        categoryNames.addAll(categorySnapshot.documents.mapNotNull { doc ->
-                            doc.getString("name")
-                        })
-
+                        categoryNames.addAll(categorySnapshot.documents.mapNotNull { it.getString("name") })
                         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categoryNames)
                         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                         spnCategory.adapter = adapter
                     }
                     .addOnFailureListener { e ->
-                        Log.e(TAG, "Error loading categories", e)
                         Toast.makeText(this, "Error loading categories", Toast.LENGTH_SHORT).show()
                     }
             }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error fetching budgets", e)
+            .addOnFailureListener {
                 Toast.makeText(this, "Error fetching budgets.", Toast.LENGTH_SHORT).show()
-            }
-    }
-
-    private fun fetchTransactions(isExpense: Boolean) {
-        if (currentUserId == null) return
-
-        val collection = if (isExpense) "expenses" else "incomes"
-
-        firestore.collection(collection) // 🔹 Querying global collections directly
-            .orderBy("date", Query.Direction.DESCENDING)
-            .get()
-            .addOnSuccessListener { snapshot ->
-                Log.d(TAG, "Fetched transactions from $collection: ${snapshot.documents.map { it.id }}")
-
-                val transactions = snapshot.documents.mapNotNull { doc ->
-                    val id = doc.id
-                    val amount = doc.getDouble("amount") ?: return@mapNotNull null
-                    val date = doc.getLong("date") ?: return@mapNotNull null
-                    val isExpenseType = collection == "expenses"
-
-                    if (isExpenseType) {
-                        Expense(id, amount, date)
-                    } else {
-                        Income(id, amount, date)
-                    }
-                }
-
-                transactionAdapter.updateTransactions(transactions)
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error loading $collection", e)
-                Toast.makeText(this, "Error loading transactions.", Toast.LENGTH_SHORT).show()
             }
     }
 
@@ -265,68 +227,85 @@ class LogIncomeExpense : AppCompatActivity() {
             return
         }
 
+        // Parse date/time to timestamp
         val formatter = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.getDefault())
         val fullDateTime = "$selectedDate $selectedTime"
         val timestamp = try {
             formatter.parse(fullDateTime)?.time ?: System.currentTimeMillis()
         } catch (ex: Exception) {
-            Log.e(TAG, "Error parsing date", ex)
+            Log.e(TAG_DATE, "Error parsing date/time:", ex)
             Toast.makeText(this, "Invalid date/time. Please select again.", Toast.LENGTH_SHORT).show()
             return
         }
 
         CoroutineScope(Dispatchers.Main).launch {
             try {
+                // 1) Upload image if one was picked
                 var imageUrl: String? = null
                 if (imageUri != null) {
                     Toast.makeText(this@LogIncomeExpense, "Uploading image...", Toast.LENGTH_SHORT).show()
-                    val imgRef = storage.reference.child("images/$currentUserId/${UUID.randomUUID()}.jpg")
-                    val uploadTask = imgRef.putFile(imageUri!!)
-                    imageUrl = uploadTask.continueWithTask { task ->
-                        if (!task.isSuccessful) task.exception?.let { throw it }
-                        imgRef.downloadUrl
-                    }.await().toString()
-                    Log.d(TAG, "Image uploaded to $imageUrl")
+
+                    // Log which bucket we got from FirebaseStorage
+                    val bucketName = storage.reference.bucket
+                    Log.d(TAG_UPLOAD, "Firebase Storage bucket = $bucketName")
+
+                    // Build a storage reference under /images/{userId}/{UUID}.jpg
+                    val uniqueName = UUID.randomUUID().toString() + ".jpg"
+                    val imgRef = storage.reference
+                        .child("images/$currentUserId/$uniqueName")
+
+                    // Log the full path we’re about to use
+                    Log.d(TAG_UPLOAD, "Attempting upload to path = ${imgRef.path}")
+
+                    // 1a) Perform the upload
+                    imgRef.putFile(imageUri!!).await()
+                    Log.d(TAG_UPLOAD, "putFile(...) succeeded for URI = $imageUri")
+
+                    // 1b) Then fetch the download URL
+                    imageUrl = imgRef.downloadUrl.await().toString()
+                    Log.d(TAG_UPLOAD, "downloadUrl() = $imageUrl")
+                } else {
+                    Log.d(TAG_UPLOAD, "No image selected; skipping upload")
                 }
 
-                // Step 1: Retrieve the category document ID from the "categories" collection
-                val categoryQuerySnapshot = firestore.collection("categories")
+                // 2) Find categoryId for categoryName
+                val categoryQuery = firestore.collection("categories")
                     .whereEqualTo("name", categoryName)
                     .limit(1)
                     .get()
                     .await()
 
-                if (categoryQuerySnapshot.isEmpty) {
+                if (categoryQuery.isEmpty) {
                     Toast.makeText(this@LogIncomeExpense, "Category not found", Toast.LENGTH_SHORT).show()
                     return@launch
                 }
+                val categoryId = categoryQuery.documents[0].id
+                Log.d(TAG_SAVE, "Found categoryId = $categoryId for name \"$categoryName\"")
 
-                val categoryId = categoryQuerySnapshot.documents[0].id
-                Log.d(TAG, "Fetched categoryId for \"$categoryName\": $categoryId")
-
-                // Step 2: Query budgets for the current user whose "categories" array contains this categoryId.
-                val budgetsQuerySnapshot = firestore.collection("budgets")
+                // 3) Find budgets that include this categoryId
+                val budgetsSnapshot = firestore.collection("budgets")
                     .whereEqualTo("user_id", currentUserId)
                     .whereArrayContains("categories", categoryId)
                     .get()
                     .await()
 
-                if (budgetsQuerySnapshot.isEmpty) {
+                if (budgetsSnapshot.isEmpty) {
                     Toast.makeText(
                         this@LogIncomeExpense,
-                        "Selected category does not exist in any budget.",
+                        "Selected category not in any budget.",
                         Toast.LENGTH_SHORT
                     ).show()
                     return@launch
                 }
 
-                // 🔹 **Fix: Use the toggle button to determine Expense or Income**
-                val collection = if (toggleButton.isChecked) "incomes" else "expenses"
+                // 4) Determine "incomes" vs "expenses"
+                val collectionName = if (toggleButton.isChecked) "incomes" else "expenses"
+                Log.d(TAG_SAVE, "Saving into collection \"$collectionName\"")
 
-                // Step 3: Save transaction to all applicable budgets
-                for (budgetDoc in budgetsQuerySnapshot.documents) {
+                // 5) Insert a document for each matching budget
+                for (budgetDoc in budgetsSnapshot.documents) {
                     val assignedBudgetId = budgetDoc.id
-                    Log.d(TAG, "Assigning transaction to budget ID: $assignedBudgetId")
+                    Log.d(TAG_SAVE, "Assigning to budget ID: $assignedBudgetId")
 
                     val transactionData = hashMapOf(
                         "amount" to amount,
@@ -339,16 +318,19 @@ class LogIncomeExpense : AppCompatActivity() {
                         "budgetId" to assignedBudgetId
                     )
 
-                    Log.d(TAG, "Saving transaction: $transactionData")
-
-                    firestore.collection(collection)
+                    Log.d(TAG_SAVE, "Adding Firestore doc: $transactionData")
+                    firestore.collection(collectionName)
                         .add(transactionData)
                         .await()
                 }
 
-                Toast.makeText(this@LogIncomeExpense, "Transaction logged successfully in all applicable budgets.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@LogIncomeExpense,
+                    "Transaction logged successfully.",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-                // Clear inputs after successful save
+                // 6) Clear form
                 edtAmount.text.clear()
                 edtDescription.text.clear()
                 imageUri = null
@@ -358,58 +340,76 @@ class LogIncomeExpense : AppCompatActivity() {
                 selectedDate = null
                 selectedTime = null
 
-                fetchTransactions(toggleButton.isChecked) // Refresh the transaction list
-
             } catch (e: Exception) {
-                Log.e(TAG, "Error saving transaction", e)
+                Log.e(TAG_SAVE, "Error saving transaction:", e)
                 Toast.makeText(this@LogIncomeExpense, "Failed to save transaction.", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-private fun showDatePicker() {
-    val c = Calendar.getInstance()
-    val datePickerDialog = DatePickerDialog(
-        this,
-        { _, year, month, dayOfMonth ->
-            selectedDate = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year)
-            txtSelectedDate.text = "Date: $selectedDate"
-            // Also set time picker here or keep separate?
-            showTimePicker()
-        },
-        c.get(Calendar.YEAR),
-        c.get(Calendar.MONTH),
-        c.get(Calendar.DAY_OF_MONTH)
-    )
-    datePickerDialog.show()
-}
+    private fun showDatePicker() {
+        val c = Calendar.getInstance()
+        DatePickerDialog(
+            this,
+            { _, year, month, dayOfMonth ->
+                selectedDate = String.format("%02d/%02d/%04d", dayOfMonth, month + 1, year)
+                txtSelectedDate.text = "Date: $selectedDate"
+                showTimePicker()
+            },
+            c.get(Calendar.YEAR),
+            c.get(Calendar.MONTH),
+            c.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
 
-private fun showTimePicker() {
-    val c = Calendar.getInstance()
-    val timePickerDialog = android.app.TimePickerDialog(
-        this,
-        { _, hourOfDay, minute ->
-            selectedTime = String.format("%02d:%02d:00", hourOfDay, minute)
-            txtSelectedTime.text = "Time: $selectedTime"
-        },
-        c.get(Calendar.HOUR_OF_DAY),
-        c.get(Calendar.MINUTE),
-        true
-    )
-    timePickerDialog.show()
-}
-
-private fun showNoCategoriesDialog() {
-    val dialog = android.app.AlertDialog.Builder(this)
-        .setTitle("No Categories Found")
-        .setMessage("You have no categories. Please add a category first.")
-        .setPositiveButton("Go to Categories") { _, _ ->
-            startActivity(Intent(this, CreateBudget::class.java))
+    private fun showTimePicker() {
+        val c = Calendar.getInstance()
+        android.app.TimePickerDialog(
+            this,
+            { _, hourOfDay, minute ->
+                selectedTime = String.format("%02d:%02d:00", hourOfDay, minute)
+                txtSelectedTime.text = "Time: $selectedTime"
+            },
+            c.get(Calendar.HOUR_OF_DAY),
+            c.get(Calendar.MINUTE),
+            true
+        ).show()
+    }
+    private fun requestStoragePermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_MEDIA_IMAGES),
+                    1001
+                )
+            }
+        } else {
+            // Android 12 and below
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    1001
+                )
+            }
         }
-        .setNegativeButton("Cancel", null)
-        .create()
-    dialog.show()
-}
+    }
+
+
+    private fun showNoCategoriesDialog() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("No Categories Found")
+            .setMessage("You have no categories. Please add a category first.")
+            .setPositiveButton("Go to Categories") { _, _ ->
+                startActivity(Intent(this, CreateBudget::class.java))
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
 }
 
 

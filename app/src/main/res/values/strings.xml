@@ -44,6 +44,13 @@
     <string name="btnCurrency">Change Currency</string>
     <string name="btnViewStreak">Streak</string>
 
+    <string-array name="time_filter_options">
+        <item>Last 1 Hour</item>
+        <item>Last 6 Hours</item>
+        <item>Last 24 Hours</item>
+        <item>All Time</item>
+    </string-array>
+
     <string-array name="category_list">
         <item>Food</item>
         <item>Transport</item>

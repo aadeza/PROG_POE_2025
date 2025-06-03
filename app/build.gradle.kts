@@ -51,9 +51,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-database-ktx") // 
-    implementation("com.google.firebase:firebase-storage-ktx") //
-    implementation("com.google.firebase:firebase-messaging-ktx") //
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.firebase:firebase-storage-ktx") // <-- For storage (images)
+    implementation("com.google.firebase:firebase-messaging-ktx")
 
     // ✅ AndroidX Libraries
     implementation(libs.androidx.core.ktx)
@@ -73,10 +73,8 @@ dependencies {
     androidTestImplementation(libs.androidx.junit.v115)
     androidTestImplementation(libs.androidx.espresso.core.v351)
 
-
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0") // Required for annotation processing
+    kapt("com.github.bumptech.glide:compiler:4.16.0")
 
     implementation(libs.androidx.work.runtime.ktx)
-
 }

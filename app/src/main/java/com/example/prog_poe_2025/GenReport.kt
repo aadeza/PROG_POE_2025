@@ -39,20 +39,26 @@ interface Transaction {
     val amount: Double
     val date: Long
     val isExpense: Boolean
+    val categoryId: String?
+    val imageUrl: String? // ✅ Add this property
 }
 
 data class Expense(
     override val id: String,
     override val amount: Double,
     override val date: Long,
-    override val isExpense: Boolean = true
+    override val isExpense: Boolean = true,
+    override val categoryId: String?,
+    override val imageUrl: String? = null // ✅ Implement it
 ) : Transaction
 
 data class Income(
     override val id: String,
     override val amount: Double,
     override val date: Long,
-    override val isExpense: Boolean = false
+    override val isExpense: Boolean = false,
+    override val categoryId: String?,
+    override val imageUrl: String? = null // ✅ Implement it
 ) : Transaction
 
 
@@ -258,45 +264,76 @@ class GenReport : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             try {
-                // 🔹 Fetch Transactions for Popup Only (Expenses & Incomes)
-                val expensesSnapshot = firestore.collection("expenses")
-                    .whereEqualTo("user_id", userID)
-                    .orderBy("date", Query.Direction.DESCENDING)
-                    .get()
-                    .await()
+                Log.d("TransactionPopup", "Fetching transactions for userId: $userID")
 
-                val incomesSnapshot = firestore.collection("incomes")
-                    .whereEqualTo("user_id", userID)
+                // 🔹 Fetch Expenses
+                val expensesSnapshot = firestore.collection("expenses")
+                    .whereEqualTo("userId", userID)
                     .orderBy("date", Query.Direction.DESCENDING)
                     .get()
                     .await()
 
                 val expenses = expensesSnapshot.documents.map { doc ->
-                    Expense(doc.id, doc.getDouble("amount") ?: 0.0, doc.getLong("date") ?: 0L)
+                    val imageUrl = doc.getString("imageUrl") ?: ""
+                    Log.d("TransactionPopup", "Fetched Expense ID: ${doc.id}, Image URL: $imageUrl")
+
+                    Expense(
+                        id = doc.id,
+                        amount = doc.getDouble("amount") ?: 0.0,
+                        date = doc.getLong("date") ?: 0L,
+                        categoryId = doc.getString("categoryId"),
+                        imageUrl = imageUrl
+                    )
                 }
 
+                // 🔹 Fetch Incomes
+                val incomesSnapshot = firestore.collection("incomes")
+                    .whereEqualTo("userId", userID)
+                    .orderBy("date", Query.Direction.DESCENDING)
+                    .get()
+                    .await()
+
                 val incomes = incomesSnapshot.documents.map { doc ->
-                    Income(doc.id, doc.getDouble("amount") ?: 0.0, doc.getLong("date") ?: 0L)
+                    val imageUrl = doc.getString("imageUrl") ?: ""
+                    Log.d("TransactionPopup", "Fetched Income ID: ${doc.id}, Image URL: $imageUrl")
+
+                    Income(
+                        id = doc.id,
+                        amount = doc.getDouble("amount") ?: 0.0,
+                        date = doc.getLong("date") ?: 0L,
+                        categoryId = doc.getString("categoryId"),
+                        imageUrl = imageUrl
+                    )
                 }
 
                 val allTransactions = (expenses + incomes).sortedByDescending { it.date }
 
-                // 🔹 Only Fetch Categories for Popup Transactions
+                // 🔹 Fetch all category names once
                 val categoryMap = fetchCategoryNames()
 
                 withContext(Dispatchers.Main) {
-                    recyclerTransactions.adapter = TransactionAdapter(allTransactions) // ✅ Correct (if categoryMap isn't needed)
+                    val adapter = TransactionAdapter(allTransactions, categoryMap)
+                    recyclerTransactions.adapter = adapter
+
+                    // 🔹 Ensure UI updates
+                    adapter.notifyDataSetChanged()
                 }
 
             } catch (e: Exception) {
+                Log.e("TransactionPopup", "Error fetching transactions: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@GenReport, "Failed to load transactions: ${e.message}", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this@GenReport,
+                        "Failed to load transactions: ${e.message}",
+                        Toast.LENGTH_LONG
+                    ).show()
                 }
             }
         }
 
         btnClosePopup.setOnClickListener { dialog.dismiss() }
     }
+
 
     private suspend fun fetchCategoryNames(): Map<String, String> {
         val categorySnapshot = firestore.collection("categories").get().await()

@@ -16,7 +16,8 @@ data class Budget(
 data class Category(
     val id: String = "",
     val name: String = "",
-    var selected: Boolean = false
+    var selected: Boolean = false,
+    val lastUpdatedTime: Long = System.currentTimeMillis() // ✅ Add timestamp tracking
 )
 
 // (W3Schools,2025)

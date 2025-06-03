@@ -19,88 +19,137 @@ class TransactionViewModel : ViewModel() {
     private val _expenses = MutableLiveData<List<Expense>>()
     val expenses: LiveData<List<Expense>> get() = _expenses
 
+    /**
+     * Loads all Income documents from:
+     *   users/{userId}/incomes
+     * and posts them (newest‐first) to _incomes.
+     */
     fun loadUserIncomes(userId: String) {
         viewModelScope.launch {
             try {
-                val snapshot = firestore.collection("users").document(userId)
-                    .collection("incomes").orderBy("date").get().await()
+                val snapshot = firestore.collection("users")
+                    .document(userId)
+                    .collection("incomes")
+                    .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .get()
+                    .await()
 
                 val incomeList = snapshot.documents.mapNotNull { doc ->
                     val id = doc.id
                     val amount = doc.getDouble("amount") ?: return@mapNotNull null
                     val date = doc.getLong("date") ?: return@mapNotNull null
-                    Income(id, amount, date)
+                    val categoryId = doc.getString("categoryId") // May be null if not set
+
+                    Income(
+                        id = id,
+                        amount = amount,
+                        date = date,
+                        categoryId = categoryId
+                    )
                 }
 
                 _incomes.postValue(incomeList)
-
             } catch (e: Exception) {
                 Log.e("TransactionViewModel", "Error loading incomes", e)
+                _incomes.postValue(emptyList())
             }
         }
     }
 
+    /**
+     * Loads all Expense documents from:
+     *   users/{userId}/expenses
+     * and posts them (newest‐first) to _expenses.
+     */
     fun loadUserExpenses(userId: String) {
         viewModelScope.launch {
             try {
-                val snapshot = firestore.collection("users").document(userId)
-                    .collection("expenses").orderBy("date").get().await()
+                val snapshot = firestore.collection("users")
+                    .document(userId)
+                    .collection("expenses")
+                    .orderBy("date", com.google.firebase.firestore.Query.Direction.DESCENDING)
+                    .get()
+                    .await()
 
                 val expenseList = snapshot.documents.mapNotNull { doc ->
                     val id = doc.id
                     val amount = doc.getDouble("amount") ?: return@mapNotNull null
                     val date = doc.getLong("date") ?: return@mapNotNull null
-                    Expense(id, amount, date)
+                    val categoryId = doc.getString("categoryId")
+
+                    Expense(
+                        id = id,
+                        amount = amount,
+                        date = date,
+                        categoryId = categoryId
+                    )
                 }
 
                 _expenses.postValue(expenseList)
-
             } catch (e: Exception) {
                 Log.e("TransactionViewModel", "Error loading expenses", e)
+                _expenses.postValue(emptyList())
             }
         }
     }
 
+    /**
+     * Saves a new Income under:
+     *   users/{userId}/incomes
+     * Then reloads the list.
+     */
     fun saveIncome(userId: String, income: Income) {
         viewModelScope.launch {
             try {
                 val transactionData = mapOf(
                     "amount" to income.amount,
                     "date" to income.date,
-                    "isExpense" to income.isExpense
+                    "categoryId" to income.categoryId
                 )
 
-                firestore.collection("users").document(userId)
-                    .collection("incomes").add(transactionData).await()
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("incomes")
+                    .add(transactionData)
+                    .await()
 
-                loadUserIncomes(userId) // Refresh list
-
+                // Refresh the LiveData list
+                loadUserIncomes(userId)
             } catch (e: Exception) {
                 Log.e("TransactionViewModel", "Error saving income", e)
             }
         }
     }
 
+    /**
+     * Saves a new Expense under:
+     *   users/{userId}/expenses
+     * Then reloads the list.
+     */
     fun saveExpense(userId: String, expense: Expense) {
         viewModelScope.launch {
             try {
                 val transactionData = mapOf(
                     "amount" to expense.amount,
                     "date" to expense.date,
-                    "isExpense" to expense.isExpense
+                    "categoryId" to expense.categoryId
                 )
 
-                firestore.collection("users").document(userId)
-                    .collection("expenses").add(transactionData).await()
+                firestore.collection("users")
+                    .document(userId)
+                    .collection("expenses")
+                    .add(transactionData)
+                    .await()
 
-                loadUserExpenses(userId) // Refresh list
-
+                // Refresh the LiveData list
+                loadUserExpenses(userId)
             } catch (e: Exception) {
                 Log.e("TransactionViewModel", "Error saving expense", e)
             }
         }
     }
 }
+
 //(Medium,2023)
 
 /*References List

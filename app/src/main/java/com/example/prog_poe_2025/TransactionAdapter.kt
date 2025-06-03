@@ -1,6 +1,7 @@
 package com.example.prog_poe_2025
 
 import android.graphics.Color
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,9 +12,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import java.text.SimpleDateFormat
 import java.util.*
-
 class TransactionAdapter(
-    private var transactions: List<Transaction>, // Now uses Transaction objects
+    private var transactions: List<Transaction>,
+    private val categoryMap: Map<String, String>
 ) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -30,17 +31,30 @@ class TransactionAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val transaction = transactions[position]
 
-        val category = "Unknown" // Default, since Transaction model doesn’t store category info
+        // 🔹 Ensure category details are displayed
+        val category = transaction.categoryId?.let { categoryMap[it] } ?: "Unknown"
         val amount = transaction.amount
         val dateString = formatDate(transaction.date)
 
-        holder.txtDetails.text = "$category - R${"%.2f".format(amount)} ($dateString)"
+        // ✅ Set text FIRST to ensure visibility
+        holder.txtDetails.text = "$category – R${"%.2f".format(amount)} ($dateString)"
         holder.txtDetails.setTextColor(if (transaction.isExpense) Color.RED else Color.GREEN)
+        holder.txtDetails.visibility = View.VISIBLE
 
-        // Hide image view (since Transaction model lacks image handling)
-        holder.imgTransaction.visibility = View.GONE
+        // 🔹 Load image using Glide
+        val imageUrl = transaction.imageUrl ?: ""
+        if (imageUrl.isNotEmpty()) {
+            holder.imgTransaction.visibility = View.VISIBLE
+            Glide.with(holder.itemView.context)
+                .load(imageUrl)
+                .placeholder(R.drawable.placeholderimage)
+                .error(R.drawable.placeholderimage)
+                .into(holder.imgTransaction)
+        } else {
+            holder.imgTransaction.setImageResource(R.drawable.placeholderimage)
+            holder.imgTransaction.visibility = View.VISIBLE
+        }
     }
-
     override fun getItemCount(): Int = transactions.size
 
     fun updateTransactions(newTransactions: List<Transaction>) {
@@ -76,6 +90,7 @@ class TransactionAdapter(
         }
     }
 }
+
 //(W3Schools,2025)
 
 /*References List

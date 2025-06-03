@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -40,23 +41,65 @@ class ViewBudgets : AppCompatActivity() {
         binding = ActivityViewBudgetsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupRecyclerView()
         setupBottomNavigation()
-        fetchBudgets()
-    }
 
+        // ✅ Default to last 24 hours when the screen opens
+        val defaultFilterHours = binding.spinnerTimeFilter.selectedItemPosition.let {
+            when (it) {
+                0 -> 1  // Last 1 Hour
+                1 -> 6  // Last 6 Hours
+                2 -> 24 // Last 24 Hours (1 Day)
+                3 -> -1 // All Time
+                else -> 24
+            }
+        }
+
+        setupRecyclerView(defaultFilterHours)
+        fetchBudgets(defaultFilterHours) // ✅ Apply filter immediately on load
+
+        setupRecyclerView(defaultFilterHours)
+        fetchBudgets(defaultFilterHours) // ✅ Ensure filter applies on startup
+
+        binding.spinnerTimeFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedFilterHours = when (position) {
+                    0 -> 1  // Last 1 Hour
+                    1 -> 6  // Last 6 Hours
+                    2 -> 24 // Last 24 Hours (1 Day)
+                    3 -> -1 // All Time
+                    else -> 24
+                }
+
+                setupRecyclerView(selectedFilterHours)
+                fetchBudgets(selectedFilterHours) // ✅ Apply filter dynamically
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
     override fun onResume() {
         super.onResume()
-        fetchBudgets()
+
+        val selectedFilterHours = binding.spinnerTimeFilter.selectedItemPosition.let {
+            when (it) {
+                0 -> 1  // Last 1 Hour
+                1 -> 6  // Last 6 Hours
+                2 -> 24 // Last 24 Hours (1 Day)
+                3 -> -1 // All Time
+                else -> 24 // Default to 24 hours
+            }
+        }
+
+        fetchBudgets(selectedFilterHours) // ✅ Use last selected filter
     }
 
-    private fun setupRecyclerView() {
+    private fun setupRecyclerView(filterHours: Int) { // ✅ Add parameter
         budgetsRecyclerView = binding.budgetsRecyclerView
         budgetsRecyclerView.layoutManager = LinearLayoutManager(this)
-        budgetAdapter = BudgetAdapter(emptyList())
+
+        budgetAdapter = BudgetAdapter(emptyList(), filterHours) // ✅ Pass filterHours
         budgetsRecyclerView.adapter = budgetAdapter
     }
-
     private fun setupBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_viewBudgets
@@ -79,7 +122,7 @@ class ViewBudgets : AppCompatActivity() {
             }
         }
     }
-    fun fetchBudgets() {
+    fun fetchBudgets(timeFilterHours: Int = 24) { // 🔹 Default to last 24 hours if no filter is provided
         val userId = SessionManager.getUserId(applicationContext)
         Log.d("DEBUG", "User ID from SessionManager: $userId")
 
@@ -90,6 +133,10 @@ class ViewBudgets : AppCompatActivity() {
 
         lifecycleScope.launch {
             try {
+                val currentTime = System.currentTimeMillis()
+                val filterStartTime = if (timeFilterHours == -1) 0L else currentTime - (timeFilterHours * 60 * 60 * 1000)
+                // 🔹 Use 0L when "All Time" is selected to disable filtering.
+
                 val budgetsSnapshot = db.collection("budgets")
                     .whereEqualTo("user_id", userId)
                     .get()
@@ -102,6 +149,7 @@ class ViewBudgets : AppCompatActivity() {
 
                 val budgetDocs = budgetsSnapshot.documents
 
+                // 🔹 Fetch relevant categories
                 val allCategoryIds = budgetDocs.flatMap {
                     val rawList = it.get("categories")
                     when (rawList) {
@@ -121,9 +169,11 @@ class ViewBudgets : AppCompatActivity() {
 
                 val categoryMap = catDocs?.documents?.associate {
                     val name = it.getString("name") ?: "Unknown"
-                    it.id to Category(it.id, name)
+                    val lastUpdatedTime = it.getLong("lastUpdatedTime") ?: 0L // 🔹 Ensure timestamp exists
+                    it.id to Category(it.id, name, lastUpdatedTime = lastUpdatedTime)
                 } ?: emptyMap()
 
+                // 🔹 Fetch expenses based on the selected timeframe
                 val expensesSnapshot = withContext(Dispatchers.IO) {
                     db.collection("expenses")
                         .whereEqualTo("userId", userId)
@@ -135,12 +185,13 @@ class ViewBudgets : AppCompatActivity() {
                     val budgetId = doc.getString("budgetId")
                     val catId = doc.getString("categoryId")
                     val amt = doc.getDouble("amount")?.toFloat()
-                    if (budgetId != null && catId != null && amt != null)
-                        Triple(budgetId, catId, amt)
+                    val expenseDate = doc.getLong("date") ?: 0L // 🔹 Default to 0 if missing
+
+                    if (budgetId != null && catId != null && amt != null && (timeFilterHours == -1 || expenseDate >= filterStartTime))
+                        Triple(budgetId, catId, amt) // ✅ Include all transactions for "All Time"
                     else null
                 }.groupBy { it.first to it.second }
                     .mapValues { entry -> entry.value.map { it.third }.sum() }
-
 
                 val vbBudgetsList = budgetDocs.map { bDoc ->
                     val id = bDoc.id
@@ -148,19 +199,15 @@ class ViewBudgets : AppCompatActivity() {
                     val maxGoal = bDoc.getLong("maxMonthGoal") ?: 0L
                     val minGoal = bDoc.getLong("minMonthGoal") ?: 0L
 
-                    val categoryIds = (bDoc.get("categories") as? List<*>)
-                        ?.mapNotNull { it?.toString() } ?: emptyList()
-
+                    val categoryIds = (bDoc.get("categories") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
                     val categories = categoryIds.mapNotNull { cid -> categoryMap[cid] }
 
-
+                    // Remove additional filtering; rely solely on expense date filtering
                     val spentAmounts = categories.associate { category ->
                         val key = id to category.id
-
-                        category to (expenseSums[key] ?: 0f)
-
+                        val amount = expenseSums[key] ?: 0f
+                        category to amount
                     }
-
 
                     val totalSpent = spentAmounts.values.sum()
                     val remaining = maxGoal.toFloat() - totalSpent
@@ -195,7 +242,6 @@ class ViewBudgets : AppCompatActivity() {
             }
         }
     }
-
 
 
     private fun showNoBudgetsMessage(msg: String) {

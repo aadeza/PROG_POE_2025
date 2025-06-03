@@ -4,6 +4,7 @@ import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -22,33 +23,33 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.tasks.await
 import java.util.*
 
-class BudgetAdapter(private var budgetList: List<VbBudget>) :
-    RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
+class BudgetAdapter(
+    private var budgetList: List<VbBudget>,
+    private val filterHours: Int // ✅ Pass the selected time filter
+) : RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
 
     private val db = FirebaseFirestore.getInstance()
-
-    private var filteredSpentAmounts: Map<Category, Float>? = null
 
     inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(budget: VbBudget) {
             binding.budgetName.text = budget.name
-            binding.budgetRange.text =
-                "Budget Range: Min R${budget.minMonthGoal} - Max R${budget.maxMonthGoal}"
-
+            binding.budgetRange.text = "Budget Range: Min R${budget.minMonthGoal} - Max R${budget.maxMonthGoal}"
             val spent = budget.totalSpent
             val minGoal = budget.minMonthGoal.toFloat()
             val maxGoal = budget.maxMonthGoal.toFloat()
 
+            // Only filter out categories with a zero amount.
+            val filteredSpentAmounts = budget.spentAmounts.filter { it.value > 0 }
 
-            setupBarChart(budget.spentAmounts, budget)
+            setupBarChart(filteredSpentAmounts, budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
+
             binding.progressWrapper.post {
                 updateCustomBar(spent, minGoal, maxGoal)
             }
-
         }
 
         private fun setupEditButton(budget: VbBudget) {
@@ -74,24 +75,34 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         private fun deleteBudget(budgetId: String) {
             db.collection("budgets").document(budgetId).delete()
                 .addOnSuccessListener {
-                    Toast.makeText(binding.root.context, "Budget deleted", Toast.LENGTH_SHORT)
-                        .show()
-                    (binding.root.context as? ViewBudgets)?.fetchBudgets()
+                    Toast.makeText(binding.root.context, "Budget deleted", Toast.LENGTH_SHORT).show()
+                    (binding.root.context as? ViewBudgets)?.fetchBudgets(filterHours) // Refresh with selected filter
                 }
                 .addOnFailureListener {
-                    Toast.makeText(binding.root.context, "Failed to delete", Toast.LENGTH_SHORT)
-                        .show()
+                    Toast.makeText(binding.root.context, "Failed to delete", Toast.LENGTH_SHORT).show()
                 }
         }
 
-
         private fun setupBarChart(spentMap: Map<Category, Float>, budget: VbBudget) {
-            val barChart =
-                binding.barChart as? com.github.mikephil.charting.charts.HorizontalBarChart
-                    ?: return
+            val barChart = binding.barChart as? com.github.mikephil.charting.charts.HorizontalBarChart ?: return
 
+            // Filter only nonzero amounts.
+            val filteredSpentMap = spentMap.filter { it.value > 0 }
 
-            val entries = spentMap.entries.mapIndexed { index, entry ->
+            // Handle empty state.
+            if (filteredSpentMap.isEmpty()) {
+                barChart.clear()
+                barChart.invalidate()
+                binding.barChart.visibility = View.GONE
+                binding.noDataMessage.visibility = View.VISIBLE
+                return
+            }
+
+            binding.barChart.visibility = View.VISIBLE
+            binding.noDataMessage.visibility = View.GONE
+
+            // Create bar chart entries from filtered data.
+            val entries = filteredSpentMap.entries.mapIndexed { index, entry ->
                 BarEntry(index.toFloat(), entry.value)
             }
 
@@ -105,7 +116,9 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 barWidth = 0.7f
             }
 
+            // Configure bar chart properties.
             barChart.apply {
+                clear() // Remove previous data.
                 data = barData
                 setFitBars(true)
                 description.isEnabled = false
@@ -114,52 +127,40 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 setDrawBarShadow(false)
                 setTouchEnabled(false)
 
-
-
-                barChart.xAxis.apply {
-                    valueFormatter = IndexAxisValueFormatter(spentMap.keys.map { it.name })
+                xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(filteredSpentMap.keys.map { it.name })
                     granularity = 1f
-                    labelCount = spentMap.size
+                    labelCount = filteredSpentMap.size
                     position = XAxis.XAxisPosition.BOTTOM
                     setDrawGridLines(false)
                     axisMinimum = -0.5f
-                    axisMaximum = spentMap.size - 0.5f
+                    axisMaximum = filteredSpentMap.size - 0.5f
                 }
 
-
-                barChart.axisLeft.apply {
+                axisLeft.apply {
                     removeAllLimitLines()
-
-                    val minLimit = LimitLine(budget.minMonthGoal.toFloat(), "Min")
-                    minLimit.lineColor = Color.GREEN
-                    minLimit.lineWidth = 2f
-                    minLimit.textColor = Color.GREEN
-                    minLimit.textSize = 10f
+                    val minLimit = LimitLine(budget.minMonthGoal.toFloat(), "Min").apply {
+                        lineColor = Color.GREEN
+                        lineWidth = 2f
+                    }
                     addLimitLine(minLimit)
 
-                    val maxLimit = LimitLine(budget.maxMonthGoal.toFloat(), "Max")
-                    maxLimit.lineColor = Color.RED
-                    maxLimit.lineWidth = 2f
-                    maxLimit.textColor = Color.RED
-                    maxLimit.textSize = 10f
+                    val maxLimit = LimitLine(budget.maxMonthGoal.toFloat(), "Max").apply {
+                        lineColor = Color.RED
+                        lineWidth = 2f
+                    }
                     addLimitLine(maxLimit)
 
                     axisMinimum = 0f
-                    axisMaximum = maxOf(
-                        budget.maxMonthGoal.toFloat(),
-                        spentMap.values.maxOrNull() ?: 0f
-                    ) * 1.1f
+                    axisMaximum = maxOf(budget.maxMonthGoal.toFloat(), filteredSpentMap.values.maxOrNull() ?: 0f) * 1.1f
 
                     setDrawGridLines(true)
                     enableGridDashedLine(10f, 10f, 0f)
                 }
 
+                axisRight.isEnabled = false
 
-
-                barChart.axisRight.isEnabled = false
-
-
-                animateY(1000)
+                animateY(1000) // Smooth update animation.
                 notifyDataSetChanged()
                 invalidate()
             }
@@ -198,17 +199,15 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 minLabel.translationX = minPosition.toFloat() - (minLabel.width / 2)
             }
 
-
             minLabel.text = "R${"%.2f".format(min)}"
             maxLabel.text = "R${"%.2f".format(max)}"
-
 
             val gradient = GradientDrawable(
                 GradientDrawable.Orientation.LEFT_RIGHT,
                 when {
-                    spent < min -> intArrayOf(0xFFFFF176.toInt(), 0xFFFFEB3B.toInt())
-                    spent <= max -> intArrayOf(0xFF81C784.toInt(), 0xFF4CAF50.toInt())
-                    else -> intArrayOf(0xFFE57373.toInt(), 0xFFF44336.toInt())
+                    spent < min -> intArrayOf(0xFFFFF176.toInt(), 0xFFFFEB3B.toInt()) // Below goal.
+                    spent <= max -> intArrayOf(0xFF81C784.toInt(), 0xFF4CAF50.toInt()) // Within goal.
+                    else -> intArrayOf(0xFFE57373.toInt(), 0xFFF44336.toInt()) // Over goal.
                 }
             )
             gradient.cornerRadius = bar.height / 2f
@@ -220,11 +219,6 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
                 else -> "Status: Over Goal"
             }
         }
-
-
-
-
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BudgetViewHolder {
@@ -233,7 +227,7 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
     }
 
     override fun onBindViewHolder(holder: BudgetViewHolder, position: Int) {
-        holder.bind(budgetList[position])
+        holder.bind(budgetList[position]) // ✅ Ensure filtering applies dynamically
     }
 
     override fun getItemCount(): Int = budgetList.size
