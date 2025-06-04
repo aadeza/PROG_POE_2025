@@ -8,20 +8,13 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 
-// Local data class representing a quiz question.
 data class QuizQuestion(
     val text: String = "",
     val option1: String = "",
@@ -32,7 +25,6 @@ data class QuizQuestion(
 
 class BudgetQuiz : AppCompatActivity() {
 
-    // UI components
     private lateinit var txtQuestion: TextView
     private lateinit var btnOption1: Button
     private lateinit var btnOption2: Button
@@ -45,21 +37,18 @@ class BudgetQuiz : AppCompatActivity() {
     private lateinit var txtSub: TextView
     private lateinit var progressBar: ProgressBar
 
-    // Quiz state
     private var currentQuestionIndex = 0
     private var score = 0
     private var selectedAnswer: String? = null
     private var timer: CountDownTimer? = null
+    private var quizStartTime: Long = 0L
 
-    // Firebase instance for quiz questions
-    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private var quizQuestions: List<QuizQuestion> = listOf()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_budget_quiz)
 
-        // Initialize views
         txtQuestion = findViewById(R.id.txtQuestion)
         btnOption1 = findViewById(R.id.btnOption1)
         btnOption2 = findViewById(R.id.btnOption2)
@@ -75,7 +64,6 @@ class BudgetQuiz : AppCompatActivity() {
         progressBar.max = 10
         progressBar.progress = 0
 
-        // Set up BottomNavigationView
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_game
         bottomNavigationView.setOnItemSelectedListener { item ->
@@ -92,53 +80,74 @@ class BudgetQuiz : AppCompatActivity() {
                     startActivity(Intent(this, ViewBudgets::class.java))
                     true
                 }
-                R.id.nav_game -> true // Stay here
+                R.id.nav_game -> true
                 else -> false
             }
         }
 
-        // Setup quiz control listeners
         btnStartQuiz.setOnClickListener {
-            loadQuizQuestions()  // Load quiz questions from Firestore
+            loadQuizQuestions()
             startSpinningTitle()
             startBackgroundColorAnimation()
             startQuiz()
         }
+
         btnOption1.setOnClickListener { selectAnswer(btnOption1.text.toString()) }
         btnOption2.setOnClickListener { selectAnswer(btnOption2.text.toString()) }
         btnOption3.setOnClickListener { selectAnswer(btnOption3.text.toString()) }
-        btnNext.setOnClickListener { nextQuestion() }
-    }
-
-    // Load quiz questions from the "quizQuestions" collection in Firestore.
-    private fun loadQuizQuestions() {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                val snapshot = firestore.collection("quizQuestions").get().await()
-                quizQuestions = snapshot.documents.mapNotNull { doc ->
-                    val text = doc.getString("text") ?: return@mapNotNull null
-                    val option1 = doc.getString("option1") ?: return@mapNotNull null
-                    val option2 = doc.getString("option2") ?: return@mapNotNull null
-                    val option3 = doc.getString("option3") ?: return@mapNotNull null
-                    val correctAnswer = doc.getString("correctAnswer") ?: return@mapNotNull null
-                    QuizQuestion(text, option1, option2, option3, correctAnswer)
-                }
-                withContext(Dispatchers.Main) {
-                    if (quizQuestions.isNotEmpty()) {
-                        progressBar.max = quizQuestions.size
-                    } else {
-                        txtQuestion.text = "No quiz questions available."
-                    }
-                }
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    txtQuestion.text = "Error loading quiz questions."
-                }
+        btnNext.setOnClickListener {
+            if (selectedAnswer == null) {
+                Toast.makeText(this, "Please select an answer!", Toast.LENGTH_SHORT).show()
+            } else {
+                nextQuestion()
             }
         }
     }
 
-    // Animate the background color of the intro text.
+    private fun loadQuizQuestions() {
+        quizQuestions = getSampleQuestions().shuffled().take(10)
+        if (quizQuestions.isNotEmpty()) {
+            progressBar.max = quizQuestions.size
+        } else {
+            txtQuestion.text = "No quiz questions available."
+        }
+    }
+
+    private fun getSampleQuestions(): List<QuizQuestion> {
+        return listOf(
+            QuizQuestion("What is the purpose of budgeting?", "To spend more", "To manage income", "To avoid planning", "To manage income"),
+            QuizQuestion("Which is a fixed expense?", "Rent", "Groceries", "Dining out", "Rent"),
+            QuizQuestion("Why is saving important?", "For emergencies", "To spend more", "To waste money", "For emergencies"),
+            QuizQuestion("What tracks your spending?", "Calendar", "Expense Tracker", "Weather App", "Expense Tracker"),
+            QuizQuestion("First step in budgeting?", "Spend first", "Record income", "Borrow money", "Record income"),
+            QuizQuestion("What is variable expense?", "Internet bill", "Electricity", "Clothing", "Clothing"),
+            QuizQuestion("Good budgeting habit?", "Impulse buying", "Tracking expenses", "Ignoring bills", "Tracking expenses"),
+            QuizQuestion("What is net income?", "Salary before tax", "Income after tax", "Gross income", "Income after tax"),
+            QuizQuestion("Budgeting helps to?", "Spend freely", "Avoid debt", "Ignore expenses", "Avoid debt"),
+            QuizQuestion("Unexpected cost is called?", "Fixed expense", "Variable", "Emergency expense", "Emergency expense"),
+            QuizQuestion("Where to keep your budget?", "Head", "Notebook", "Anywhere safe", "Anywhere safe"),
+            QuizQuestion("Which is NOT a budget tool?", "Spreadsheet", "Bank app", "Gaming app", "Gaming app"),
+            QuizQuestion("When should you update a budget?", "Monthly", "Yearly", "Never", "Monthly"),
+            QuizQuestion("Income higher than expenses means?", "Deficit", "Break even", "Surplus", "Surplus"),
+            QuizQuestion("Which helps lower spending?", "Avoiding sales", "Impulse shopping", "Tracking expenses", "Tracking expenses"),
+            QuizQuestion("Best reason to use a budget app?", "To forget due dates", "To track finance", "To lose money", "To track finance"),
+            QuizQuestion("Which is a budgeting goal?", "More debt", "Overspending", "Saving for a trip", "Saving for a trip"),
+            QuizQuestion("What is a financial goal?", "Watch movies", "Pay debt", "Eat out often", "Pay debt"),
+            QuizQuestion("What increases savings?", "Spending more", "Earning more", "Budgeting", "Budgeting"),
+            QuizQuestion("Best way to reduce debt?", "Ignore it", "Pay minimum", "Make regular payments", "Make regular payments"),
+            QuizQuestion("How to prepare for emergencies?", "Spend all income", "Save a portion", "Take loans", "Save a portion"),
+            QuizQuestion("What is a want?", "Water bill", "Medical aid", "New shoes", "New shoes"),
+            QuizQuestion("What is a need?", "Concert ticket", "Electricity", "Holiday trip", "Electricity"),
+            QuizQuestion("Late payment causes?", "Rewards", "Debt", "Savings", "Debt"),
+            QuizQuestion("Which affects credit score?", "Paying bills late", "Saving money", "Budgeting", "Paying bills late"),
+            QuizQuestion("Why review your budget?", "To forget bills", "To keep it updated", "To overspend", "To keep it updated"),
+            QuizQuestion("What’s the 50/30/20 rule?", "All for fun", "Needs/Savings/Wants", "Spend/Spend/Spend", "Needs/Savings/Wants"),
+            QuizQuestion("Which is a saving strategy?", "Buy more", "Set goals", "Spend blindly", "Set goals"),
+            QuizQuestion("Which app helps budgeting?", "Instagram", "Buxfer", "TikTok", "Buxfer"),
+            QuizQuestion("What does budgeting prevent?", "Overspending", "Saving", "Working", "Overspending")
+        )
+    }
+
     private fun startBackgroundColorAnimation() {
         val colorFrom = Color.parseColor("#6388B4")
         val colorTo = Color.parseColor("#E7C6FF")
@@ -153,7 +162,6 @@ class BudgetQuiz : AppCompatActivity() {
         colorAnimation.start()
     }
 
-    // Spin the quiz heading.
     private fun startSpinningTitle() {
         val flip = ObjectAnimator.ofFloat(txtQuizHeading, "rotationY", 0f, 360f).apply {
             duration = 2500
@@ -163,8 +171,9 @@ class BudgetQuiz : AppCompatActivity() {
         flip.start()
     }
 
-    // Prepare and start the quiz.
     private fun startQuiz() {
+        quizStartTime = System.currentTimeMillis()
+
         btnStartQuiz.visibility = View.GONE
         txtQuestion.visibility = View.VISIBLE
         btnOption1.visibility = View.VISIBLE
@@ -186,7 +195,6 @@ class BudgetQuiz : AppCompatActivity() {
         }
     }
 
-    // Reset the background colors of the option buttons.
     private fun resetAnswerButtons() {
         val defaultColor = ContextCompat.getColor(this, R.color.default_button_background)
         btnOption1.setBackgroundColor(defaultColor)
@@ -194,7 +202,6 @@ class BudgetQuiz : AppCompatActivity() {
         btnOption3.setBackgroundColor(defaultColor)
     }
 
-    // Display the current question and its options.
     private fun showQuestion() {
         val question = quizQuestions[currentQuestionIndex]
         resetAnswerButtons()
@@ -205,15 +212,9 @@ class BudgetQuiz : AppCompatActivity() {
         selectedAnswer = null
     }
 
-    // Reset option styles (currently the same as resetting answer buttons).
-    private fun resetOptionStyles() {
-        resetAnswerButtons()
-    }
-
-    // Record the selected answer and highlight its button.
     private fun selectAnswer(answer: String) {
         selectedAnswer = answer
-        resetOptionStyles()
+        resetAnswerButtons()
         val selectedColor = ContextCompat.getColor(this, R.color.selected_button_background)
         when (answer) {
             btnOption1.text -> btnOption1.setBackgroundColor(selectedColor)
@@ -222,7 +223,6 @@ class BudgetQuiz : AppCompatActivity() {
         }
     }
 
-    // Proceed to the next question or end the quiz.
     private fun nextQuestion() {
         if (selectedAnswer == quizQuestions[currentQuestionIndex].correctAnswer) {
             score++
@@ -236,20 +236,48 @@ class BudgetQuiz : AppCompatActivity() {
         }
     }
 
-    // End the quiz and display the final score.
     private fun endQuiz() {
         timer?.cancel()
+
+        val durationMillis = System.currentTimeMillis() - quizStartTime
+        val durationSeconds = durationMillis / 1000
+
         txtQuestion.text = "Quiz Over! Your score: $score/${quizQuestions.size}"
         btnOption1.visibility = View.GONE
         btnOption2.visibility = View.GONE
         btnOption3.visibility = View.GONE
         btnNext.visibility = View.GONE
         txtTimer.visibility = View.GONE
+
+        saveQuizResultToFirestore(score, durationSeconds)
     }
 
-    // Start an emoji-based countdown timer.
+    private fun saveQuizResultToFirestore(score: Int, durationSeconds: Long) {
+        val user = SessionManager.getUserId(applicationContext)
+
+        if (user != null) {
+            val db = FirebaseFirestore.getInstance()
+            val result = hashMapOf(
+                "uid" to user,
+                "email" to user,
+                "score" to score,
+                "durationSeconds" to durationSeconds,
+                "timestamp" to System.currentTimeMillis()
+            )
+
+            db.collection("quizResults")
+                .add(result)
+                .addOnSuccessListener {
+                    Toast.makeText(this, "Result saved!", Toast.LENGTH_SHORT).show()
+                }
+                .addOnFailureListener { e ->
+                    Toast.makeText(this, "Failed to save result: ${e.message}", Toast.LENGTH_LONG).show()
+                }
+        }
+    }
+
     private fun startEmojiCountdown() {
-        val emojis = listOf("⏳", "😬", "😱", "💣", "🔥")
+        val emojis = listOf("\u23F3", "\uD83D\uDE2C", "\uD83D\uDE31", "\uD83D\uDCA3", "\uD83D\uDD25")
         timer = object : CountDownTimer(60000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsLeft = millisUntilFinished / 1000
@@ -264,16 +292,9 @@ class BudgetQuiz : AppCompatActivity() {
             }
 
             override fun onFinish() {
-                txtTimer.text = "Time's Up! 💥"
+                txtTimer.text = "Time's Up! \uD83D\uDCA5"
                 endQuiz()
             }
         }.start()
     }
 }
-//(W3Schools,2025)
-
-/*References List
-* W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
-* https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025]
-* */
-
