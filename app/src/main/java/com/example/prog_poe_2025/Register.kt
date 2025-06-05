@@ -1,7 +1,5 @@
 package com.example.prog_poe_2025
 
-import Data_Classes.Notification
-import Data_Classes.Users
 import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
@@ -11,16 +9,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+import com.google.firebase.auth.FirebaseAuth // Import Firebase Auth
+import com.google.firebase.firestore.FirebaseFirestore // Import Firebase Firestore
+import com.example.prog_poe_2025.PasswordUtils // Assuming PasswordUtils is in the same package or imported properly
+
+
 class Register : AppCompatActivity() {
+
+    // Declare Firebase Auth and Firestore instances
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContentView(R.layout.activity_register)
+
+        // Initialize Firebase instances
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -30,63 +37,88 @@ class Register : AppCompatActivity() {
 
         val doneRegButton = findViewById<Button>(R.id.btnDoneReg)
         doneRegButton.setOnClickListener {
-            val name = findViewById<EditText>(R.id.edtName).text.toString()
-            val surname = findViewById<EditText>(R.id.edtSurname).text.toString()
-            val email = findViewById<EditText>(R.id.edtEmailAddress).text.toString()
+            val name = findViewById<EditText>(R.id.edtName).text.toString().trim() // Trim whitespace
+            val surname = findViewById<EditText>(R.id.edtSurname).text.toString().trim() // Trim whitespace
+            val email = findViewById<EditText>(R.id.edtEmailAddress).text.toString().trim() // Trim whitespace
             val confirmPassword = findViewById<EditText>(R.id.edtConfirmPassword).text.toString()
             val password = findViewById<EditText>(R.id.edtRegPassword).text.toString()
-            val number = findViewById<EditText>(R.id.edtPhoneNum).text.toString()
+            val number = findViewById<EditText>(R.id.edtPhoneNum).text.toString().trim() // Trim whitespace
 
-            // Ensure all fields are filled
-            if (name.isNotEmpty() && surname.isNotEmpty() && email.isNotEmpty() && password.isNotEmpty() && number.isNotEmpty()) {
+            // --- Validation Checks ---
+            if (name.isEmpty() || surname.isEmpty() || email.isEmpty() || password.isEmpty() || number.isEmpty()) {
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                // Check that name and surname contain no digits
-                if (name.contains(Regex("[0-9]")) || surname.contains(Regex("[0-9]"))) {
-                    Toast.makeText(this, "Name and Surname cannot contain numbers", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+            if (name.contains(Regex("[0-9]")) || surname.contains(Regex("[0-9]"))) {
+                Toast.makeText(this, "Name and Surname cannot contain numbers", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                if (!isValidEmail(email)) {
-                    Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+            if (!isValidEmail(email)) {
+                Toast.makeText(this, "Please enter a valid email address", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                if (!isValidPhoneNumber(number)) {
-                    Toast.makeText(this, "Please enter a valid South African phone number", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+            if (!isValidPhoneNumber(number)) {
+                Toast.makeText(this, "Please enter a valid South African phone number", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                if (password != confirmPassword) {
-                    Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
-                    return@setOnClickListener
-                }
+            if (password != confirmPassword) {
+                Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
 
-                val hashedPassword = PasswordUtils.hashPassword(password)
-                val user = Users(name = name, surname = surname, email = email, password = hashedPassword, number = number)
+            // You generally don't hash passwords when using Firebase Auth's email/password method
+            // as Firebase handles the hashing securely.
+            // If PasswordUtils.hashPassword is used for other purposes (e.g., local only, or a custom auth system),
+            // you might keep it, but for standard Firebase Auth, it's not needed for the password being sent.
+            // For storing extra user data like the name, surname, number, you can use the original values.
 
-                lifecycleScope.launch {
-                    try {
-                        val db = AppDatabase.getDatabase(applicationContext)
-                        val userDao = db.userDao()
+            // --- Firebase Registration ---
+            auth.createUserWithEmailAndPassword(email, password)
+                .addOnCompleteListener(this) { task ->
+                    if (task.isSuccessful) {
+                        // User successfully created in Firebase Authentication
+                        val firebaseUser = auth.currentUser
+                        val userId = firebaseUser?.uid // Get the unique Firebase User ID
 
-                        userDao.insertUser(user)
+                        if (userId != null) {
+                            // Now save additional user details to Firestore
+                            val userDetails = hashMapOf(
+                                "name" to name,
+                                "surname" to surname,
+                                "email" to email, // Store email again for easier queries if needed, though Auth also has it
+                                "number" to number,
+                                // You might not want to store the password hash here if Firebase Auth manages it.
+                                // If `PasswordUtils.hashPassword` is used for something else, include it here.
+                                // For now, let's assume it's removed for standard auth.
+                                // "hashedPassword" to hashedPassword // Removed for standard Firebase Auth flow
+                            )
 
-                        runOnUiThread {
-                            Toast.makeText(this@Register, "User successfully registered!", Toast.LENGTH_SHORT).show()
+                            db.collection("users") // Use a collection named "users"
+                                .document(userId) // Use the Firebase user ID as the document ID
+                                .set(userDetails) // Save the user details
+                                .addOnSuccessListener {
+                                    Toast.makeText(this, "User registered and details saved!", Toast.LENGTH_SHORT).show()
+                                    val intent = Intent(this@Register, MainActivity::class.java)
+                                    startActivity(intent)
+                                    finish()
+                                }
+                                .addOnFailureListener { e ->
+                                    Toast.makeText(this, "Registration successful, but failed to save details: ${e.message}", Toast.LENGTH_LONG).show()
+                                    // Consider logging out the user if detail saving fails to avoid inconsistent state
+                                    auth.currentUser?.delete() // Delete the user from Auth if details can't be saved
+                                }
+                        } else {
+                            Toast.makeText(this, "Registration failed: User ID not found.", Toast.LENGTH_LONG).show()
                         }
-
-                        val intent = Intent(this@Register, MainActivity::class.java)
-                        startActivity(intent)
-                        finish()
-
-                    } catch (e: Exception) {
-                        Toast.makeText(this@Register, "Error saving user: ${e.message}", Toast.LENGTH_SHORT).show()
+                    } else {
+                        // If sign-in fails, display a message to the user.
+                        Toast.makeText(this, "Registration failed: ${task.exception?.message}", Toast.LENGTH_LONG).show()
                     }
                 }
-
-            } else {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 
@@ -97,7 +129,8 @@ class Register : AppCompatActivity() {
     private fun isValidPhoneNumber(number: String): Boolean {
         return number.matches("^0\\d{9}$".toRegex())
     }
-}//(W3Schools,2025)
+}
+//(W3Schools,2025)
 
 /*Reference List
 W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:

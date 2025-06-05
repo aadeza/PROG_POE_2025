@@ -1,71 +1,105 @@
 package com.example.prog_poe_2025
-import Data_Classes.Category
+
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.AdapterView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.prog_poe_2025.databinding.ActivityViewBudgetsBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.example.prog_poe_2025.databinding.ActivityViewBudgetsBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.Calendar
+import com.google.firebase.firestore.FieldPath
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
 
-// Data class for the budget model
 data class VbBudget(
-    val id: Int,
-    val name: String,
-    val maxMonthGoal: Long,
+    val id: String = "",
+    val name: String = "",
+    val maxMonthGoal: Long = 0L,
+    val minMonthGoal: Long = 0L,
     val spentAmounts: Map<Category, Float>,
-   val totalSpent: Float,
-    val remainingAmount: Float // Added this
+    val totalSpent: Float,
+    val remainingAmount: Float,
+    val categories: List<Category>
 )
+
 class ViewBudgets : AppCompatActivity() {
 
     private lateinit var binding: ActivityViewBudgetsBinding
     private lateinit var budgetsRecyclerView: RecyclerView
     private lateinit var budgetAdapter: BudgetAdapter
 
-    // Database initialization
-    private val db by lazy { AppDatabase.getDatabase(this) }
-    private val budgetDao by lazy { db.budgetDao() }
-    private val expensesDao by lazy { db.expensesDao() }
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Initialize view binding
         binding = ActivityViewBudgetsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set up RecyclerView
-        setupRecyclerView()
-
-        // Fetch initial budget data
-        fetchBudgets()
-
-        // Set up Bottom Navigation
         setupBottomNavigation()
-    }
 
+        // ✅ Default to last 24 hours when the screen opens
+        val defaultFilterHours = binding.spinnerTimeFilter.selectedItemPosition.let {
+            when (it) {
+                0 -> 1  // Last 1 Hour
+                1 -> 6  // Last 6 Hours
+                2 -> 24 // Last 24 Hours (1 Day)
+                3 -> -1 // All Time
+                else -> 24
+            }
+        }
+
+        setupRecyclerView(defaultFilterHours)
+        fetchBudgets(defaultFilterHours) // ✅ Apply filter immediately on load
+
+        setupRecyclerView(defaultFilterHours)
+        fetchBudgets(defaultFilterHours) // ✅ Ensure filter applies on startup
+
+        binding.spinnerTimeFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val selectedFilterHours = when (position) {
+                    0 -> 1  // Last 1 Hour
+                    1 -> 6  // Last 6 Hours
+                    2 -> 24 // Last 24 Hours (1 Day)
+                    3 -> -1 // All Time
+                    else -> 24
+                }
+
+                setupRecyclerView(selectedFilterHours)
+                fetchBudgets(selectedFilterHours) // ✅ Apply filter dynamically
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+    }
     override fun onResume() {
         super.onResume()
-        fetchBudgets() // Auto-refresh budget list when returning
+
+        val selectedFilterHours = binding.spinnerTimeFilter.selectedItemPosition.let {
+            when (it) {
+                0 -> 1  // Last 1 Hour
+                1 -> 6  // Last 6 Hours
+                2 -> 24 // Last 24 Hours (1 Day)
+                3 -> -1 // All Time
+                else -> 24 // Default to 24 hours
+            }
+        }
+
+        fetchBudgets(selectedFilterHours) // ✅ Use last selected filter
     }
 
-    private fun setupRecyclerView() {
+    private fun setupRecyclerView(filterHours: Int) { // ✅ Add parameter
         budgetsRecyclerView = binding.budgetsRecyclerView
         budgetsRecyclerView.layoutManager = LinearLayoutManager(this)
-        budgetAdapter = BudgetAdapter(emptyList()) // Initialize with empty list
+
+        budgetAdapter = BudgetAdapter(emptyList(), filterHours) // ✅ Pass filterHours
         budgetsRecyclerView.adapter = budgetAdapter
     }
-
     private fun setupBottomNavigation() {
         val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNavigationView.selectedItemId = R.id.nav_viewBudgets
@@ -79,7 +113,7 @@ class ViewBudgets : AppCompatActivity() {
                     startActivity(Intent(this, Home::class.java))
                     true
                 }
-                R.id.nav_viewBudgets -> true // Keeps user on current screen
+                R.id.nav_viewBudgets -> true
                 R.id.nav_game -> {
                     startActivity(Intent(this, BudgetQuiz::class.java))
                     true
@@ -88,71 +122,145 @@ class ViewBudgets : AppCompatActivity() {
             }
         }
     }
-
-    public fun fetchBudgets() {
+    fun fetchBudgets(timeFilterHours: Int = 24) { // 🔹 Default to last 24 hours if no filter is provided
         val userId = SessionManager.getUserId(applicationContext)
-        val defaultStartTime = 0L // Fetch all transactions
+        Log.d("DEBUG", "User ID from SessionManager: $userId")
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            val budgets = budgetDao.getBudgetsForUser(userId)
-            Log.d("DEBUG", "Fetched budgets: $budgets")
+        if (userId == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show()
+            return
+        }
 
-            // Process categories and spending separately for clarity
-            val vbBudgetsList = budgets.map { budget ->
-                val budgetWithCategories = budgetDao.getBudgetWithCategories(budget.id)
+        lifecycleScope.launch {
+            try {
+                val currentTime = System.currentTimeMillis()
+                val filterStartTime = if (timeFilterHours == -1) 0L else currentTime - (timeFilterHours * 60 * 60 * 1000)
+                // 🔹 Use 0L when "All Time" is selected to disable filtering.
 
-                Log.d("DEBUG", "Budget ID: ${budget.id}, Categories: ${budgetWithCategories.categories.map { it.name }}")
+                val budgetsSnapshot = db.collection("budgets")
+                    .whereEqualTo("user_id", userId)
+                    .get()
+                    .await()
 
-                // Raw expense values (used for home screen & reports)
-                val spentAmountsRaw = budgetWithCategories.categories.associateWith { category ->
-                    expensesDao.getTotalSpentInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
+                if (budgetsSnapshot.isEmpty) {
+                    showNoBudgetsMessage("No budgets created yet. Add a new budget to start tracking!")
+                    return@launch
                 }
 
-                // Adjusted values for the pie chart (expense minus income)
-                val spentAmountsForPieChart = budgetWithCategories.categories.associateWith { category ->
-                    val totalSpent = spentAmountsRaw[category] ?: 0f
-                    val totalIncome = db.incomeDao().getTotalIncomeInCategory(userId, category.name, budget.id, defaultStartTime) ?: 0f
-                    maxOf(totalSpent - totalIncome, 0f)
-                }
+                val budgetDocs = budgetsSnapshot.documents
 
-                val totalSpent = spentAmountsRaw.values.sum()
-                val remainingAmount = budget.maxMonthGoal - totalSpent
-
-                Log.d("DEBUG", "Budget ID: ${budget.id}, Total Spent: $totalSpent, Remaining: $remainingAmount")
-
-                VbBudget(
-                    budget.id,
-                    budget.name,
-                    budget.maxMonthGoal,
-                    spentAmountsRaw, // Keeps raw expenses intact for home & reports
-                    totalSpent,
-                    remainingAmount
-                )
-            }
-
-            // Switch to Main thread only AFTER processing budgets in IO
-            withContext(Dispatchers.Main) {
-                if (vbBudgetsList.isEmpty()) {
-                    binding.txtNoBudgetsMessage.apply {
-                        visibility = View.VISIBLE
-                        text = "No budgets created yet. Add a new budget to start tracking!"
+                // 🔹 Fetch relevant categories
+                val allCategoryIds = budgetDocs.flatMap {
+                    val rawList = it.get("categories")
+                    when (rawList) {
+                        is List<*> -> rawList.mapNotNull { id -> id?.toString() }
+                        else -> emptyList()
                     }
-                    budgetAdapter.updateBudgets(emptyList())
-                } else {
-                    binding.txtNoBudgetsMessage.visibility = View.GONE
-                    budgetsRecyclerView.visibility = View.VISIBLE
-                    budgetAdapter.updateBudgets(vbBudgetsList)
-                    budgetsRecyclerView.adapter?.notifyDataSetChanged()
-                    Log.d("DEBUG", "UI Updated - Budgets refreshed successfully")
+                }.distinct()
+
+                val catDocs = if (allCategoryIds.isNotEmpty()) {
+                    withContext(Dispatchers.IO) {
+                        db.collection("categories")
+                            .whereIn(FieldPath.documentId(), allCategoryIds)
+                            .get()
+                            .await()
+                    }
+                } else null
+
+                val categoryMap = catDocs?.documents?.associate {
+                    val name = it.getString("name") ?: "Unknown"
+                    val lastUpdatedTime = it.getLong("lastUpdatedTime") ?: 0L // 🔹 Ensure timestamp exists
+                    it.id to Category(it.id, name, lastUpdatedTime = lastUpdatedTime)
+                } ?: emptyMap()
+
+                // 🔹 Fetch expenses based on the selected timeframe
+                val expensesSnapshot = withContext(Dispatchers.IO) {
+                    db.collection("expenses")
+                        .whereEqualTo("userId", userId)
+                        .get()
+                        .await()
                 }
+
+                val expenseSums = expensesSnapshot.documents.mapNotNull { doc ->
+                    val budgetId = doc.getString("budgetId")
+                    val catId = doc.getString("categoryId")
+                    val amt = doc.getDouble("amount")?.toFloat()
+                    val expenseDate = doc.getLong("date") ?: 0L // 🔹 Default to 0 if missing
+
+                    if (budgetId != null && catId != null && amt != null && (timeFilterHours == -1 || expenseDate >= filterStartTime))
+                        Triple(budgetId, catId, amt) // ✅ Include all transactions for "All Time"
+                    else null
+                }.groupBy { it.first to it.second }
+                    .mapValues { entry -> entry.value.map { it.third }.sum() }
+
+                val vbBudgetsList = budgetDocs.map { bDoc ->
+                    val id = bDoc.id
+                    val name = bDoc.getString("name") ?: "Unnamed"
+                    val maxGoal = bDoc.getLong("maxMonthGoal") ?: 0L
+                    val minGoal = bDoc.getLong("minMonthGoal") ?: 0L
+
+                    val categoryIds = (bDoc.get("categories") as? List<*>)?.mapNotNull { it?.toString() } ?: emptyList()
+                    val categories = categoryIds.mapNotNull { cid -> categoryMap[cid] }
+
+                    // Remove additional filtering; rely solely on expense date filtering
+                    val spentAmounts = categories.associate { category ->
+                        val key = id to category.id
+                        val amount = expenseSums[key] ?: 0f
+                        category to amount
+                    }
+
+                    val totalSpent = spentAmounts.values.sum()
+                    val remaining = maxGoal.toFloat() - totalSpent
+
+                    VbBudget(
+                        id = id,
+                        name = name,
+                        maxMonthGoal = maxGoal,
+                        minMonthGoal = minGoal,
+                        spentAmounts = spentAmounts,
+                        totalSpent = totalSpent,
+                        remainingAmount = remaining,
+                        categories = categories
+                    )
+                }
+
+                withContext(Dispatchers.Main) {
+                    if (vbBudgetsList.isEmpty()) {
+                        showNoBudgetsMessage("No budgets found.")
+                    } else {
+                        binding.txtNoBudgetsMessage.visibility = View.GONE
+                        budgetsRecyclerView.visibility = View.VISIBLE
+                        budgetAdapter.updateBudgets(vbBudgetsList)
+                        budgetsRecyclerView.adapter?.notifyDataSetChanged()
+                    }
+                }
+
+            } catch (e: Exception) {
+                Log.e("ViewBudgets", "Error fetching budgets", e)
+                Toast.makeText(this@ViewBudgets, "Error fetching budgets", Toast.LENGTH_SHORT).show()
+                showNoBudgetsMessage("Error loading budgets.")
             }
         }
     }
-}
-// (W3Schools,2025)
 
-/*
-Reference List:
-W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
-https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
- */
+
+    private fun showNoBudgetsMessage(msg: String) {
+        binding.txtNoBudgetsMessage.apply {
+            visibility = View.VISIBLE
+            text = msg
+        }
+        budgetsRecyclerView.visibility = View.GONE
+        budgetAdapter.updateBudgets(emptyList())
+    }
+
+    private fun showBudgets(budgets: List<VbBudget>) {
+        if (budgets.isEmpty()) {
+            showNoBudgetsMessage("No budgets found.")
+        } else {
+            binding.txtNoBudgetsMessage.visibility = View.GONE
+            budgetsRecyclerView.visibility = View.VISIBLE
+            budgetAdapter.updateBudgets(budgets)
+        }
+
+    }
+}

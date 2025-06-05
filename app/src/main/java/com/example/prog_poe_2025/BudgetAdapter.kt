@@ -1,9 +1,8 @@
 package com.example.prog_poe_2025
 
-import Data_Classes.Category
 import android.content.Intent
 import android.graphics.Color
-import android.util.Log
+import android.graphics.drawable.GradientDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,182 +12,212 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.recyclerview.widget.RecyclerView
 import com.example.prog_poe_2025.databinding.ItemBudgetBinding
-import com.github.mikephil.charting.data.PieData
-import com.github.mikephil.charting.data.PieDataSet
-import com.github.mikephil.charting.data.PieEntry
-import com.github.mikephil.charting.formatter.ValueFormatter
+import com.github.mikephil.charting.components.LimitLine
+import com.github.mikephil.charting.components.XAxis
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.*
-import java.util.Calendar
+import kotlinx.coroutines.tasks.await
+import java.util.*
 
-class BudgetAdapter(private var budgetList: List<VbBudget>) :
-    RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
+class BudgetAdapter(
+    private var budgetList: List<VbBudget>,
+    private val filterHours: Int // ✅ Pass the selected time filter
+) : RecyclerView.Adapter<BudgetAdapter.BudgetViewHolder>() {
+
+    private val db = FirebaseFirestore.getInstance()
 
     inner class BudgetViewHolder(private val binding: ItemBudgetBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        private var filteredSpentAmounts: Map<Category, Float>? = null
-
         fun bind(budget: VbBudget) {
-            Log.d("DEBUG", "Binding Budget ID: ${budget.id}, Name: ${budget.name}")
-            Log.d("DEBUG", "Spent Amounts Map: ${budget.spentAmounts}")
-
             binding.budgetName.text = budget.name
-            binding.maxBudgetGoal.text = "Max Budget Goal: R${budget.maxMonthGoal}"
+            binding.budgetRange.text = "Budget Range: Min R${budget.minMonthGoal} - Max R${budget.maxMonthGoal}"
+            val spent = budget.totalSpent
+            val minGoal = budget.minMonthGoal.toFloat()
+            val maxGoal = budget.maxMonthGoal.toFloat()
 
-            val totalSpent = filteredSpentAmounts?.values?.sum() ?: budget.totalSpent
-            val progress = (totalSpent / budget.maxMonthGoal * 100).coerceIn(0F, 100F)
-            binding.progressBar.progress = progress.toInt()
+            // Only filter out categories with a zero amount.
+            val filteredSpentAmounts = budget.spentAmounts.filter { it.value > 0 }
 
-            setupPieChart(filteredSpentAmounts ?: budget.spentAmounts)
-            setupDateFilterSpinner(budget)
+            setupBarChart(filteredSpentAmounts, budget)
             setupEditButton(budget)
             setupDeleteButton(budget)
-        }
 
-        private fun setupPieChart(spentAmounts: Map<Category, Float>) {
-            Log.d("DEBUG", "Setting up Pie Chart with: $spentAmounts")
-
-            val entries = spentAmounts.filter { it.value > 0 }
-                .map { (category, amount) -> PieEntry(amount, category.name) }
-
-            if (entries.isEmpty()) {
-                Log.d("DEBUG", "Pie Chart has NO valid data. Keeping previous chart data.")
-                return
-            }
-
-            binding.pieChart.apply {
-                visibility = View.VISIBLE
-                clear()
-                val dataSet = PieDataSet(entries, "").apply {
-                    colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.MAGENTA)
-                    sliceSpace = 2f
-                    valueTextSize = 12f
-                    valueFormatter = object : ValueFormatter() {
-                        override fun getFormattedValue(value: Float): String {
-                            return "${String.format("%.1f", value)}%"
-                        }
-                    }
-                }
-                data = PieData(dataSet)
-                description.isEnabled = false
-                setUsePercentValues(true)
-                animateY(1000)
-                invalidate()
-            }
-        }
-
-        private fun setupDateFilterSpinner(budget: VbBudget) {
-            val dateOptions = listOf("Last Minute", "Last 3 Minutes", "Last Hour", "Last 12 Hours", "Today", "Week", "Month", "Year", "All")
-            val context = binding.root.context
-            val dateAdapter = ArrayAdapter(context, android.R.layout.simple_spinner_item, dateOptions)
-            dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            binding.spinDateFilter.adapter = dateAdapter
-            binding.spinDateFilter.setSelection(dateOptions.indexOf("All"))
-
-            binding.spinDateFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-                override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                    val selectedFilter = parent.getItemAtPosition(position)?.toString() ?: "All"
-                    filterExpenses(selectedFilter, budget)
-                }
-
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            binding.progressWrapper.post {
+                updateCustomBar(spent, minGoal, maxGoal)
             }
         }
 
         private fun setupEditButton(budget: VbBudget) {
-            binding.btnEditBudget.setOnClickListener { view ->
-                val intent = Intent(view.context, EditBudget::class.java).apply {
+            binding.btnEditBudget.setOnClickListener {
+                val intent = Intent(binding.root.context, EditBudget::class.java).apply {
                     putExtra("budgetId", budget.id)
                 }
-                view.context.startActivity(intent)
+                binding.root.context.startActivity(intent)
             }
         }
 
         private fun setupDeleteButton(budget: VbBudget) {
             binding.btnDeleteBudget.setOnClickListener {
-                showDeleteConfirmationDialog(budget.id)
+                AlertDialog.Builder(binding.root.context)
+                    .setTitle("Delete Budget")
+                    .setMessage("Are you sure you want to delete this budget?")
+                    .setPositiveButton("Delete") { _, _ -> deleteBudget(budget.id) }
+                    .setNegativeButton("Cancel", null)
+                    .show()
             }
         }
 
-        private fun showDeleteConfirmationDialog(budgetId: Int) {
-            AlertDialog.Builder(binding.root.context)
-                .setTitle("Delete Budget")
-                .setMessage("Are you sure you want to delete this budget?")
-                .setPositiveButton("Delete") { _, _ -> deleteBudget(budgetId) }
-                .setNegativeButton("Cancel", null)
-                .show()
+        private fun deleteBudget(budgetId: String) {
+            db.collection("budgets").document(budgetId).delete()
+                .addOnSuccessListener {
+                    Toast.makeText(binding.root.context, "Budget deleted", Toast.LENGTH_SHORT).show()
+                    (binding.root.context as? ViewBudgets)?.fetchBudgets(filterHours) // Refresh with selected filter
+                }
+                .addOnFailureListener {
+                    Toast.makeText(binding.root.context, "Failed to delete", Toast.LENGTH_SHORT).show()
+                }
         }
 
-        private fun deleteBudget(budgetId: Int) {
-            val context = binding.root.context
-            val db = AppDatabase.getDatabase(context)
-            val budgetDao = db.budgetDao()
+        private fun setupBarChart(spentMap: Map<Category, Float>, budget: VbBudget) {
+            val barChart = binding.barChart as? com.github.mikephil.charting.charts.HorizontalBarChart ?: return
 
-            CoroutineScope(Dispatchers.IO).launch {
-                budgetDao.deleteBudgetById(budgetId)
-                withContext(Dispatchers.Main) {
-                    Toast.makeText(context, "Budget deleted successfully!", Toast.LENGTH_SHORT).show()
-                    (context as? ViewBudgets)?.fetchBudgets()
-                }
+            // Filter only nonzero amounts.
+            val filteredSpentMap = spentMap.filter { it.value > 0 }
+
+            // Handle empty state.
+            if (filteredSpentMap.isEmpty()) {
+                barChart.clear()
+                barChart.invalidate()
+                binding.barChart.visibility = View.GONE
+                binding.noDataMessage.visibility = View.VISIBLE
+                return
             }
-        }
 
-        private fun filterExpenses(selectedFilter: String, budget: VbBudget) {
-            val context = binding.root.context
-            val startTime = getStartTimeMillis(selectedFilter)
-            val userId = SessionManager.getUserId(context)
+            binding.barChart.visibility = View.VISIBLE
+            binding.noDataMessage.visibility = View.GONE
 
-            CoroutineScope(Dispatchers.IO).launch {
-                val db = AppDatabase.getDatabase(context)
-                val budgetWithCategories = db.budgetDao().getBudgetWithCategories(budget.id)
-                val budgetId = SessionManager.getSelectedBudgetId(context)
+            // Create bar chart entries from filtered data.
+            val entries = filteredSpentMap.entries.mapIndexed { index, entry ->
+                BarEntry(index.toFloat(), entry.value)
+            }
 
-                val spentAmounts = budgetWithCategories.categories.associateWith { category ->
-                    val totalSpent = db.expensesDao()
-                        .getTotalSpentInCategory(userId, category.name, budgetId, startTime) ?: 0f
-                    val totalIncome = db.incomeDao()
-                        .getTotalIncomeInCategory(userId, category.name, budgetId, startTime) ?: 0f
-                    maxOf(totalSpent - totalIncome, 0f)
+            val dataSet = BarDataSet(entries, "Spent").apply {
+                color = Color.BLUE
+                valueTextSize = 12f
+                setDrawValues(true)
+            }
+
+            val barData = BarData(dataSet).apply {
+                barWidth = 0.7f
+            }
+
+            // Configure bar chart properties.
+            barChart.apply {
+                clear() // Remove previous data.
+                data = barData
+                setFitBars(true)
+                description.isEnabled = false
+                legend.isEnabled = true
+                setDrawValueAboveBar(true)
+                setDrawBarShadow(false)
+                setTouchEnabled(false)
+
+                xAxis.apply {
+                    valueFormatter = IndexAxisValueFormatter(filteredSpentMap.keys.map { it.name })
+                    granularity = 1f
+                    labelCount = filteredSpentMap.size
+                    position = XAxis.XAxisPosition.BOTTOM
+                    setDrawGridLines(false)
+                    axisMinimum = -0.5f
+                    axisMaximum = filteredSpentMap.size - 0.5f
                 }
 
-                val totalFilteredSpent = spentAmounts.values.sum()
-                val progress = (totalFilteredSpent / budget.maxMonthGoal * 100).coerceIn(0f, 100f)
-
-                withContext(Dispatchers.Main) {
-                    // ✅ Update pie chart
-                    setupPieChart(spentAmounts)
-
-                    // ✅ Update progress bar
-                    binding.progressBar.progress = progress.toInt()
-
-                    // ✅ Optional: show toast if nothing in that period
-                    if (totalFilteredSpent == 0f) {
-                        Toast.makeText(context, "No transactions found for '$selectedFilter'", Toast.LENGTH_SHORT).show()
+                axisLeft.apply {
+                    removeAllLimitLines()
+                    val minLimit = LimitLine(budget.minMonthGoal.toFloat(), "Min").apply {
+                        lineColor = Color.GREEN
+                        lineWidth = 2f
                     }
+                    addLimitLine(minLimit)
 
-                    Log.d("DEBUG", "Filtered Pie Chart + Progress Updated for: $selectedFilter")
+                    val maxLimit = LimitLine(budget.maxMonthGoal.toFloat(), "Max").apply {
+                        lineColor = Color.RED
+                        lineWidth = 2f
+                    }
+                    addLimitLine(maxLimit)
+
+                    axisMinimum = 0f
+                    axisMaximum = maxOf(budget.maxMonthGoal.toFloat(), filteredSpentMap.values.maxOrNull() ?: 0f) * 1.1f
+
+                    setDrawGridLines(true)
+                    enableGridDashedLine(10f, 10f, 0f)
                 }
+
+                axisRight.isEnabled = false
+
+                animateY(1000) // Smooth update animation.
+                notifyDataSetChanged()
+                invalidate()
             }
         }
 
-        private fun getStartTimeMillis(filter: String): Long {
-            val calendar = Calendar.getInstance()
-            when (filter) {
-                "Last Minute" -> calendar.add(Calendar.MINUTE, -1)
-                "Last 3 Minutes" -> calendar.add(Calendar.MINUTE, -3)
-                "Last Hour" -> calendar.add(Calendar.HOUR, -1)
-                "Last 12 Hours" -> calendar.add(Calendar.HOUR, -12)
-                "Today" -> {
-                    calendar.set(Calendar.HOUR_OF_DAY, 0)
-                    calendar.set(Calendar.MINUTE, 0)
-                    calendar.set(Calendar.SECOND, 0)
-                }
-                "Week" -> calendar.add(Calendar.DAY_OF_YEAR, -7)
-                "Month" -> calendar.add(Calendar.MONTH, -1)
-                "Year" -> calendar.add(Calendar.YEAR, -1)
-                "All" -> return 0L
+        private fun updateCustomBar(spent: Float, min: Float, max: Float) {
+            val wrapper = binding.progressWrapper
+            val bar = binding.actualSpendingBar
+            val minLine = binding.minLine
+            val maxLine = binding.maxLine
+            val minLabel = binding.minLabel
+            val maxLabel = binding.maxLabel
+            val statusText = binding.statusText
+
+            val wrapperWidth = wrapper.width.takeIf { it > 0 } ?: wrapper.measuredWidth
+            if (wrapperWidth <= 0) return
+
+            val scaleFactor = 1.2f
+            val visualMax = max * scaleFactor
+
+            val barPercentage = (spent / visualMax).coerceIn(0f, 1f)
+            val barWidth = (wrapperWidth * barPercentage).toInt()
+            val minPosition = (wrapperWidth * (min / visualMax)).toInt()
+            val maxPosition = (wrapperWidth * (max / visualMax)).toInt()
+
+            bar.layoutParams.width = barWidth
+            bar.requestLayout()
+
+            minLine.translationX = minPosition.toFloat()
+            maxLine.translationX = maxPosition.toFloat()
+
+            maxLabel.post {
+                maxLabel.translationX = maxPosition.toFloat() - (maxLabel.width / 2)
             }
-            return calendar.timeInMillis
+            minLabel.post {
+                minLabel.translationX = minPosition.toFloat() - (minLabel.width / 2)
+            }
+
+            minLabel.text = "R${"%.2f".format(min)}"
+            maxLabel.text = "R${"%.2f".format(max)}"
+
+            val gradient = GradientDrawable(
+                GradientDrawable.Orientation.LEFT_RIGHT,
+                when {
+                    spent < min -> intArrayOf(0xFFFFF176.toInt(), 0xFFFFEB3B.toInt()) // Below goal.
+                    spent <= max -> intArrayOf(0xFF81C784.toInt(), 0xFF4CAF50.toInt()) // Within goal.
+                    else -> intArrayOf(0xFFE57373.toInt(), 0xFFF44336.toInt()) // Over goal.
+                }
+            )
+            gradient.cornerRadius = bar.height / 2f
+            bar.background = gradient
+
+            statusText.text = when {
+                spent < min -> "Status: Below Goal"
+                spent <= max -> "Status: Within Goal"
+                else -> "Status: Over Goal"
+            }
         }
     }
 
@@ -196,9 +225,9 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         val binding = ItemBudgetBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BudgetViewHolder(binding)
     }
-
+    
     override fun onBindViewHolder(holder: BudgetViewHolder, position: Int) {
-        holder.bind(budgetList[position])
+        holder.bind(budgetList[position]) // ✅ Ensure filtering applies dynamically
     }
 
     override fun getItemCount(): Int = budgetList.size
@@ -208,11 +237,3 @@ class BudgetAdapter(private var budgetList: List<VbBudget>) :
         notifyDataSetChanged()
     }
 }
-// (W3Schools,2025)
-
-/*
-Reference List:
-W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
-https://www.w3schools.com/kotlin/index.php  [Accessed 20 April 2025].
- */
-

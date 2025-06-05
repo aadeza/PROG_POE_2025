@@ -4,39 +4,37 @@ import android.content.Context
 
 object SessionManager {
     private const val PREF_NAME = "UserPrefs"
-    private const val KEY_USER_ID = "user_id"
-    private const val KEY_BUDGET_ID = "budget_id" // Added Budget ID key
+    private const val KEY_USER_ID = "firebase_user_id" // Changed key name for clarity
+    private const val KEY_BUDGET_ID = "budget_id"
 
-    // Save User ID to SharedPreferences
-    fun saveUserId(context: Context, userId: Int) {
+    // Save Firebase User ID to SharedPreferences
+    fun saveUserId(context: Context, userId: String) { // Changed userId type to String
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putInt(KEY_USER_ID, userId).apply()
+        prefs.edit().putString(KEY_USER_ID, userId).apply() // Using putString
     }
 
-    // Retrieve User ID from SharedPreferences
-    fun getUserId(context: Context): Int {
+    // Retrieve Firebase User ID from SharedPreferences
+    fun getUserId(context: Context): String? { // Changed return type to String?
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_USER_ID, -1) // Default value is -1 if no user_id is found
+        return prefs.getString(KEY_USER_ID, null) // Using getString, default to null
     }
 
-    // Clear User ID on logout
+    // Clear Firebase User ID on logout
     fun clearUserId(context: Context) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
         prefs.edit().remove(KEY_USER_ID).apply()
     }
 
-    // Save Selected Budget ID to SharedPreferences
-    fun saveSelectedBudgetId(context: Context, budgetId: Int) {
+    fun saveSelectedBudgetId(context: Context, budgetId: String) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putInt(KEY_BUDGET_ID, budgetId).apply()
+        prefs.edit().putString(KEY_BUDGET_ID, budgetId).apply() // 🔹 Ensure it's a String
     }
 
-    // Retrieve Selected Budget ID from SharedPreferences
-    fun getSelectedBudgetId(context: Context): Int {
+    // Retrieve Selected Budget ID from SharedPreferences (remains Int)
+    fun getSelectedBudgetId(context: Context): String? {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        return prefs.getInt(KEY_BUDGET_ID, -1) // Default value is -1 if no budget_id is found
+        return prefs.getString(KEY_BUDGET_ID, null) // Null if no budget selected
     }
-
     // Clear Selected Budget ID when needed
     fun clearSelectedBudgetId(context: Context) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)

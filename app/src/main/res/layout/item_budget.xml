@@ -23,55 +23,111 @@
             android:textStyle="bold"
             android:textSize="18sp" />
 
-        <!-- Pie Chart -->
-        <com.github.mikephil.charting.charts.PieChart
-            android:id="@+id/pieChart"
+
+        <!-- Budget Range -->
+        <TextView
+            android:id="@+id/budgetRange"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Budget Range: R0.00 - R0.00"
+            android:textSize="16sp"
+            android:layout_marginTop="8dp"/>
+
+        <!-- Horizontal Bar Chart -->
+        <com.github.mikephil.charting.charts.HorizontalBarChart
+            android:id="@+id/barChart"
             android:layout_width="match_parent"
             android:layout_height="200dp"
             android:layout_marginTop="10dp" />
 
         <TextView
-            android:id="@+id/maxBudgetGoal"
-            android:layout_width="wrap_content"
+            android:id="@+id/noDataMessage"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Max Budget Goal: R0.00"
+            android:text="No data available"
+            android:gravity="center"
+            android:visibility="gone"
             android:textSize="16sp"
-            android:layout_marginTop="8dp"/>
-
-
-
-       <!-- <TextView
-            android:id="@+id/remainingAmount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remaining: R0.00"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"/> -->
-
-
-        <!--
-        <TextView
-            android:id="@+id/txtSpent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Spent: R0.00"
-            android:textSize="14sp"
-            android:layout_marginTop="6dp"/>-->
+            android:textColor="@android:color/darker_gray"/>
 
         <!-- Progress Bar -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.DeviceDefault.Light.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="10dp"
-            android:layout_marginTop="10dp"
-            android:max="100"/>
-
-        <Spinner
-            android:id="@+id/spinDateFilter"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"/>
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical">
+
+            <!-- Progress Bar Wrapper -->
+            <FrameLayout
+                android:id="@+id/progressWrapper"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:background="@drawable/bar_shape">
+
+                <View
+                    android:id="@+id/actualSpendingBar"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bar_shape" />
+
+                <View
+                    android:id="@+id/minLine"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/green"
+                    android:layout_gravity="start" />
+
+                <View
+                    android:id="@+id/maxLine"
+                    android:layout_width="2dp"
+                    android:layout_height="match_parent"
+                    android:background="@color/red"
+                    android:visibility="visible"
+                />
+
+
+            </FrameLayout>
+
+            <!-- Labels for Min and Max -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/minLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Min"
+                    android:textSize="12sp"
+                    android:textColor="@color/green"
+                    android:textStyle="bold"
+                    android:layout_gravity="start"
+                    android:translationX="0dp" />
+
+                <TextView
+                    android:id="@+id/maxLabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Max"
+                    android:textStyle="bold"
+                   android:textColor="@color/red"
+                    android:textSize="12sp"
+                    android:translationX="0dp" />
+            </FrameLayout>
+
+            <!-- Spending status text -->
+            <TextView
+                android:id="@+id/statusText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:layout_marginTop="4dp"
+                android:textStyle="bold"
+                android:textSize="14sp"/>
+        </LinearLayout>
+
+
 
         <!-- Edit Budget Button -->
         <Button

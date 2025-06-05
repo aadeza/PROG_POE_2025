@@ -12,6 +12,7 @@ open class spTransaction(
     open val isExpense: Boolean
 )
 
+
 // (W3Schools,2025)
 
 /*

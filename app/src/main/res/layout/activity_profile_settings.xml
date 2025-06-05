@@ -1,74 +1,149 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/background_theme">
+    android:background="@drawable/bckgrnd3"
+    android:orientation="vertical"
+    tools:context=".Register">
 
     <LinearLayout
-        android:id="@+id/profile_settings_root"
+        android:layout_margin="14dp"
         android:orientation="vertical"
-        android:padding="20dp"
-        android:gravity="center"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/imgProfilePicture"
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:src="@drawable/ic_person"
-            android:scaleType="centerCrop"
-            android:background="@drawable/circle_background"
-            android:clickable="true"
-            android:focusable="true"/>
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:visibility="gone"
+            android:layout_gravity="center" />
+
+        <!-- User Info Fields -->
+        <EditText
+            android:id="@+id/edtName"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="28dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/reg_name_hint"
+            android:inputType="text"
+            android:padding="8dp"
+            android:textColor="#999090"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
 
         <EditText
-            android:id="@+id/edtUsername"
-            android:hint="Username"
+            android:id="@+id/edtSurname"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
             android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/reg_surname_hint"
+            android:inputType="text"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
 
         <EditText
-            android:id="@+id/edtEmail"
-            android:hint="Email"
-            android:layout_marginTop="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-        <Button
-            android:id="@+id/btnSaveChanges"
-            android:text="Save Changes"
+            android:id="@+id/edtPhoneNum"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
             android:layout_marginTop="20dp"
-            android:background="@drawable/rounded_corner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/reg_phone_hint"
+            android:inputType="phone"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
 
-        <Button
-            android:id="@+id/btnChangePassword"
-            android:layout_marginTop="8dp"
-            android:layout_width="match_parent"
+        <EditText
+            android:id="@+id/edtEmailAddress"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/email_hint"
+            android:inputType="textEmailAddress"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:enabled="false"
+            android:focusable="false"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
+
+        <!-- Divider / Label -->
+
+
+        <!-- New Password Fields -->
+        <EditText
+            android:id="@+id/edtRegPassword"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/reg_password_hint"
+            android:inputType="textPassword"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
+
+        <EditText
+            android:id="@+id/edtConfirmPassword"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="@string/reg_password_confirm_hint"
+            android:inputType="textPassword"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal"
+            tools:ignore="Autofill" />
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="To update your info, please confirm your current password:"
+            android:textColor="#546E7A"
+            android:textSize="14sp"
+            android:layout_marginTop="24dp"
+            android:layout_marginBottom="4dp"
+            android:layout_gravity="center_horizontal"/>
 
-            android:background="@drawable/rounded_corner"
-            android:text="Change Password"/>
-
+        <!-- Current Password -->
+        <EditText
+            android:id="@+id/edtCurrentPassword"
+            android:layout_width="380dp"
+            android:layout_height="56dp"
+            android:background="@drawable/round"
+            android:backgroundTint="#f6f6f6"
+            android:hint="Current Password"
+            android:inputType="textPassword"
+            android:padding="8dp"
+            android:textColorHint="#546E7A"
+            android:layout_gravity="center_horizontal" />
 
         <Button
-            android:id="@+id/btnLogout"
-            android:text="Logout"
-            android:layout_marginTop="8dp"
-
-            android:background="@drawable/rounded_corner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
+            android:id="@+id/btnDoneReg"
+            android:layout_width="285dp"
+            android:layout_height="59dp"
+            android:layout_marginTop="24dp"
+            android:layout_gravity="center_horizontal"
+            android:text="@string/reg_button_text" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
-
-    <!--(GeeksForGeeks,2022)-->
-
-    <!--Reference List
-    GeeksForGeeks, 2022. A Complete Guide to Learn XML For Android App Development, n.d. [Online]. Available at:
-    https://www.geeksforgeeks.org/a-complete-guide-to-learn-xml-for-android-app-development/ [Accessed 19 April 2025].
-    -->
+</LinearLayout>
