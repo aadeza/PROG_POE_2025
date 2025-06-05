@@ -83,3 +83,13 @@ class CategoryAdapter(
         notifyDataSetChanged()
     }
 }
+
+/**
+ * Source: https://developer.android.com/guide/topics/ui/layout/recyclerview
+ * Author: Android Developers (Google)
+ * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * Adapted by: Ade-Eza Silongo or Pennywise
+ * Purpose: Implements a RecyclerView Adapter to bind data to list items in a RecyclerView
+ * Modifications:
+ * - Customized ViewHolder for specific item layout
+ */

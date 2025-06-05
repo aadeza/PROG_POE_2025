@@ -114,7 +114,7 @@ class Settings : AppCompatActivity() {
 
     private fun scheduleNotificationWorker(context: Context, frequencyKey: String) {
         val interval = when (frequencyKey) {
-            "1_min" -> 15L to TimeUnit.MINUTES  // Min value for PeriodicWorkRequest
+            "1_min" -> 15L to TimeUnit.MINUTES
             "6_hr" -> 6L to TimeUnit.HOURS
             "12_hr" -> 12L to TimeUnit.HOURS
             "24_hr" -> 24L to TimeUnit.HOURS

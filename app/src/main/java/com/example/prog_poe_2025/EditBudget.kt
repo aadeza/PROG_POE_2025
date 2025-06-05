@@ -143,6 +143,16 @@ class EditBudget : AppCompatActivity() {
         }
     }
 
+    /**
+     * Source: https://firebase.google.com/docs/firestore/manage-data/add-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Ade-Eza Silongo for Pennywise
+     * Purpose: Saves data to Firebase Firestore database
+     * Modifications:
+     * - Wrapped data saving in Kotlin coroutine for asynchronous operation
+     * - Added custom error handling
+     */
     private fun updateBudget() {
         val budgetNameText = budgetName.text.toString()
         val budgetTypeText = budgetTypeCat.selectedItem.toString()
@@ -207,9 +217,3 @@ class EditBudget : AppCompatActivity() {
             }
     }
 }
-//(W3Schools,2205)
-
-/*Reference List
-W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
-https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
-*/

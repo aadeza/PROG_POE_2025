@@ -80,9 +80,7 @@ class CategoryViewModel(application: Application) : AndroidViewModel(application
 
         return snapshot.documents.mapNotNull { it.toObject(Category::class.java) }
     }
-}
-
-//Medium(2023)
+} //Medium(2023)
 
 
 /*References List

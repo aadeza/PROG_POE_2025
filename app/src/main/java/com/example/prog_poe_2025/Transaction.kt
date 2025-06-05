@@ -10,10 +10,7 @@ open class spTransaction(
     open val user_id: Int,
     open val budgetId: Int,
     open val isExpense: Boolean
-)
-
-
-// (W3Schools,2025)
+) // (W3Schools,2025)
 
 /*
 Reference List:

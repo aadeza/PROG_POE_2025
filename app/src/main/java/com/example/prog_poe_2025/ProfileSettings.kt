@@ -166,4 +166,15 @@ class ProfileSettings : AppCompatActivity() {
             }
     }
 }
+/**
+ * Source: https://www.geeksforgeeks.org/implementing-edit-profile-data-functionality-in-social-media-android-app/
+ * Author: GeeksforGeeks
+ * License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+ * Adapted by: Reaobaka Ntoagae for Pennywise
+ * Purpose: Enables users to edit their profile information, including name, email, and profile picture
+ * Modifications:
+ * - Converted original Java code to Kotlin
+ * - Integrated with Firebase Firestore for real-time data updates
+ * - Enhanced UI/UX with Material Design components
+ */
 

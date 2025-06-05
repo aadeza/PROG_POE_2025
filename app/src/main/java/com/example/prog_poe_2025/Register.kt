@@ -70,12 +70,6 @@ class Register : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // You generally don't hash passwords when using Firebase Auth's email/password method
-            // as Firebase handles the hashing securely.
-            // If PasswordUtils.hashPassword is used for other purposes (e.g., local only, or a custom auth system),
-            // you might keep it, but for standard Firebase Auth, it's not needed for the password being sent.
-            // For storing extra user data like the name, surname, number, you can use the original values.
-
             // --- Firebase Registration ---
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
@@ -91,10 +85,7 @@ class Register : AppCompatActivity() {
                                 "surname" to surname,
                                 "email" to email, // Store email again for easier queries if needed, though Auth also has it
                                 "number" to number,
-                                // You might not want to store the password hash here if Firebase Auth manages it.
-                                // If `PasswordUtils.hashPassword` is used for something else, include it here.
-                                // For now, let's assume it's removed for standard auth.
-                                // "hashedPassword" to hashedPassword // Removed for standard Firebase Auth flow
+
                             )
 
                             db.collection("users") // Use a collection named "users"
@@ -108,7 +99,6 @@ class Register : AppCompatActivity() {
                                 }
                                 .addOnFailureListener { e ->
                                     Toast.makeText(this, "Registration successful, but failed to save details: ${e.message}", Toast.LENGTH_LONG).show()
-                                    // Consider logging out the user if detail saving fails to avoid inconsistent state
                                     auth.currentUser?.delete() // Delete the user from Auth if details can't be saved
                                 }
                         } else {
@@ -130,9 +120,3 @@ class Register : AppCompatActivity() {
         return number.matches("^0\\d{9}$".toRegex())
     }
 }
-//(W3Schools,2025)
-
-/*Reference List
-W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
-https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
-*/

@@ -72,10 +72,12 @@ class ReportDiffCallback(
         return oldList[oldItemPosition] == newList[newItemPosition]
     }
 }
-// (W3Schools,2025)
-
-/*
-Reference List:
-W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
-https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
+/**
+ * Source: https://developer.android.com/guide/topics/ui/layout/recyclerview
+ * Author: Android Developers (Google)
+ * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * Adapted by: Ade-Eza & Lusanda or Pennywise
+ * Purpose: Implements a RecyclerView Adapter to bind data to list items in a RecyclerView
+ * Modifications:
+ * - Customized ViewHolder for specific item layout
  */

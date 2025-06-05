@@ -33,6 +33,15 @@
             android:textSize="16sp"
             android:layout_marginTop="8dp"/>
 
+        <!--
+            Source: https://github.com/PhilJay/MPAndroidChart/blob/master/MPChartExample/src/main/res/layout/activity_barchart.xml
+            Author: PhilJay (GitHub)
+            License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+            Adapted by: Lusanda Mlotshwa for Pennywise
+            Purpose: Integrates a HorizontalBarChart from MPAndroidChart into the app's layout
+            Modifications:
+            - Adjusted layout size and margins
+        -->
         <!-- Horizontal Bar Chart -->
         <com.github.mikephil.charting.charts.HorizontalBarChart
             android:id="@+id/barChart"

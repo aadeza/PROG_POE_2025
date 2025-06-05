@@ -150,13 +150,3 @@ class TransactionViewModel : ViewModel() {
     }
 }
 
-//(Medium,2023)
-
-/*References List
-Svaghasiya, 2023. Using ViewModel in Android With Kotlin, 18 September 2023. [Online]. Available at:
-https://medium.com/@ssvaghasiya61/using-viewmodel-in-android-with-kotlin-16ca735c644f [Accessed 25 April 2025].
-*
-* */
-
-
-

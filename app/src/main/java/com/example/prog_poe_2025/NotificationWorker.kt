@@ -8,6 +8,7 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import java.util.concurrent.TimeUnit
 
+
 class NotificationWorker(context: Context, params: WorkerParameters) : Worker(context, params) {
 
     override fun doWork(): Result {
@@ -90,3 +91,13 @@ class NotificationWorker(context: Context, params: WorkerParameters) : Worker(co
         prefs.edit().putStringSet("notifications", updatedHistory.toSet()).apply()
     }
 }
+/**
+ * Source: https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work
+ * Author: Android Developers (Google)
+ * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * Adapted by: Reaobaka Ntoagae & Ade-Eza Silongo for Pennywise
+ * Purpose: Implements a Worker that creates and displays notifications in the background
+ * Modifications:
+ * - Customized notification content and channels
+ * - Added support for specific app notification logic
+ */

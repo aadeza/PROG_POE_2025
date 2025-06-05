@@ -171,6 +171,16 @@ class CreateBudget : AppCompatActivity() {
             .show()
     }
 
+    /**
+     * Source: https://firebase.google.com/docs/firestore/manage-data/add-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Ade-Eza Silongo for Pennywise
+     * Purpose: Saves data to Firebase Firestore database
+     * Modifications:
+     * - Wrapped data saving in Kotlin coroutine for asynchronous operation
+     * - Added custom error handling
+     */
     private fun createBudget(name: String, type: String, minGoal: Long, maxGoal: Long, categories: List<Category>) {
         val userId = SessionManager.getUserId(applicationContext)
 
@@ -201,18 +211,3 @@ class CreateBudget : AppCompatActivity() {
             }
     }
 }
-
-//(W3Schools,2025)
-
-/*References List
-Svaghasiya, 2023. Using ViewModel in Android With Kotlin, 18 September 2023. [Online]. Available at:
-https://medium.com/@ssvaghasiya61/using-viewmodel-in-android-with-kotlin-16ca735c644f [Accessed 25 April 2025].
-
-TutorialsPoint, 2025. Android- Date Picker, n.d. [Online]. Available at:
-https://www.tutorialspoint.com/android/android_datepicker_control.htm [Accessed 21 April 2025].
-[3]W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
-https://www.w3schools.com/kotlin/index.php [Accessed 25 April 2025].
-*/
-
-
-

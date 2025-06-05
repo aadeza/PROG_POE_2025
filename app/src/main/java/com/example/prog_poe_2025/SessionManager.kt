@@ -4,7 +4,7 @@ import android.content.Context
 
 object SessionManager {
     private const val PREF_NAME = "UserPrefs"
-    private const val KEY_USER_ID = "firebase_user_id" // Changed key name for clarity
+    private const val KEY_USER_ID = "firebase_user_id"
     private const val KEY_BUDGET_ID = "budget_id"
 
     // Save Firebase User ID to SharedPreferences
@@ -27,7 +27,7 @@ object SessionManager {
 
     fun saveSelectedBudgetId(context: Context, budgetId: String) {
         val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_BUDGET_ID, budgetId).apply() // 🔹 Ensure it's a String
+        prefs.edit().putString(KEY_BUDGET_ID, budgetId).apply()
     }
 
     // Retrieve Selected Budget ID from SharedPreferences (remains Int)
@@ -41,10 +41,3 @@ object SessionManager {
         prefs.edit().remove(KEY_BUDGET_ID).apply()
     }
 }
-// (W3Schools,2025)
-
-/*
-Reference List:
-W3Schools. 2025. Kotlin Tutorial, n.d.[Online]. Available at:
-https://www.w3schools.com/kotlin/index.php  [Accessed 24 April 2025].
- */

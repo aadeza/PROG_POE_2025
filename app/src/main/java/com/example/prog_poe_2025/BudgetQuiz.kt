@@ -252,6 +252,16 @@ class BudgetQuiz : AppCompatActivity() {
         saveQuizResultToFirestore(score, durationSeconds)
     }
 
+    /**
+     * Source: https://firebase.google.com/docs/firestore/manage-data/add-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Itumeleng Molawa for Pennywise
+     * Purpose: Saves data to Firebase Firestore database
+     * Modifications:
+     * - Wrapped data saving in Kotlin coroutine for asynchronous operation
+     * - Added custom error handling
+     */
     private fun saveQuizResultToFirestore(score: Int, durationSeconds: Long) {
         val user = SessionManager.getUserId(applicationContext)
 

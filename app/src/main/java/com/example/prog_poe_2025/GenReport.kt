@@ -246,6 +246,18 @@ class GenReport : AppCompatActivity() {
         }
     }
 
+    /**
+     * Source: https://firebase.google.com/docs/firestore/query-data/get-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Ade-Eza Silongo for Pennywise
+     * Purpose: Fetches user data from Firestore and updates the UI accordingly
+     * Modifications:
+     * - Added Kotlin coroutine support for asynchronous calls
+     * - Integrated with LiveData to observe data changes
+     * - Custom error handling and logging added
+     */
+
     private fun showTransactionsPopup() {
         val dialogView = LayoutInflater.from(this).inflate(R.layout.transaction_popup, null)
         val dialogBuilder = AlertDialog.Builder(this)
@@ -342,9 +354,4 @@ class GenReport : AppCompatActivity() {
         }
     }
 }
-//(W3Schools,2025)
 
-/*Reference List
-W3Schools, 2025. Kotlin Tutorial, n.d. [Online]. Available at:
-https://www.w3schools.com/kotlin/index.php [Accessed 19 April 2025].
-*/

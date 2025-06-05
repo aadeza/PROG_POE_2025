@@ -59,7 +59,16 @@ class Home : AppCompatActivity() {
             showNotificationPopup()
         }
     }
-
+    /**
+     * Source: https://firebase.google.com/docs/firestore/query-data/get-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Ade-Eza Silongo for Pennywise
+     * Purpose: Fetches user data from Firestore and updates the UI accordingly
+     * Modifications:
+     * - Added Kotlin coroutine support for asynchronous calls
+     * - Custom error handling and logging added
+     */
     private fun showNotificationPopup() {
         val prefs = getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val budgetEnabled = prefs.getBoolean("budget_notifications_enabled", false)
@@ -134,6 +143,7 @@ class Home : AppCompatActivity() {
             else -> 1 * 60 * 60 * 1000L  // 🔹 Default to 1 hour if invalid key
         }
     }
+
 
     private fun fetchTotals() {
         lifecycleScope.launch(Dispatchers.IO) {

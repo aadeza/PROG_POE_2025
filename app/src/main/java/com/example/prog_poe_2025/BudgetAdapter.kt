@@ -83,6 +83,17 @@ class BudgetAdapter(
                 }
         }
 
+        /**
+         * Source: https://stackoverflow.com/questions/77122975/how-can-i-draw-this-horizontal-bar-chart-in-android-with-kotlin
+         * Author: Stack Overflow user (question posted on Oct 2, 2023)
+         * License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+         * Adapted by: Lusanda Mlotshwa for Pennywise
+         * Purpose: Implements a horizontal bar chart using MPAndroidChart in Kotlin
+         * Modifications:
+         * - Customized bar colors and labels
+         * - Integrated dynamic data from Firebase Firestore
+         * - Adjusted chart styling and animations
+         */
         private fun setupBarChart(spentMap: Map<Category, Float>, budget: VbBudget) {
             val barChart = binding.barChart as? com.github.mikephil.charting.charts.HorizontalBarChart ?: return
 
@@ -166,6 +177,18 @@ class BudgetAdapter(
             }
         }
 
+        /**
+         * Source: https://gist.github.com/DerTyp7214/85676a4acffe138870e8258d7d830826
+         * Author: DerTyp7214 (GitHub)
+         * License: MIT License (https://opensource.org/licenses/MIT)
+         * Adapted by: Reaobaka Ntoagae for Pennywise
+         * Purpose: Implements a custom horizontal progress bar with color customization
+         * Modifications:
+         * - Adjusted height and width parameters for specific UI requirements
+         * - Populated with data from Firebase
+         * - Customized color filters to match the application's theme
+         * - Customized fill colors for different budget statuses
+         */
         private fun updateCustomBar(spent: Float, min: Float, max: Float) {
             val wrapper = binding.progressWrapper
             val bar = binding.actualSpendingBar
@@ -237,3 +260,12 @@ class BudgetAdapter(
         notifyDataSetChanged()
     }
 }
+/**
+ * Source: https://developer.android.com/guide/topics/ui/layout/recyclerview
+ * Author: Android Developers (Google)
+ * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+ * Adapted by: Ade-Eza, Reaobaka & Lusanda or Pennywise
+ * Purpose: Implements a RecyclerView Adapter to bind data to list items in a RecyclerView
+ * Modifications:
+ * - Customized ViewHolder for specific item layout
+ */

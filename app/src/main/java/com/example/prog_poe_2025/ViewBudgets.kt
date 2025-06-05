@@ -122,6 +122,18 @@ class ViewBudgets : AppCompatActivity() {
             }
         }
     }
+
+    /**
+     * Source: https://firebase.google.com/docs/firestore/query-data/get-data
+     * Author: Firebase Documentation (Google)
+     * License: Apache License 2.0 (https://www.apache.org/licenses/LICENSE-2.0)
+     * Adapted by: Ade-Eza Silongo, Lusanda Mlotshwa and Reaobaka Ntoagae for Pennywise
+     * Purpose: Fetches user data from Firestore and updates the UI accordingly
+     * Modifications:
+     * - Added Kotlin coroutine support for asynchronous calls
+     * - Integrated with LiveData to observe data changes
+     * - Custom error handling and logging added
+     */
     fun fetchBudgets(timeFilterHours: Int = 24) { // 🔹 Default to last 24 hours if no filter is provided
         val userId = SessionManager.getUserId(applicationContext)
         Log.d("DEBUG", "User ID from SessionManager: $userId")
