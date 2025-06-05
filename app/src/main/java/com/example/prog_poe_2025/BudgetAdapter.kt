@@ -225,7 +225,7 @@ class BudgetAdapter(
         val binding = ItemBudgetBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BudgetViewHolder(binding)
     }
-
+    
     override fun onBindViewHolder(holder: BudgetViewHolder, position: Int) {
         holder.bind(budgetList[position]) // ✅ Ensure filtering applies dynamically
     }
