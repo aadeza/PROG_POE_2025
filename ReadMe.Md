@@ -50,4 +50,4 @@ This feature is used for educating users by presenting them with randomized fina
 2. Smart Visual Feedback (Progress Bars)
 This feature is used for helping users understand their financial performance visually. Colored progress bars give instant feedback on how close they are to exceeding or meeting goals, motivating corrective actions.
 
-
+YouTube video link: https://youtu.be/QvAx7np2zYQ?si=D53UGvs43KsdtBPw
