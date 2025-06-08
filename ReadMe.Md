@@ -1,53 +1,125 @@
-# PROG_POE_2025
+📱 PennyWise 
+A comprehensive, user-friendly budgeting app built for the PROG7313 Portfolio of Evidence.
 
-A budgeting app designed to help users **track expenses, manage income, and monitor financial goals** efficiently.
+🌟 Purpose
+PennyWise is designed to empower users to take control of their finances by simplifying the budgeting process. It helps users visualize spending, maintain control over monthly goals, and develop better money habits using interactive tools like financial quizzes, progress feedback, and smart notifications.
 
-##  Features
-- **Budget Creation** – Set monthly spending limits and track progress.
-- **Expense & Income Logging** – Record transactions and categorize them.
-- **Bar Chart Analysis** – Visualize spending breakdowns by category.
-- **Custom Date Filters** – Use "Last Minute," "Last Hour," or other presets for transaction history.
-- **GitHub Actions CI/CD** – Automated testing on every push.
-- **Quiz Feature** – Engage users with financial knowledge quizzes.
+🧠 Core Features
+Feature	Description
+🔐 Secure Login	Firebase Authentication ensures users can securely register and log in.
+🏷️ Custom Categories	Create personalized categories for expenses like Groceries, Rent, etc.
+💸 Expense Logging	Record amount, date, description, category, and optional receipt photo.
+🎯 Budget Goals	Set monthly goals per category (min & max) to maintain financial discipline.
+📆 History Filtering	View past expenses across selected time periods for easier auditing.
+📊 Bar Graph Insights	Visualize category spending vs. goals with color-coded bars and limits.
+🧩 Gamified Quiz	Interactive financial quiz (Optional Feature) stored in Firestore to promote money literacy.
+🔔 Notification Center	(Optional Feature) Real-time reminders and feedback fetched from Firebase Cloud Messaging.
+⚙️ Settings Screen	(Optional Feature) – Manage profile, toggle notifications, and log out.
+☁️ Cloud Syncing	Firebase Firestore stores user data, accessible across multiple devices.
+📱 Mobile-First Design	Designed for a smooth and responsive Android experience.
 
-## 🔧 Installation
-1. **Clone the repository**:
-   ```sh
-   git clone https://github.com/your-username/PROG_POE_2025.git
+🚀 Innovative Features
 
-Youtube video:
-https://www.youtube.com/watch?v=n-obg_rxzGg
+🎓 1. Gamified Financial Quiz
+Randomized quiz pulled from Firestore.
+Scores saved per user for ongoing tracking.
+Boosts user engagement & financial awareness.
 
-PennyWise – Final PoE App
+🔔 2. Notification System
+Firebase Cloud Messaging used for real-time alerts.
+Reminds users to log expenses, try quizzes, or avoid overspending.
 
-PennyWise is a mobile budgeting app developed for the PROG7313 Portfolio of Evidence. It helps users track expenses, manage financial goals, and improve money habits through engaging features like interactive graphs, quizzes, and smart notifications. This document outlines the app's functionality, Firebase integration, version control practices, and original features as per the project rubric.
+⚙️ 3. Advanced Settings Panel
+Not part of the original rubric – added by developers.
+Lets users:
+Update profile info
+Log out securely
+Manage app notification preferences
+Enhances user control and experience with a clean UI.
 
-App Purpose:
+📱 How to Use PennyWise
+Register or Login
+Create an account or log in securely using Firebase Auth.
 
-This app is used for empowering users to take control of their personal finances by providing tools that simplify budgeting, visualize spending, and gamify financial awareness. It combines real-time data management with a user-friendly interface to enhance daily money decisions.
+Set Up Categories
+Create or select spending categories like Food, Rent, or Transport.
+
+Add Transactions
+Log expenses or income by providing amount, category, and optional receipt photo.
+
+Set Budget Goals
+Define min/max limits for each category per month.
+
+Track Your Spending
+Use the dashboard, graphs, and colored progress bars to monitor financial health.
+
+Stay Informed
+Check the Notification tab for reminders or activity alerts.
+
+Learn & Earn
+Take financial literacy quizzes to boost your budgeting IQ.
+
+Adjust Settings
+Customize your preferences anytime in the optional Settings screen.
+
+🛠️ Development Stack
+Language: Kotlin
+Platform: Android
+Database: Firebase Firestore
+Auth: Firebase Authentication
+Storage: Firebase Storage (for receipt images)
+Notifications: Firebase Cloud Messaging
+CI/CD: GitHub Actions
+
+🧑‍💻 GitHub & GitHub Actions
+📂 Version Control
+The PennyWise team utilized GitHub for:
+Branching strategies
+Merge reviews and collaboration
+Issue tracking for features and bugs
+
+🔄 GitHub Actions
+CI/CD is automated using GitHub Actions
+Every push runs unit and UI tests
+Build status shown directly on PRs
+Ensures stable deployments
+yaml
+Copy
+Edit
+name: Android CI
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+    - name: Build with Gradle
+      run: ./gradlew build
+📷 Suggested Images to Include
+Image Purpose	File Name Suggestion	Description
+App Banner	banner.png	Clean image with app name + slogan
+Dashboard Screenshot	dashboard.png	Show bar graphs with colored progress indicators
+Quiz in Action	quiz.png	One or two questions with options and score UI
+Notifications Page	notifications.png	Show notification reminders or updates
+Expense Logging Screen	add_expense.png	Form where user logs a new transaction
+Settings Screen	settings.png	UI showing notification toggles, update profile, and logout options
+GitHub Actions Workflow UI	ci_cd_github_actions.png	Screenshot of GitHub Actions build status or YAML workflow in action
+
+📺 Demo Video
+Watch the app in action on YouTube:
+https://youtu.be/QvAx7np2zYQ
+
+📌 Contributors
+Ade-Eza 
+Reaobaka 
+Itumeleng
+Lusanda
 
 
-Key Features:
 
-User Login (Firebase Auth)- This is used for allowing users to securely register and sign in using Firebase Authentication, ensuring data privacy and session management. 
-Category Creation- This is used for letting users create expense categories (e.g., Groceries, Rent), which helps organize spending. 
-Expense Logging- This is used for recording expenses with details like date, description, amount, category, and an optional receipt photo. 
-Monthly Goals- This is used for setting and tracking minimum and maximum spending goals per category to encourage disciplined budgeting. 
-Expense History- This is used for viewing all logged expenses during a selected period, making it easy to track and audit past spending. 
-Horizontal Bar Graph- This is used for visualizing the amount spent per category, with minimum and maximum goals represented as horizontal limit lines. 
-Smart Progress Bars- This is used for comparing actual spending against set goals using dynamic colors: below min, within range, over max. 
-Notifications Tab- This is used for showing real-time updates and reminders, such as new expenses or quiz results, fetched from Firebase. 
-Financial Quiz (Gamified)- This is used for promoting financial literacy through interactive quizzes, with scores stored per user in Firestore. 
-Settings Screen- This is used for letting users configure notification preferences, update profile info, and log out of the app. 
-Firebase Firestore Integration- This is used for storing and syncing user data online so it can be accessed across multiple devices. 
-Mobile Deployment- This is used for running the app on a real Android device to demonstrate practical usability and mobile-first design. 
-
-Own Innovative Features:
-
- 1. Financial Literacy Quiz
-This feature is used for educating users by presenting them with randomized financial knowledge questions from Firebase. It also stores their quiz history and score to promote continuous learning.
-
-2. Smart Visual Feedback (Progress Bars)
-This feature is used for helping users understand their financial performance visually. Colored progress bars give instant feedback on how close they are to exceeding or meeting goals, motivating corrective actions.
-
-YouTube video link: https://youtu.be/QvAx7np2zYQ?si=D53UGvs43KsdtBPw
